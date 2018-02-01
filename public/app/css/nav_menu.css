@@ -1,0 +1,217 @@
+.menu{
+    display: block;
+    right: 0;
+    left: 0;
+}
+
+.menu li{display: inline-block;
+    position:relative;
+    z-index:100;
+}
+
+.menu li a {font-weight:600;
+    text-decoration:none;
+    padding:11px;
+    display:block;
+    color:#ffffff;
+    /*width:160px; /* previously 150px; fixed width or according to content */
+
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+}
+
+/* hide the second level menu */
+.menu ul {display: none;
+    margin: 0;
+    padding: 0;
+    width: 150px;
+    position: absolute;
+    top: 42px;
+    left: 0;
+    background: #ffffff;
+}
+
+/* display second level menu on hover */
+.menu li:hover > ul{ display: block;}
+
+.menu ul li {display:block;
+    float: none;
+    background:none;
+    margin:0;
+    padding:0;
+}
+
+.menu ul li a {font-size:12px;
+    font-weight:normal;
+    display:block;
+    color:#393939;
+    border-left:3px solid #ddd;
+    background:#ddd;}
+
+.menu ul li a:hover, .menu ul li:hover > a{
+    background:#f0f0f0;
+    color:#111;
+}
+
+/* change level 3 menu positions */
+.menu ul ul {
+    left: 149px;
+    top: 0;
+}
+
+/* custom navigation bar colors */
+.navgreen{
+    background:#042f28; /* #06463c */
+}
+.navgreen li a {
+    background:#042f28; /* #06463c */
+}
+.navgreen li a:hover, .navgreen li:hover > a{color:#ffffff;
+    background: #0c8d79;}
+.navgreen ul li a:hover, .navgreen ul li:hover > a{
+    border-left:3px solid #0c8d79;
+}
+
+.navred{
+    background:#cc0000;
+}
+.navred li a {
+    background:#cc0000;
+}
+.navred li a:hover, .navred li:hover > a{color:#ffffff;
+    background:#f53d3d;}
+.navred ul li a:hover, .navred ul li:hover > a{
+    border-left:3px solid #f53d3d;
+}
+
+.navblue{
+    background:#006dcc;
+}
+.navblue li a {
+    background:#006dcc;
+}
+.navblue li a:hover, .navblue li:hover > a{color:#ffffff;
+    background:#429ff0;}
+.navblue ul li a:hover, .navblue ul li:hover > a{
+    border-left:3px solid #429ff0;
+}
+
+.navgray{
+    background:#333;
+}
+.navgray li a {
+    background:#333;
+}
+.navgray li a:hover, .navgray li:hover > a{color:#ffffff;
+    background:#9CA3DA;}
+.navgray ul li a:hover, .navgray ul li:hover > a{
+    border-left:3px solid #9CA3DA;
+}
+
+.navorange{
+    background:#a4660e;
+}
+.navorange li a {
+    background:#a4660e;
+}
+.navorange li a:hover, .navorange li:hover > a{color:#ffffff;
+    background:#d38312;}
+.navorange ul li a:hover, .navorange ul li:hover > a{
+    border-left:3px solid #d38312;
+}
+
+.navpurple{
+    background:#371d49;
+}
+.navpurple li a {
+    background:#371d49;
+}
+.navpurple li a:hover, .navpurple li:hover > a{color:#ffffff;
+    background:#794b9b;}
+.navpurple ul li a:hover, .navpurple ul li:hover > a{
+    border-left:3px solid #794b9b;
+}
+
+/* custom dropdown colors */
+.dropdown-menu-prim {
+    background-color: #cdd9e4;
+}
+
+.dropdown-menu-prim > li > a {
+    display: inline-block;
+    width: 170px;
+    color: black;
+    white-space: normal; /* Set content to a second line */
+}
+
+.dropdown-menu-prim > li > a:hover {
+    background-color: #194369;
+    color: white;
+}
+
+.dropdown-menu-dang {
+    background-color: #dbbdbd;
+}
+
+.dropdown-menu-dang > li > a {
+    display: inline-block;
+    width: 160px;
+    color: black;
+    white-space: normal; /* Set content to a second line */
+}
+
+.dropdown-menu-dang > li > a:hover {
+    background-color: #801515;
+    color: white;
+}
+
+.dropdown-menu-success {
+    background-color: #dcefdc;
+}
+
+.dropdown-menu-success > li > a {
+    display: inline-block;
+    width: 160px;
+    color: black;
+    white-space: normal; /* Set content to a second line */
+}
+
+.dropdown-menu-success > li > a:hover {
+    background-color: #5cb85c;
+    color: white;
+}
+
+/* Second level of dropdown menu */
+.dropdown-submenu {
+    position:relative;
+}
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -4px; /*margin-left:-1px;*/
+    /*-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;*/
+}
+
+.dropdown-submenu:hover >.dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu > a:after {
+    border-color: transparent transparent transparent #333;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    content: " ";
+    display: block;
+    float: right;
+    height: 0;
+    margin-right: -10px;
+    margin-top: 5px;
+    width: 0;
+}
+
+.dropdown-submenu:hover > a:after {
+     border-left-color:#555;
+ }
