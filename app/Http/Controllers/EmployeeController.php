@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Session;
 use View;
 use Mail;
+use Input;
 use Exception;
 use App\Employee;
 use App\User;
@@ -30,9 +31,18 @@ class EmployeeController extends Controller
         if ((is_null($user))||(!$user->id))
             return redirect()->route('root');
 
-        $employees = Employee::orderBy('last_name')->paginate(20);
-
         $service = Session::get('service');
+
+        $stat = Input::get('stat');
+
+        $employees = Employee::where('id','>',0);
+
+        if($stat=='retired')
+            $employees = $employees->where('active', 0);
+        if($stat=='active')
+            $employees = $employees->where('active', 1);
+
+        $employees = $employees->orderBy('last_name')->paginate(20);
 
         return View::make('app.employee_brief', ['employees' => $employees, 'service' => $service, 'user' => $user]);
     }

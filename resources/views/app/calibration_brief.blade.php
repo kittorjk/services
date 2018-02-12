@@ -80,7 +80,7 @@
 
                         @if(($calibration->completed==0&&$user->action->acv_cbr_mod
                             /*($user->id==$calibration->user_id||$user->work_type=='Almacén'||
-                            $user->priv_level>=3))*/||$user->priv_level==4)
+                            $user->priv_level>=3)*/)||$user->priv_level==4)
                             <a href="/calibration/{{ $calibration->id }}/edit" class="pull-right">
                                 <i class="fa fa-edit"></i> {{ $calibration->detail ? 'modificar' : 'agregar' }}
                             </a>

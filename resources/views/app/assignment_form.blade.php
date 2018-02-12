@@ -89,12 +89,12 @@
 
                                     <div class="input-group" style="width: 100%">
                                         <label for="project_id" class="input-group-addon" style="width: 23%;text-align: left">
-                                            Proyecto <span class="pull-right">*</span>
+                                            Contrato <span class="pull-right">*</span>
                                         </label>
 
                                         <select required="required" class="form-control" name="project_id" id="project_id"
                                                 onchange="{{--dynamic_project_change($(this));--}} dynamic_select(this)">
-                                            <option value="" hidden>Seleccione el proyecto al que pertenece</option>
+                                            <option value="" hidden>Seleccione el contrato al que pertenece esta asignación</option>
                                             @foreach($projects as $project)
                                                 <option value="{{ $project->id }}"
                                                     {{ ($assignment&&$assignment->project_id==$project->id)||

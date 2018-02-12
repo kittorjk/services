@@ -80,7 +80,7 @@
                     <div class="col-md-12">
                         @if($user->action->adm_acc_stf)
                             <div class="col-md-6 col-sm-12" align="center">
-                                <a href="{{ '/employee' }}" class="btn btn-success uniform_width">
+                                <a href="{{ '/employee?stat=active' }}" class="btn btn-success uniform_width">
                                     <i class="fa fa-users"></i> Personal
                                 </a>
                             </div>

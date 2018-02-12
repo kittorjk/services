@@ -3181,6 +3181,7 @@ class ExcelController extends Controller
             //}
 
         }
+        /*
         elseif($table=='rbs_viatics')
         {
 
@@ -3236,6 +3237,7 @@ class ExcelController extends Controller
                 }
             })->export('xlsx');
         }
+        */
         elseif($table=='client_listed_material')
         {
             $rbs_char = RbsSiteCharacteristic::find($id);
