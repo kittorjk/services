@@ -549,7 +549,7 @@ class AjaxController extends Controller
         //$type_reception = Request::input('type_reception');
         $message = "Display content here";
 
-        if($oc_id){
+        if ($oc_id) {
             $oc = OC::find($oc_id);
 
             $oc_amount = number_format($oc->oc_amount,2).' Bs';
@@ -560,30 +560,30 @@ class AjaxController extends Controller
 
             $part1 = "<td width='30%' style='color:green;'>$oc_amount</td>";
             
-            if(($oc->executed_amount + $amount) <= $oc->oc_amount){
-                $part2 = "<td width='30%' style='color:green;'>$certified_to_date</td>";
-                $part3 = "<td width='30%' style='color:green;'>$pending_certification</td>";
-            }
-            else{
-                $part2 = "<td width='30%' style='color:red;'>$certified_to_date</td>";
-                $part3 = "<td width='30%' style='color:red;'>$pending_certification</td>";
+            if (($oc->executed_amount + $amount) <= $oc->oc_amount) {
+                $color23 = 'green';
+            } else {
+                $color23 = 'red';
             }
 
-            if($balance >= 0){
-                $part4 = "<td width='30%' style='color:green;'>$paid_to_date</td>";
-                $part5 = "<td style='color:green;'>$balance</td>";
+            $part2 = "<td width='30%' style='color:$color23;'>$certified_to_date</td>";
+            $part3 = "<td width='30%' style='color:$color23;'>$pending_certification</td>";
+
+            if ($balance >= 0) {
+                $color45 = 'green';
+            } else {
+                $color45 = 'red';    
             }
-            else{
-                $part4 = "<td width='30%' style='color:red;'>$paid_to_date</td>";
-                $part5 = "<td style='color:red;'>$balance</td>";
-            }
+
+            $part4 = "<td width='30%' style='color:$color45;'>$paid_to_date</td>";
+            // $part5 = "<td style='color:$color45;'>$balance</td>";
 
             $message = "<br><table width='90%'>".
                 "<tr><td width='70%'>Monto asignado a OC</td>".$part1."</tr>".
                 "<tr><td width='70%'>Monto certificado a la fecha</td>".$part2."</tr>".
                 "<tr><td width='70%'>Monto pendiente de certificación</td>".$part3."</tr>".
                 "<tr><td width='70%'>Monto cancelado a la fecha</td>".$part4."</tr>".
-                "<tr><td width='70%'>Saldo por pagar</td>".$part5."</tr>".
+                //"<tr><td width='70%'>Saldo por pagar</td>".$part5."</tr>".
                 "</table><p></p>";
         }
 

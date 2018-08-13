@@ -2587,25 +2587,28 @@ class ExcelController extends Controller
                         /*number_format($certificate->oc->executed_amount-$certificate->oc->payed_amount,2)*///)
                     //->setCellValue('AP43', number_format($certificate->oc->oc_amount-$certificate->oc->payed_amount
                         //-$certificate->amount /*$certificate->oc->oc_amount-$certificate->oc->executed_amount*/,2))
-                    ->setCellValue('B47', wordwrap($certificate->observations, 100, "\n", false))
-                    ->setCellValue('B50', $certificate->type_reception=='Total' ?
-                        'Con el presente certificado se cierra la orden de compra' : '');
+                    ->setCellValue('B47', wordwrap($certificate->observations, 100, "\n", false));
+
+                if ($certificate->type_reception == 'Total') {
+                    $posicionCierre = $certificate->observations ? 'B48' : 'B47';
+                    $sheetToChange->setCellValue($posicionCierre, 'Con el presente certificado se cierra la orden de compra');
+                }
 
                 $i = 32; //number of row for starting invoices
-                $reason = '';
+                $reason = 'Adelanto';
                 $listed_amount = 0;
 
-                foreach($certificate->oc->invoices as $invoice){
+                foreach ($certificate->oc->invoices as $invoice) {
                     //if($invoice->transaction_date!='0000-00-00 00:00:00'){
-                    if($invoice->amount!=$certificate->amount||$invoice->flags[0]==1){
-                        if($invoice->flags[5]==1)
-                            $reason = 'Adelanto';
-                        elseif($invoice->flags[6]==1)
-                            $reason = 'Pago contra avance';
-                        elseif($invoice->flags[7]==1)
-                            $reason = 'Pago contra entrega';
+                    if ($invoice->amount != $certificate->amount || $invoice->flags[0] == 1) {
+                        //if($invoice->flags[5]==1)
+                        //    $reason = 'Adelanto';
+                        //elseif($invoice->flags[6]==1)
+                        //    $reason = 'Pago contra avance';
+                        //elseif($invoice->flags[7]==1)
+                        //    $reason = 'Pago contra entrega';
 
-                        $reason .= $invoice->flags[0]==1 ? '' : ' (pendiente)';
+                        //$reason .= $invoice->flags[0]==1 ? '' : ' (pendiente)';
 
                         $sheetToChange->setCellValue('A'.$i, $i-31)
                             ->setCellValue('E'.$i, $reason)
@@ -2622,11 +2625,15 @@ class ExcelController extends Controller
                 }
 
                 $sheetToChange->setCellValue('A'.$i, $i-31)
-                    ->setCellValue('E'.$i, 'Monto certificado actual (pendiente)')
-                    ->setCellValue('E'.($i+1), 'Monto pagado a la fecha')
-                    ->setCellValue('AO'.($i+1), number_format($certificate->oc->payed_amount,2))
-                    ->setCellValue('E'.($i+3), 'Saldo no ejecutado')
-                    ->setCellValue('AO'.($i+3), number_format($certificate->oc->oc_amount-$certificate->amount
+                    ->setCellValue('E'.$i, 'Monto certificado actual')
+                    ->setCellValue('AO'.$i, number_format($certificate->amount,2))
+                    //->setCellValue('E'.($i+1), 'Monto pagado a la fecha')
+                    //->setCellValue('AO'.($i+1), number_format($certificate->oc->payed_amount,2))
+                    //->setCellValue('E'.($i+3), 'Saldo no ejecutado')
+                    //->setCellValue('AO'.($i+3), number_format($certificate->oc->oc_amount-$certificate->amount
+                    //    -$listed_amount,2));
+                    ->setCellValue('E'.($i+2), 'Saldo nominal según Orden de Compra')
+                    ->setCellValue('AO'.($i+2), number_format($certificate->oc->oc_amount-$certificate->amount
                         -$listed_amount,2));
 
             })->export('xlsx');
