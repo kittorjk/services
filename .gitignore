@@ -1,0 +1,7 @@
+/vendor
+/.idea
+.env
+/storage/framework
+/public/files
+.vscode/settings.json
+storage/logs/laravel.log
