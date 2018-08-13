@@ -150,6 +150,8 @@ Route::get('excel/load_format/{format}/{id}', 'ExcelController@load_format_file'
 Route::post('excel/fill/{format}/{id}', 'ExcelController@fill_uploaded_model');
 Route::get('excel/{table}','ExcelController@index');
 Route::get('excel/{table}/{id}','ExcelController@summary');
+Route::get('excel/report/{type}/{id}', 'ExcelController@report_form');
+Route::post('excel/report/{type}/{id}', 'ExcelController@generate_report');
 Route::get('import/{type}/{id}', 'ExcelController@import_form');
 Route::post('import/{type}/{id}', 'ExcelController@import_items');
 

@@ -2005,6 +2005,8 @@ class ExcelController extends Controller
         }
         elseif($table=='per-assignment-progress')
         {
+            Date::setLocale('es');
+
             $assignment = Assignment::find($id);
 
             if(!$assignment){
@@ -2022,6 +2024,7 @@ class ExcelController extends Controller
                 Session::flash('message', 'La asignación debe tener registradas las fechas de inicio y fin de trabajos!');
                 return redirect()->back();
             }
+            
             /*
             $header = array();
 
@@ -2032,12 +2035,15 @@ class ExcelController extends Controller
                 $header[] = $task->name;
             }
 
-            //$sheet_content = array_fill_keys($header, '');
-            //$sheet_content[] = $header;
+            $sheet_content = array_fill_keys($header, '');
+            $sheet_content[] = $header;
             */
 
-            $items = collect();
+            $items = $assignment->tasks()->select('tasks.name')->groupBy('tasks.name')->get();
 
+            $items = $items->sortBy('name');
+
+            /*
             foreach($assignment->sites as $site){
                 foreach($site->tasks as $task){
                     if($items->count()==0||!($items->contains('name', $task->name))){
@@ -2045,17 +2051,36 @@ class ExcelController extends Controller
                     }
                 }
             }
+            */
 
-            $items = $items->sortBy('name');
+            //$assignment->start_date = $assignment->end_date->subDays(30);
 
             while($assignment->start_date<=$assignment->end_date){
 
                 $line = array();
 
-                Date::setLocale('es');
-
                 $line['FECHA'] = Date::parse($assignment->start_date)->format('l, j \\d\\e F \\d\\e Y');
 
+                foreach($items as $item){
+                    $var = 0;
+
+                    $tasks = $assignment->tasks()->select('tasks.*')->where('tasks.name', $item->name)->get();
+
+                    foreach($tasks as $task){
+                        if($task->activities->count()>0){
+                            $activity = $task->activities()->whereDate('date', '=', $assignment->start_date)->first();
+
+                            if($activity)
+                                $var += $activity->progress;
+                        }
+                    }
+
+                    $var = $var==0 ? '' : $var;
+
+                    $line[$item->name] = $var;
+                }
+
+                /*
                 foreach($items as $item){
                     $var = 0;
 
@@ -2069,7 +2094,7 @@ class ExcelController extends Controller
                                 $var += $activity->progress;
                             }
                         }
-                        */
+                        *
 
                         foreach($site->tasks as $task){
                             if($item==$task->name){
@@ -2086,7 +2111,7 @@ class ExcelController extends Controller
                     }
 
                     $line[$item] = $var;
-                }
+                }*/
 
                 $sheet_content[] = $line;
 
@@ -3466,7 +3491,7 @@ class ExcelController extends Controller
 
                     foreach ($data as $key => $value) {
                         if(!empty($value->a)&&!empty($value->b)&&!empty($value->c)&&!empty($value->d)&&
-                            is_numeric($value->a)&&is_numeric($value->d))
+                            is_numeric($value->a)&&is_numeric($value->d)&&$value->d>0)
                         {
                             $item = Item::where('description', $value->b)->where('category', $category)
                                 ->orderBy('updated_at','desc')->first();
@@ -4241,60 +4266,171 @@ class ExcelController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function report_form($type, $id)
     {
-        //
+        $user = Session::get('user');
+        if ((is_null($user))||(!$user->id))
+            return redirect()->route('root');
+
+        $service = Session::get('service');
+        $place = 0;
+        $options = collect();
+        $complements = 0;
+
+        if($type=='per-assignment-progress'){
+            $place = Assignment::find($id);
+            $place->start_date = Carbon::parse($place->start_date)->format('Y-m-d');
+            $place->end_date = Carbon::parse($place->end_date)->format('Y-m-d');
+        }
+
+        return View::make('app.excel_report_form', ['id' => $id, 'type' => $type, 'place' => $place, 'service' => $service,
+            'options' => $options, 'complements' => $complements ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function generate_report(Request $request, $type, $id)
     {
-        //
-    }
+        $user = Session::get('user');
+        if ((is_null($user))||(!$user->id))
+            return redirect()->route('root');
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+        if($request->date_to!='')
+            $request->date_to = $request->date_to.' 23:59:59';
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+        $validate = ['date_from' => $request->date_from, 'date_to' => $request->date_to];
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $v = \Validator::make($validate, [
+            'date_from'   => 'required|date',
+            'date_to'     => 'required|date|after:date_from',
+        ],
+            [
+                'required'      => 'Debe especificar el intervalo de fechas para el reporte!',
+                'date'          => 'Debe introducir fechas válidas para generar el reporte!',
+                'after'         => 'La fecha "Hasta" debe ser posterior o igual a la fecha "Desde"!'
+            ]);
+
+        if ($v->fails())
+        {
+            Session::flash('message', $v->messages()->first());
+            return redirect()->back()->withInput();
+        }
+        
+        $date_from = Carbon::parse($request->date_from);
+        $date_to = Carbon::parse($request->date_to);
+        
+        if(abs($date_to->diffInDays($date_from))>31)
+        {
+            Session::flash('message', "El intervalo de fechas no puede exceder los 31 días!");
+            return redirect()->back()->withInput();
+        }
+        
+        $excel_name = 'empty';
+        $sheet_name = 'empty';
+        $sheet_content = collect();
+
+        if($type=='per-assignment-progress')
+        {
+            Date::setLocale('es');
+
+            $assignment = Assignment::find($id);
+
+            if(!$assignment){
+                Session::flash('message', 'Error, registro solicitado no encontrado!');
+                return redirect()->back();
+            }
+
+            $excel_name = 'Resumen de avance de obras - '.$this->normalize_name($assignment->name);
+            $sheet_name = $this->normalize_name($assignment->name);
+
+            //$assignment->start_date = Carbon::parse($assignment->start_date);
+            //$assignment->end_date = Carbon::parse($assignment->end_date);
+
+            /*
+            if($assignment->start_date->year<1||$assignment->end_date->year<1){
+                Session::flash('message', 'La asignación debe tener registradas las fechas de inicio y fin de trabajos!');
+                return redirect()->back();
+            }
+            */
+
+            $items = $assignment->tasks()->select('tasks.name')->groupBy('tasks.name')->get();
+
+            $items = $items->sortBy('name');
+
+            while($date_from<=$date_to /*$assignment->start_date<=$assignment->end_date*/){
+
+                $line = array();
+
+                $line['FECHA'] = Date::parse($date_from /*$assignment->start_date*/)->format('l, j \\d\\e F \\d\\e Y');
+
+                foreach($items as $item){
+                    $var = 0;
+
+                    $tasks = $assignment->tasks()->select('tasks.*')->where('tasks.name', $item->name)->get();
+
+                    foreach($tasks as $task){
+                        if($task->activities->count()>0){
+                            $activity = $task->activities()->whereDate('date', '=', $assignment->start_date)->first();
+
+                            if($activity)
+                                $var += $activity->progress;
+                        }
+                    }
+
+                    $var = $var==0 ? '' : $var;
+
+                    $line[$item->name] = $var;
+                }
+
+                $sheet_content[] = $line;
+
+                $date_from->addDay(1);
+                //$assignment->start_date->addDay(1);
+            }
+
+            Excel::create($excel_name, function($excel) use($sheet_name, $sheet_content, $assignment) {
+
+                $excel->sheet($sheet_name, function($sheet) use($sheet_content, $assignment) {
+
+                    $sheet->setWidth('A', 35);
+                    $sheet->setHeight(2, 45);
+
+                    $sheet->setCellValue('B1', $assignment->name);
+
+                    $sheet->fromArray($sheet_content, null, 'A2', true);
+
+                    $sheet->row(1, function($row) {
+                        $row->setFontWeight('bold');
+                    });
+
+                    $sheet->row(2, function($row) {
+                        $row->setFontWeight('bold');
+                    });
+
+                    $lastRow = $sheet->getHighestRow();
+                    $lastColumn = $sheet->getHighestColumn();
+
+                    $column_widths = array();
+
+                    for($i='B';$i<=$lastColumn;$i++){
+                        $column_widths[$i] = 14;
+                    }
+
+                    $sheet->setWidth($column_widths);
+
+                    $sheet->getStyle('A3:A'.$lastRow)
+                        ->getAlignment()
+                        ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+                    $sheet->setBorder('A2:'.$lastColumn.$lastRow, 'thin');
+                });
+
+            })->export('xls');
+
+            return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
+        }
+
+        /* Last resort redirection when no match is found */
+        Session::flash('message', 'No se realizó ninguna acción!');
+        return redirect()->back()->withInput();
     }
 
     public function convert_number_to_words($number)

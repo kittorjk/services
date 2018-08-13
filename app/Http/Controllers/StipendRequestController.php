@@ -225,15 +225,20 @@ class StipendRequestController extends Controller
         }
 
         $stipend = new StipendRequest(Request::all());
-
-        if(StipendRequest::where('employee_id',$employee->id)->where('status','<>','Rejected')
+        
+        if($stipend->per_day_amount!=0&&$stipend->per_day_amount!=''){
+            if(StipendRequest::where('employee_id',$employee->id)->where('status','<>','Rejected')->where('total_amount', '>', 0)
                 ->where(function ($query) use($stipend){
                     $query->whereBetween('date_to', [$stipend->date_from, $stipend->date_to])
-                        ->orwhereBetween('date_from', [$stipend->date_from, $stipend->date_to]);
+                        ->orwhereBetween('date_from', [$stipend->date_from, $stipend->date_to])
+                        ->orWhere(function ($query1) use($stipend) {
+                            $query1->where('date_from', '<', $stipend->date_from)->where('date_to', '>', $stipend->date_to);
+                        });
                 })->exists()){
-            Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
+                Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
                 rango de fechas especificadas');
-            return redirect()->back()->withInput();
+                return redirect()->back()->withInput();
+            }
         }
 
         $assignment = $stipend->assignment;
@@ -425,11 +430,13 @@ class StipendRequestController extends Controller
 
         if($old_employee!=$employee->id){
             //The name of the employee has changed
+            if($stipend->per_day_amount!=0&&$stipend->per_day_amount!=''){
 
-            if(StipendRequest::where('employee_id',$employee->id)->where('date_to', '>=', $stipend->date_from)->exists()){
-                Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
-                rango de fechas especificadas');
-                return redirect()->back()->withInput();
+                if(StipendRequest::where('employee_id',$employee->id)->where('total_amount', '>', 0)->where('date_to', '>=', $stipend->date_from)->exists()){
+                    Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
+                    rango de fechas especificadas');
+                    return redirect()->back()->withInput();
+                }
             }
         }
 
@@ -772,6 +779,20 @@ class StipendRequestController extends Controller
         }
         elseif($stipend->status=='Approved_tech'){
             $recipient = $administrator;
+            
+            //$copies = User::where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->get();
+            $copies = User::where(function ($query){
+                $query->where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->where('status', 'Activo');
+            })->orwhere(function ($query1){
+                $query1->where('area', 'Gerencia Tecnica')->where('priv_level', 3);
+            })->get();
+            
+            $cc = [];
+            
+            foreach($copies as $copy){
+                $cc[] = $copy->email;
+            }
+            
             $subject = 'Solicitudes de viáticos pendientes de pago';
             $mail_structure = 'emails.stipend_request_payment';
         }
@@ -785,9 +806,9 @@ class StipendRequestController extends Controller
 
             if($stipend->status=='Approved_tech'){
                 try {
-                    Mail::send($mail_structure, $data, function($message) use($recipient, $user, $subject) {
+                    Mail::send($mail_structure, $data, function($message) use($recipient, $cc, $user, $subject) {
                         $message->to($recipient->email, $recipient->name)
-                            ->cc($user->email, $user->name)
+                            ->cc($cc)
                             ->subject($subject)
                             ->attach(public_path('files/stipend_requests/stipend_request_model.xlsx'))
                             ->from('postmaster@gerteabros.com', 'postmaster@gerteabros.com');
@@ -812,8 +833,8 @@ class StipendRequestController extends Controller
             // Store a record for the email in the DB
             $email = new Email;
             $email->sent_by = 'postmaster@gerteabros.com';
-            $email->sent_to = $recipient->email;
-            $email->sent_cc = $user->email;
+            $email->sent_to = $recipient ? $recipient->email : '';
+            $email->sent_cc = $stipend->status=='Approved_tech'&&$cc ? implode(",", $cc) : ($user ? $user->email : '');
             $email->subject = $subject;
             $email->content = $content;
             $email->success = $success;

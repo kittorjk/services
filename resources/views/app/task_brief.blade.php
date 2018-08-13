@@ -323,8 +323,8 @@
                         <td align="center">
                             <div class="progress">
                                 <div class="progress-bar progress-bar-success"
-                                     style="{{ 'width: '.number_format(($task->progress/$task->total_expected)*100,2,'.','').'%' }}">
-                                    <span>{{ number_format(($task->progress/$task->total_expected)*100,2).' %' }}</span>
+                                     style="{{ $task->total_expected>0 ? 'width: '.number_format(($task->progress/$task->total_expected)*100,2,'.','').'%' : 'width: 0%' }}">
+                                    <span>{{ $task->total_expected>0 ? number_format(($task->progress/$task->total_expected)*100,2).' %' : 'N/E' }}</span>
                                 </div>
                             </div>
                         </td>
@@ -367,17 +367,15 @@
                                 @endif
                             @else
                                 <span class="label label-gray uniform_width" style="font-size: 12px"
-                                      title="Tiempo transcurridodesde el inicio del proyecto">
+                                      title="Tiempo transcurrido desde el inicio del proyecto">
                                     {{ $task->start_date->diffInDays($task->updated_at).' dias' }}
                                 </span>
                             @endif
                         </td>
                     {{--@endif--}}
-                    <td align="center"
-                        @if($task->statuses($task->status)=='Relevamiento')
-                            title="Cambie el estado del item para poder agregar avances"
-                        @endif
-                    >
+                    <td align="right" style="padding-right: 1em"
+                        {{ $task->statuses($task->status)=='Relevamiento' ?
+                            'title="Cambie el estado del item para poder agregar avances"' : '' }}>
                         @if((($user->priv_level>=1||$user->id==$task->responsible)&&
                             $task->statuses($task->status)!='En espera')||$user->priv_level==4)
                             <a href="/activity/{{ $task->id }}">
@@ -386,6 +384,10 @@
                         @else
                             {{ $task->activities->count()==1 ? '1 actividad' : $task->activities->count().' actividades' }}
                         @endif
+                        &emsp;&ensp;
+                        <a href="/event/task/{{ $task->id }}" title="Eventos relacionados a este item">
+                            {{ $task->events->count() }} <i class="fa fa-flag"></i>
+                        </a>
                     </td>
                 </tr>
             @endforeach

@@ -221,6 +221,11 @@ class TaskController extends Controller
 
         $task = new Task($form_data);
 
+        if($task->total_expected==0){
+            Session::flash('message', 'Debe especificar la cantidad proyectada!');
+            return redirect()->back()->withInput();
+        }
+
         if($task->pondered_weight&&($task->pondered_weight<1||$task->pondered_weight>10)){
             Session::flash('message', 'El peso ponderado debe estar en el rango de 1 a 10!');
             return redirect()->back()->withInput();
@@ -422,6 +427,11 @@ class TaskController extends Controller
         $original_number = $task->number;
 
         $task->fill($form_data);
+        
+        if($task->total_expected==0){
+            Session::flash('message', 'Debe especificar la cantidad proyectada!');
+            return redirect()->back()->withInput();
+        }
 
         if($task->pondered_weight<1||$task->pondered_weight>10){
             Session::flash('message', 'El peso ponderado debe estar en el rango de 1 a 10!');
@@ -525,7 +535,7 @@ class TaskController extends Controller
         $site = Site::find($id);
 
         for($i=0;$i<$listed_items;$i++){
-            if(!empty($results['item_'.$i])&&!empty($results['quantity_'.$i])){
+            if(!empty($results['item_'.$i])&&!empty($results['quantity_'.$i])&&$results['quantity_'.$i]>0){
                 $item = Item::find($results['item_'.$i]);
                 $already_added = false;
 

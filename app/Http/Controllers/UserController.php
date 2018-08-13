@@ -296,16 +296,14 @@ class UserController extends Controller
 
         $modify_user = User::find($id);
         $modify_user->fill(Request::all());
-
+        
         if($user->priv_level==4){
-            /*
-            $modify_user->acc_cite = Request::input('acc_cite')=='' ? 0 : $modify_user->acc_cite;
-            $modify_user->acc_oc = Request::input('acc_oc')=='' ? 0 : $modify_user->acc_oc;
-            $modify_user->acc_project = Request::input('acc_project')=='' ? 0 : $modify_user->acc_project;
-            $modify_user->acc_active = Request::input('acc_active')=='' ? 0 : $modify_user->acc_active;
-            $modify_user->acc_warehouse = Request::input('acc_warehouse')=='' ? 0 : $modify_user->acc_warehouse;
-            $modify_user->acc_staff = Request::input('acc_staff')=='' ? 0 : $modify_user->acc_staff;
-            */
+            $modify_user->acc_cite = Request::input('acc_cite') ? 1 : 0;
+            $modify_user->acc_oc = Request::input('acc_oc') ? 1 : 0;
+            $modify_user->acc_project = Request::input('acc_project') ? 1 : 0;
+            $modify_user->acc_active = Request::input('acc_active') ? 1 : 0;
+            $modify_user->acc_warehouse = Request::input('acc_warehouse') ? 1 : 0;
+            $modify_user->acc_staff = Request::input('acc_staff') ? 1 : 0;
 
             $modify_user->cost_day = $modify_user->cost>0 ? $modify_user->cost/22 : 0;
         }

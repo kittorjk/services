@@ -20,6 +20,14 @@ class Assignment extends Model
         return $this->hasMany('App\Site');
     }
 
+    /**
+     * Get all of the tasks for the assignment.
+     */
+    public function tasks()
+    {
+        return $this->hasManyThrough('App\Task', 'App\Site');
+    }
+
     public function guarantees(){
         return $this->morphMany('App\Guarantee','guaranteeable');
     }

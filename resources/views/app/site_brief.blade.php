@@ -104,8 +104,15 @@
                     </li>
                 @endif
 
+                {{-- Obsolete due to max exec error  
                 <li>
                     <a href="/excel/per-assignment-progress/{{ $assignment_info->id }}">
+                        <i class="fa fa-file-excel-o fa-fw"></i> Reporte de avance general
+                    </a>
+                </li>
+                --}}
+                <li>
+                    <a href="/excel/report/per-assignment-progress/{{ $assignment_info->id }}">
                         <i class="fa fa-file-excel-o fa-fw"></i> Reporte de avance general
                     </a>
                 </li>
@@ -452,13 +459,18 @@
                             @endif
                         </td>
                     @endif
-                    <td style="text-align:center">
+                    <td align="right" style="padding-right: 1em">
                         <a href="/task/{{ $site->id }}">
                             {{ $site->tasks->count()==1 ? '1 item' : $site->tasks->count().' items' }}
                         </a>
-                        &ensp;{{ ' | ' }}&ensp;
-                        <a href="/event/site/{{ $site->id }}">
-                            {{ $site->events->count()==1 ? '1 evento' : $site->events->count().' eventos' }}
+                        &emsp;&ensp;
+                        <a href="/event/site/{{ $site->id }}" title="Eventos relacionados a este sitio">
+                            {{ $site->events->count() }} <i class="fa fa-flag"></i>
+                        </a>
+                        &emsp;&ensp;
+                        <a href="{{ '/dead_interval?st_id='.$site->id }}"
+                           title="Intervalos de tiempo muerto (inactividad) de este sitio">
+                            {{ $site->dead_intervals->count() }} <i class="fa fa-hourglass-half"></i>
                         </a>
                     </td>
                 </tr>

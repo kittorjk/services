@@ -99,7 +99,7 @@ class DeviceRequirementController extends Controller
             'device_type'           => 'required',
             'device_id'             => 'required|exists:devices,id',
             'from_name'             => 'required|exists:users,name',
-            'for_name'              => 'required_if:type,borrow|required_if:type,transfer_tech||exists:users,name',
+            'for_name'              => 'required_if:type,borrow|required_if:type,transfer_tech', //||exists:users,name',
             'branch_destination'    => 'required_if:type,transfer_wh|required_if:type,devolution',
             'reason'                => 'required',
         ],
@@ -139,21 +139,21 @@ class DeviceRequirementController extends Controller
         $requirement->user_id = $user->id;
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_wh')
-            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->first();
+            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
         $person_from = User::select('id')->where('name',Request::input('from_name'))->first();
 
         if($person_for==''){
-            Session::flash('message', "El nombre del receptor del equipo no está registrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del receptor del equipo!");
             return redirect()->back()->withInput();
         }
         else
             $requirement->for_id = $person_for->id;
 
         if($person_from==''){
-            Session::flash('message', "El nombre del responsable actual no ha sido encontrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del responsable actual del equipo!");
             return redirect()->back()->withInput();
         }
         else
@@ -245,7 +245,7 @@ class DeviceRequirementController extends Controller
             'device_type'   => 'required',
             'device_id'     => 'required|exists:devices,id',
             'from_name'     => 'required|exists:users,name',
-            'for_name'      => 'required_if:type,borrow|required_if:type,transfer_tech||exists:users,name',
+            'for_name'      => 'required_if:type,borrow|required_if:type,transfer_tech', //||exists:users,name',
             'branch_destination' => 'required_if:type,transfer_wh|required_if:type,devolution',
             'reason'        => 'required',
         ],
@@ -283,20 +283,20 @@ class DeviceRequirementController extends Controller
         }
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_wh')
-            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->first();
+            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
         
         $person_from = User::select('id')->where('name', Request::input('from_name'))->first();
 
         if ($person_for == '') {
-            Session::flash('message', "El nombre del receptor del equipo no está registrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del receptor del equipo!");
             return redirect()->back()->withInput();
         } else
             $requirement->for_id = $person_for->id;
 
         if ($person_from == '') {
-            Session::flash('message', "El nombre del responsable actual no ha sido encontrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del responsable actual del equipo!");
             return redirect()->back()->withInput();
         } else
             $requirement->from_id = $person_from->id;

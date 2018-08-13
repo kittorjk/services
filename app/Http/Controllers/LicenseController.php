@@ -37,7 +37,7 @@ class LicenseController extends Controller
         
         $service = Session::get('service');
         
-        $potential_drivers = User::where('id','>',0)->orderBy('name')->get();
+        $potential_drivers = User::where('id','>',0)->where('status', 'Activo')->orderBy('name')->get();
 
         return View::make('app.license_form', ['license' => 0, 'service' => $service, 'user' => $user,
             'potential_drivers' => $potential_drivers]);

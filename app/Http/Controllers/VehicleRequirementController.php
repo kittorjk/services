@@ -139,21 +139,21 @@ class VehicleRequirementController extends Controller
         $requirement->user_id = $user->id;
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_branch')
-            $person_for = User::where('work_type','Transporte')->where('branch', $requirement->branch_destination)->first();
+            $person_for = User::where('work_type','Transporte')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
         $person_from = User::select('id')->where('name',Request::input('from_name'))->first();
 
         if($person_for==''){
-            Session::flash('message', "El nombre del receptor del vehículo no está registrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del receptor del vehículo");
             return redirect()->back()->withInput();
         }
         else
             $requirement->for_id = $person_for->id;
 
         if($person_from==''){
-            Session::flash('message', "El nombre del responsable actual no ha sido encontrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del responsable actual del vehículo!");
             return redirect()->back()->withInput();
         }
         else
@@ -277,20 +277,20 @@ class VehicleRequirementController extends Controller
         }
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_branch')
-            $person_for = User::where('work_type','Transporte')->where('branch', $requirement->branch_destination)->first();
+            $person_for = User::where('work_type','Transporte')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
         $person_from = User::select('id')->where('name', Request::input('from_name'))->first();
 
         if ($person_for == '') {
-            Session::flash('message', "El nombre del receptor del vehículo no está registrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del receptor del vehículo!");
             return redirect()->back()->withInput();
         } else
             $requirement->for_id = $person_for->id;
 
         if ($person_from == '') {
-            Session::flash('message', "El nombre del responsable actual no ha sido encontrado en el sistema!");
+            Session::flash('message', "No se ha encontrado en el sistema un registro del responsable actual del vehículo!");
             return redirect()->back()->withInput();
         } else
             $requirement->from_id = $person_from->id;
@@ -407,6 +407,7 @@ class VehicleRequirementController extends Controller
         $cc = '';
         $mail_structure = '';
         $subject = '';
+        $recipient = null;
 
         if($mode=='store'){
             $recipient = $requirement->person_from;
@@ -427,7 +428,7 @@ class VehicleRequirementController extends Controller
             $subject = 'Requerimiento de entrega de vehículo rechazado';
         }
 
-        if($recipient!=0){
+        if($recipient){
             $data = array('recipient' => $recipient, 'requirement' => $requirement);
 
             $view = View::make($mail_structure, $data /*['recipient' => $recipient, 'requirement' => $requirement]*/);

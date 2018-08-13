@@ -12,6 +12,12 @@
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/custom_table.css") }}">
+    <style>
+        .dropdown-menu-prim > li > a {
+            width: 190px;
+            /*white-space: normal; /* Set content to a second line */
+        }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
@@ -27,8 +33,8 @@
                     <i class="fa fa-refresh"></i> Recargar página
                 </a>
             </li>
-            @if($vehicle_info&&$vehicle_info->flags[2]==1&&
-                ($user->id==$vehicle_info->responsible||$user->priv_level==4))
+            @if($vehicle_info&&(($vehicle_info->flags[2]==1&&
+                ($user->id==$vehicle_info->responsible||$user->priv_level==4))||$vehicle_info->flags[3]==1&&($user->id==$vehicle_info->responsible||$user->priv_level==4)&&$user->work_type=='Transporte'))
                 <li>
                     <a href="{{ '/vehicle_condition/'.$vehicle_info->id.'/create?mode=travel' }}">
                         <i class="fa fa-plus"></i> Registrar recorrido

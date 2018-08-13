@@ -301,11 +301,13 @@ class MailController extends Controller
 
         if($type=='driver_license'){
 
-            $licenses = License::where('exp_date', '<', Carbon::now()->addDays(15))->get();
-
+            $licenses = License::where('exp_date', '<>', '0000-00-00 00:00:00')->where('exp_date', '<', Carbon::now()->addDays(15))->whereHas('user', function ($q) {
+                $q->where('status', 'Activo');
+            })->get();
+            
             if($licenses->count()>0){
-                $recipient = User::where('work_type', 'Transporte')->first();
-                $cc = User::where('priv_level', 3)->where('area', 'Gerencia Tecnica')->first();
+                $recipient = User::where('work_type', 'Transporte')->where('status', 'Activo')->first();
+                $cc = User::where('priv_level', 3)->where('area', 'Gerencia Tecnica')->where('status', 'Activo')->first();
 
                 //$manager = User::where('area', 'Gerencia General')->where('priv_level', 3)->first();
 
