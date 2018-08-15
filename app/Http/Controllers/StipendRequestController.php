@@ -219,22 +219,22 @@ class StipendRequestController extends Controller
             $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$employee_name%");
         })->first();
 
-        if(!$employee){
+        if (!$employee) {
             Session::flash('message', 'El nombre de empleado especificado no fue encontrado en la lista de empleados!');
             return redirect()->back()->withInput();
         }
 
         $stipend = new StipendRequest(Request::all());
         
-        if($stipend->per_day_amount!=0&&$stipend->per_day_amount!=''){
-            if(StipendRequest::where('employee_id',$employee->id)->where('status','<>','Rejected')->where('total_amount', '>', 0)
-                ->where(function ($query) use($stipend){
+        if (($stipend->per_day_amount && $stipend->per_day_amount > 0) || ($stipend->hotel_amount && $stipend->hotel_amount > 0)) {
+            if(StipendRequest::where('employee_id', $employee->id)->where('status', '<>', 'Rejected')->where('total_amount', '>', 0)
+                ->where(function ($query) use($stipend) {
                     $query->whereBetween('date_to', [$stipend->date_from, $stipend->date_to])
                         ->orwhereBetween('date_from', [$stipend->date_from, $stipend->date_to])
                         ->orWhere(function ($query1) use($stipend) {
                             $query1->where('date_from', '<', $stipend->date_from)->where('date_to', '>', $stipend->date_to);
                         });
-                })->exists()){
+                })->exists()) {
                 Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
                 rango de fechas especificadas');
                 return redirect()->back()->withInput();
@@ -243,7 +243,7 @@ class StipendRequestController extends Controller
 
         $assignment = $stipend->assignment;
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'Error al cargar la información de la asignación, intente reenviar el formulario por favor');
             return redirect()->back()->withInput();
         }
@@ -256,35 +256,33 @@ class StipendRequestController extends Controller
         $stipend->date_from = Carbon::parse($stipend->date_from);
         $stipend->date_to = Carbon::parse($stipend->date_to);
 
-        if(!(($stipend->date_from->between($assignment->start_date, $assignment->end_date)&&
-            $stipend->date_to->between($assignment->start_date, $assignment->end_date))||
-            ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to)&&
-            $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))){
+        if (!(($stipend->date_from->between($assignment->start_date, $assignment->end_date) &&
+            $stipend->date_to->between($assignment->start_date, $assignment->end_date)) ||
+            ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to) &&
+            $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))) {
             Session::flash('message', 'Las fechas desde y hasta de la solicitud deben estar dentro del intervalo de
                 tiempo de relevamiento o de ejecución de la asignación!');
             return redirect()->back()->withInput();
         }
 
         $stipend->user_id = $user->id;
-
         $stipend->employee_id = $employee->id;
-
         $stipend->in_days = Carbon::parse($stipend->date_to)->diffInDays(Carbon::parse($stipend->date_from)) + 1; //Extremes count
 
-        $stipend->total_amount = $stipend->per_day_amount*$stipend->in_days;
+        $hotel_cost = $stipend->hotel_amount ? $stipend->hotel_amount : 0;
+        $stipend->total_amount = ($stipend->per_day_amount + $hotel_cost) * $stipend->in_days;
 
         $stipend->status = 'Pending';
-
         $stipend->save();
 
-        $this->fill_code_column(); //Fill records' codes where empty
+        $this->fill_code_column(); // Fill records' codes where empty
 
-        if(count($site_ids)>0){
+        if (count($site_ids) > 0) {
             $stipend->sites()->attach($site_ids);
         }
 
         // Send an email notification to Project Manager
-        $this->notify_request($stipend,0);
+        $this->notify_request($stipend, 0);
 
         /* Register an event for the creation
             $this->add_event('created', $rbs_viatic, '');
@@ -420,7 +418,7 @@ class StipendRequestController extends Controller
             $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$employee_name%");
         })->first();
 
-        if(!$employee){
+        if (!$employee) {
             Session::flash('message', 'El nombre de empleado especificado no fue encontrado en la lista de empleados!
                 Asegúrese de que el nombre ingresado corresponda a personal registrado en el sistema.');
             return redirect()->back()->withInput();
@@ -428,11 +426,10 @@ class StipendRequestController extends Controller
 
         $stipend->fill(Request::all());
 
-        if($old_employee!=$employee->id){
+        if ($old_employee != $employee->id) {
             //The name of the employee has changed
-            if($stipend->per_day_amount!=0&&$stipend->per_day_amount!=''){
-
-                if(StipendRequest::where('employee_id',$employee->id)->where('total_amount', '>', 0)->where('date_to', '>=', $stipend->date_from)->exists()){
+            if ($stipend->per_day_amount != 0 && $stipend->per_day_amount != '') {
+                if (StipendRequest::where('employee_id', $employee->id)->where('total_amount', '>', 0)->where('date_to', '>=', $stipend->date_from)->exists()) {
                     Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
                     rango de fechas especificadas');
                     return redirect()->back()->withInput();
@@ -442,7 +439,7 @@ class StipendRequestController extends Controller
 
         $assignment = $stipend->assignment;
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'Error al cargar la información de la asignación, intente reenviar el formulario por favor');
             return redirect()->back()->withInput();
         }
@@ -455,29 +452,28 @@ class StipendRequestController extends Controller
         $stipend->date_from = Carbon::parse($stipend->date_from);
         $stipend->date_to = Carbon::parse($stipend->date_to);
 
-        if(!(($stipend->date_from->between($assignment->start_date, $assignment->end_date)&&
-                $stipend->date_to->between($assignment->start_date, $assignment->end_date))||
-            ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to)&&
-                $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))){
+        if (!(($stipend->date_from->between($assignment->start_date, $assignment->end_date) &&
+                $stipend->date_to->between($assignment->start_date, $assignment->end_date)) ||
+            ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to) &&
+                $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))) {
             Session::flash('message', 'Las fechas desde y hasta de la solicitud deben estar dentro del intervalo de
                 tiempo de relevamiento o de ejecución de la asignación!');
             return redirect()->back()->withInput();
         }
 
         $stipend->employee_id = $employee->id;
-
         $stipend->in_days = Carbon::parse($stipend->date_to)->diffInDays(Carbon::parse($stipend->date_from)) + 1; //Extremes count
 
-        $stipend->total_amount = $stipend->per_day_amount*$stipend->in_days;
+        $hotel_cost = $stipend->hotel_amount ? $stipend->hotel_amount : 0;
+        $stipend->total_amount = ($stipend->per_day_amount + $hotel_cost) * $stipend->in_days;
 
         $stipend->status = 'Pending';
-
         $stipend->save();
 
         $stipend->sites()->sync($site_ids);
 
         // Send an email notification to Project Manager
-        $this->notify_request($stipend,0);
+        $this->notify_request($stipend, 0);
 
         /* Register an event for the modification
         $this->add_event('modified', $rbs_viatic, '');
