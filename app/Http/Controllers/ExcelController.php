@@ -2600,7 +2600,7 @@ class ExcelController extends Controller
 
                 foreach ($certificate->oc->invoices as $invoice) {
                     //if($invoice->transaction_date!='0000-00-00 00:00:00'){
-                    if ($invoice->amount != $certificate->amount || $invoice->flags[0] == 1) {
+                    //if ($invoice->amount != $certificate->amount || $invoice->flags[0] == 1) {
                         //if($invoice->flags[5]==1)
                         //    $reason = 'Adelanto';
                         //elseif($invoice->flags[6]==1)
@@ -2620,7 +2620,7 @@ class ExcelController extends Controller
 
                         $i++;
                         $listed_amount += $invoice->amount;
-                    }
+                    //}
                     //}
                 }
 
