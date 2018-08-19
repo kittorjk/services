@@ -46,7 +46,7 @@ class ProviderController extends Controller
     public function create()
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $service = Session::get('service');
@@ -54,9 +54,10 @@ class ProviderController extends Controller
         $session_user = $user;
 
         $bank_options = Provider::select('bnk_name')->where('bnk_name', '<>', '')->groupBy('bnk_name')->get();
+        $specialtyOptions = Provider::select('specialty')->where('specialty', '<>', '')->groupBy('specialty')->get();
 
         return View::make('app.provider_form', ['provider' => 0, 'bank_options' => $bank_options,
-            'service' => $service, 'session_user' => $session_user]);
+            'specialtyOptions' => $specialtyOptions, 'service' => $service, 'session_user' => $session_user]);
     }
 
     /**
@@ -68,7 +69,7 @@ class ProviderController extends Controller
     public function store(Request $request)
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $provider = new Provider(Request::all());
@@ -76,6 +77,7 @@ class ProviderController extends Controller
         $v = \Validator::make(Request::all(), [
             'prov_name'         => 'required',
             'nit'               => 'required|unique:providers|numeric|digits_between:8,10',
+            'specialty'         => 'required',
             //'bnk_account'       => 'required',
             'address'           => 'required',
             'bnk_name'          => 'required',
@@ -94,6 +96,7 @@ class ProviderController extends Controller
                 'nit.unique'                      => 'El NIT de proveedor ya está registrado!',
                 'nit.numeric'                     => 'El campo NIT sólo puede contener números!',
                 'nit.digits_between'              => 'Número de NIT no válido!',
+                'specialty.required'              => 'Debe especificar el área de especialidad del proveedor!',
                 //'bnk_account.required'            => 'Debe especificar un número de cuenta!',
                 'address.required'                => 'Debe especificar la dirección del proveedor!',
                 'bnk_name.required'               => 'Debe especificar un Banco!',
@@ -116,13 +119,13 @@ class ProviderController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
         
-        $provider->bnk_name = $provider->bnk_name=="Otro" ? Request::input('other_bnk_name') : $provider->bnk_name;
+        $provider->bnk_name = $provider->bnk_name == "Otro" ? Request::input('other_bnk_name') : $provider->bnk_name;
+        $provider->specialty = $provider->specialty === 'Otro' ? Request::input('other_specialty') : $provider->specialty;
         
         $provider->save();
 
@@ -145,7 +148,7 @@ class ProviderController extends Controller
         $service = Session::get('service');
 
         $provider = Provider::find($id);
-        $ocs = OC::where('provider_id',$provider->id)->where('flags','like','01%0')->get(); //select only active records
+        $ocs = OC::where('provider_id', $provider->id)->where('flags', 'like', '01%0')->get(); //select only active records
 
         return View::make('app.provider_info', ['provider' => $provider, 'service' => $service, 'user' => $user,
             'ocs' => $ocs]);
@@ -160,7 +163,7 @@ class ProviderController extends Controller
     public function edit($id)
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $service = Session::get('service');
@@ -169,9 +172,10 @@ class ProviderController extends Controller
         $provider = Provider::find($id);
 
         $bank_options = Provider::select('bnk_name')->where('bnk_name', '<>', '')->groupBy('bnk_name')->get();
+        $specialtyOptions = Provider::select('specialty')->where('specialty', '<>', '')->groupBy('specialty')->get();
 
         return View::make('app.provider_form', ['provider' => $provider, 'bank_options' => $bank_options,
-            'service' => $service, 'session_user' => $session_user]);
+            'specialtyOptions' => $specialtyOptions, 'service' => $service, 'session_user' => $session_user]);
     }
 
     /**
@@ -184,12 +188,12 @@ class ProviderController extends Controller
     public function update(Request $request, $id)
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $modify_provider = Provider::find($id);
 
-        if(Request::input('nit')!=$modify_provider->nit){
+        if (Request::input('nit') != $modify_provider->nit) {
             $v = \Validator::make(Request::all(), [
                 'nit'               => 'required|unique:providers|numeric|digits_between:8,10',
             ],
@@ -201,8 +205,7 @@ class ProviderController extends Controller
                 ]
             );
             
-            if ($v->fails())
-            {
+            if ($v->fails()) {
                 Session::flash('message', $v->messages()->first());
                 return redirect()->back()->withInput();
             }
@@ -210,6 +213,7 @@ class ProviderController extends Controller
         
         $v = \Validator::make(Request::all(), [
             'prov_name'         => 'required',
+            'specialty'         => 'required',
             //'bnk_account'       => 'required',
             'address'           => 'required',
             'bnk_name'          => 'required',
@@ -224,6 +228,7 @@ class ProviderController extends Controller
         ],
             [
                 'prov_name.required'              => 'Debe especificar un nombre o razón social!',
+                'specialty.required'              => 'Debe especificar el área de especialidad del proveedor!',
                 //'bnk_account.required'            => 'Debe especificar un número de cuenta!',
                 'address.required'                => 'Debe especificar la dirección del proveedor!',
                 'bnk_name.required'               => 'Debe especificar un Banco!',
@@ -246,8 +251,7 @@ class ProviderController extends Controller
             ]
         );
         
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -256,6 +260,8 @@ class ProviderController extends Controller
 
         $modify_provider->bnk_name = $modify_provider->bnk_name=="Otro" ? Request::input('other_bnk_name') :
             $modify_provider->bnk_name;
+        $modify_provider->specialty = $modify_provider->specialty == 'Otro' ? Request::input('other_specialty') :
+            $modify_provider->specialty;
 
         $modify_provider->save();
 
@@ -285,6 +291,7 @@ class ProviderController extends Controller
         
         $service = Session::get('service');
 
+        // TODO agregar campo specialty a condiciones de registro de proveedor incompleto (Bloquea seleccion en OC)
         $providers = Provider::where('nit','=',0)->orwhere('phone_number','=',0)
             ->orwhere('address','=','')->orwhere('bnk_account','=','')->orwhere('bnk_name','=','')
             ->orwhere('contact_name','=','')->orwhere('contact_id','=',0)

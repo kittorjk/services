@@ -917,8 +917,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='projects')
-        {
+        elseif ($table == 'projects') {
             $excel_name = 'Base de proyectos (glogal)';
             $sheet_name = 'Proyectos';
 
@@ -954,8 +953,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='providers')
-        {
+        elseif ($table == 'providers') {
             $excel_name = 'Base de proveedores';
             $sheet_name = 'Proveedores';
 
@@ -964,15 +962,16 @@ class ExcelController extends Controller
             foreach($providers as $provider)
             {
                 $identification_number = '';
-                if($provider->contact_id!=0)
+                if ($provider->contact_id != 0)
                     $identification_number = $provider->contact_id.' '.$provider->contact_id_place;
 
                 $sheet_content->prepend(
-                    [   'Proveedor'             => $provider->prov_name,
+                    [   'Proveedor'             => wordwrap($provider->prov_name, 70, "\n", false),
                         'NIT'                   => $provider->nit,
+                        'Área de especialidad'  => $provider->specialty,
                         'Teléfono principal'    => $provider->phone_number,
                         'Teléfono secundario'   => $provider->alt_phone_number,
-                        'Dirección'             => $provider->address,
+                        'Dirección'             => wordwrap($provider->address, 70, "\n", false),
                         'Número de cuenta'      => $provider->bnk_account,
                         'Banco'                 => $provider->bnk_name,
                         'Persona de contacto'   => $provider->contact_name,
@@ -982,7 +981,7 @@ class ExcelController extends Controller
                     ]);
             }
 
-            $this->record_export('/provider','Full table',0);
+            $this->record_export('/provider', 'Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }

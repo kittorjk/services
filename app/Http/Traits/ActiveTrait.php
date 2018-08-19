@@ -25,17 +25,18 @@ trait ActiveTrait {
         if ($used_in === 'requirement') {
             $requirement = $model;
 
-            if ($mode === 'store') {
-                $vehicle_history->type = 'Requerimiento ('.VehicleRequirement::$types[$requirement->type].')';
+            $vehicle_history->type = 'Requerimiento ('.VehicleRequirement::$types[$requirement->type].')';
+
+            if ($mode === 'store') {    
                 $vehicle_history->contents = $user->name.' elaboró un requerimiento para el vehículo '.$vehicle->type.' '.
                     $vehicle->model.' con placa '.$vehicle->license_plate.' con el siguiente motivo: '.$requirement->reason;
             } elseif ($mode === 'update') {
-                $vehicle_history->type = 'Requerimiento ('.VehicleRequirement::$types[$requirement->type].') modificado';
+                $vehicle_history->type .= ' modificado';
                 $vehicle_history->contents = $user->name.' modificó el requerimiento '.$requirement->code.' del vehículo '.
                     $vehicle->type.' '.$vehicle->model.' con placa '.$vehicle->license_plate.' con el siguiente detalle: '.
                     $requirement->reason;
             } elseif ($mode === 'reject') {
-                $vehicle_history->type = 'Requerimiento ('.VehicleRequirement::$types[$requirement->type].') rechazado';
+                $vehicle_history->type .= ' rechazado';
                 $vehicle_history->contents = $user->name.' rechazó el requerimiento '.$requirement->code.' del vehículo '.
                     $vehicle->type.' '.$vehicle->model.' con placa '.$vehicle->licnese_plate.' debido a: '.$requirement->stat_obs;
             }
