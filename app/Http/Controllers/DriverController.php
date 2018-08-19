@@ -270,7 +270,7 @@ class DriverController extends Controller
             $vehicle->status = 'Disponible';
             $vehicle->flags = '0001';
 
-            if($requirement->tyoe=='transfer_branch'){
+            if($requirement->type=='transfer_branch'){
                 $vehicle->branch = $requirement->branch_destination;
             }
         }

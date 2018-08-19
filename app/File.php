@@ -15,12 +15,12 @@ class File extends Model
     protected $table = 'files';
 
     public function imageable(){
-        //varios files pertenecen a varios servicios
+        // Los registros de archivos pueden pertenecer a mas de un modelo
         return $this->morphTo();
     }
 
     public function user(){
-        //varios archivos pertenecen a un mismo usuario
+        // Varios archivos pertenecen a un mismo usuario
         return $this->belongsTo('App\User');
     }
 }

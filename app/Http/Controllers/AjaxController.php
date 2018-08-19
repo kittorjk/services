@@ -921,23 +921,11 @@ class AjaxController extends Controller
         $id = Request::input('id');
         $message = "";
         
-        if($table=='vehicle'){
+        if ($table == 'vehicle') {
             $vehicle = Vehicle::find($id);
-            if($flag=='maintenance'){
-                if($vehicle->flags!='1000'){
-                    $vehicle->flags = '1000';
-                    $vehicle->status = 'En mantenimiento';
-
-                    $user = Session::get('user');
-
-                    $maintenance = new Maintenance();
-                    $maintenance->user_id = $user->id;
-                    $maintenance->active = $vehicle->license_plate;
-                    $maintenance->vehicle_id = $vehicle->id;
-                    $maintenance->usage = $vehicle->mileage;
-                    $maintenance->type = 'Correctivo';
-
-                    $maintenance->save();
+            if ($flag == 'maintenance') {
+                if ($vehicle->flags != '1000') {
+                    $vehicle = $this->registrarMantenimiento($id);
                 }
             }
             /*
@@ -966,8 +954,7 @@ class AjaxController extends Controller
             }
             */
 
-            $vehicle->save();
-            $message = $vehicle->status;
+            $message = ['estado' => $vehicle->status, 'responsable' => $vehicle->user->name];
         }
         elseif($table=='device'){
             $device = Device::find($id);
@@ -1072,7 +1059,8 @@ class AjaxController extends Controller
         }
 
         if (Request::ajax()) {
-            return response()->json([$message]);
+            // return response()->json([$message]);
+            return response()->json($message);
         }
         return redirect()->back();
     }
@@ -1255,5 +1243,71 @@ class AjaxController extends Controller
             return response()->json(['url' => $url]);
         }
         return redirect()->back();
+    }
+
+    function registrarMantenimiento ($idVehiculo) {
+        $user = Session::get('user');
+        $vehicle = Vehicle::find($idVehiculo);
+        
+        $last_asg = Driver::where('who_receives', $vehicle->responsible)->where('vehicle_id', $vehicle->id)
+            ->orderBy('created_at','desc')->first();
+
+        if($last_asg){
+            // Se registra cambio de usuario asignado a vehiculo a persona que registra el mantenimiento
+            $driver = new Driver();
+            $driver->user_id = $user->id;
+            $driver->vehicle_id = $last_asg->vehicle_id;
+            $driver->who_delivers = $last_asg->who_receives;
+            $driver->who_receives = $user->id;
+            $driver->date = Carbon::now();
+            $driver->project_id = $last_asg->project_id;
+            $driver->project_type = $last_asg->project_type;
+            $driver->destination = $last_asg->destination;
+            $driver->reason = 'Mantenimiento del vehículo';
+            $driver->mileage_before = $last_asg->mileage_before > $vehicle->mileage ? $last_asg->mileage_before : $vehicle->mileage;
+            $driver->observations = 'Cambio por mantenimiento de vehículo';
+            $driver->confirmation_flags = '0011'; // Preconfirmed
+            $driver->date_confirmed = Carbon::now();
+            $driver->save();
+
+            // Se actualiza km recorrido en ultima asignacion
+            $last_asg->mileage_traveled = $driver->mileage_before - $last_asg->mileage_before;
+            $last_asg->mileage_after = $driver->mileage_before;
+            $last_asg->save();
+        }
+
+        // Registrar mantenimiento
+        $maintenance = new Maintenance();
+        $maintenance->user_id = $user->id;
+        $maintenance->active = $vehicle->license_plate;
+        $maintenance->vehicle_id = $vehicle->id;
+        $maintenance->usage = $vehicle->mileage;
+        $maintenance->type = 'Correctivo';
+        $maintenance->save();
+
+        // Actualizar requerimientos pendientes
+        foreach ($vehicle->requirements as $requirement) {
+            if ($requirement->status === 1) {
+                $requirement->status = 0; // Rejected
+                $requirement->stat_change = Carbon::now();
+                $requirement->stat_obs = 'Se rechaza el requerimiento porque el vehículo es puesto en mantenimiento';
+                $requirement->save();
+            }
+        }
+        
+        // Actualizar datos de vehiculo
+        $vehicle->flags = '1000';
+        $vehicle->status = 'En mantenimiento';
+        $vehicle->responsible = $user->id;
+        $vehicle->save();
+
+        /* insert new entry on vehicle history table */
+        // $type = 'Reasignación por mantenimiento';
+        // $this->record_history_entry($driver, $vehicle, $type);
+
+        /* insert new entry on vehicle history table */
+        // $this->add_vhc_history_record($vehicle, $maintenance, 'store', $user);
+        
+        return $vehicle;
     }
 }

@@ -103,15 +103,15 @@
                     <td>{{ $vehicle->type }}</td>
                     <td>{{ $vehicle->model }}</td>
                     <td align="right" style="{{
-                            $vehicle->flags!='0000'/*Baja*/&&
-                            (($vehicle->last_mant20000&&(($vehicle->mileage-$vehicle->last_mant20000->usage)>19900))||
-                            (!$vehicle->last_mant20000&&$vehicle->mileage>19900)||
-                            ($vehicle->last_mant10000&&(($vehicle->mileage-$vehicle->last_mant10000->usage)>9900))||
-                            (!$vehicle->last_mant10000&&$vehicle->mileage>9900)||
-                            ($vehicle->last_mant5000&&(($vehicle->mileage-$vehicle->last_mant5000->usage)>4900))||
-                            (!$vehicle->last_mant5000&&$vehicle->mileage>4900)||
-                            ($vehicle->last_mant2500&&(($vehicle->mileage-$vehicle->last_mant2500->usage)>2400))||
-                            (!$vehicle->last_mant2500&&$vehicle->mileage>2400)) ?
+                            $vehicle->flags != '0000' /*Baja*/ &&
+                            (($vehicle->last_mant20000 && (($vehicle->mileage-$vehicle->last_mant20000->usage) > 19900)) ||
+                            (!$vehicle->last_mant20000 && $vehicle->mileage > 19900) ||
+                            ($vehicle->last_mant10000 && (($vehicle->mileage-$vehicle->last_mant10000->usage) > 9900)) ||
+                            (!$vehicle->last_mant10000 && $vehicle->mileage > 9900) ||
+                            ($vehicle->last_mant5000 && (($vehicle->mileage-$vehicle->last_mant5000->usage) > 4900)) ||
+                            (!$vehicle->last_mant5000 && $vehicle->mileage > 4900) ||
+                            ($vehicle->last_mant2500 && (($vehicle->mileage-$vehicle->last_mant2500->usage) > 2400)) ||
+                            (!$vehicle->last_mant2500 && $vehicle->mileage > 2400)) ?
                             'color:darkorange;' : '' }}
 
                             /*(($vehicle->mileage/2500)-floor($vehicle->mileage/2500))>=0.95*/
@@ -123,12 +123,14 @@
                         {{ $vehicle->mileage.' Km' }}
                     </td>
                     <td>
-                        {!! $vehicle->responsible!=0&&$vehicle->status!='Baja' ?
-                            $vehicle->user->name.($vehicle->destination=='Garaje' ?
-                            '<br>(Garaje '.$vehicle->branch.')' : '') : 'Sin asignar' !!}
+                        <span class="responsable">
+                            {!! $vehicle->responsible != 0 && $vehicle->status != 'Baja' ?
+                                $vehicle->user->name.($vehicle->destination == 'Garaje' ?
+                                '<br>(Garaje '.$vehicle->branch.')' : '') : 'Sin asignar' !!}
+                        </span>
                         {{-- $vehicle->responsible!=0 ? $vehicle->user->name  : 'Sin asignar' --}}
-                        @if(($vehicle->last_driver&&$vehicle->last_driver->confirmation_flags[3]==0)&&
-                            $vehicle->flags!='0000'/*Baja*/)
+                        @if(($vehicle->last_driver && $vehicle->last_driver->confirmation_flags[3] == 0) &&
+                            $vehicle->flags != '0000'/*Baja*/)
                             <i class="fa fa-warning pull-right" title="Pendiente de confirmación" style="color: darkred"></i>
                         @endif
                     </td>
@@ -151,22 +153,18 @@
                     <td>
                         <span class="status">{{ $vehicle->status }}</span>
 
-                        @if(($vehicle->responsible==$user->id||$user->action->acv_mnt_add
-                            /*$user->priv_level==4||$user->work_type=='Transporte'*/)&&$vehicle->flags!='0000' /*Baja*/)
-
-                            @if($vehicle->flags[0]==1)
-                                <a href="{{ '/maintenance?vh_id='.$vehicle->id }}" style="color:inherit">
-                                    <i class="fa fa-wrench pull-right" style="color:red;"
-                                       title="Ver estado de mantenimiento">
-                                    </i>
-                                </a>
-                            @else
-                                <i onclick="flag_change(this,flag='maintenance',id='{{ $vehicle->id }}');"
-                                   class="fa fa-wrench pull-right" style="{{ $vehicle->flags[0]==1 ? 'color:red;' : '' }}"
-                                   title="{{ 'Mover a vehículos en mantenimiento' }}">
+                        @if ($user->action->acv_mnt_add && $vehicle->flags[0] == 0)
+                            <i onclick="flag_change(this,flag='maintenance',id='{{ $vehicle->id }}');"
+                                class="fa fa-wrench pull-right" style="{{ $vehicle->flags[0]==1 ? 'color:red;' : '' }}"
+                                title="{{ 'Mover a vehículos en mantenimiento' }}">
+                             </i>
+                        @elseif (($vehicle->responsible == $user->id || $user->action->acv_mnt_add
+                            /*$user->priv_level==4||$user->work_type=='Transporte'*/) && $vehicle->flags[0] == 1)
+                            <a href="{{ '/maintenance?vh_id='.$vehicle->id }}" style="color:inherit">
+                                <i class="fa fa-wrench pull-right" style="color:red;"
+                                    title="Ver estado de mantenimiento">
                                 </i>
-                            @endif
-
+                            </a>
                             {{-- on click flag function
                             <i @if($vehicle->flags[1]==0)
                                 onclick="flag_change(this,flag='req_maintenance',id='{{ $vehicle->id }}');"
@@ -176,27 +174,27 @@
                             </i>
                             --}}
                         @else
-                            <i class="fa fa-wrench pull-right" style="{{ $vehicle->flags[0]==1 ? 'color:red;' : '' }}"
-                               title="{{ $vehicle->flags[0]==1 ? 'En mantenimiento' : 'Marcar mantenimiento' }}">
+                            <i class="fa fa-wrench pull-right" style="{{ $vehicle->flags[0] == 1 ? 'color:red;' : '' }}"
+                               title="{{ $vehicle->flags[0] == 1 ? 'En mantenimiento' : 'Este ícono se marcará de color rojo cuando el vehículo esté en mantenimiento' }}">
                             </i>
                         @endif
 
-                        @if($vehicle->responsible==$user->id||$user->action->acv_vfr_add)
+                        @if($vehicle->responsible==$user->id || $user->action->acv_vfr_add)
                             <a href="/vehicle/report_malfunction/{{ $vehicle->id }}"
-                               style="{{ $vehicle->flags[1]==0 ? 'color: inherit' : ''}}">
-                                <i class="fa fa-flag pull-right" style="{{ $vehicle->flags[1]==1 ? 'color:orange' : 'color:inherit' }}"
-                                   title="{{ $vehicle->flags[1]==1 ? 'Se ha reportado una falla / mantenimiento solicitado' :
+                               style="{{ $vehicle->flags[1] == 0 ? 'color: inherit' : ''}}">
+                                <i class="fa fa-flag pull-right" style="{{ $vehicle->flags[1] == 1 ? 'color:orange' : 'color:inherit' }}"
+                                   title="{{ $vehicle->flags[1] == 1 ? 'Se ha reportado una falla / mantenimiento solicitado' :
                                             'Reportar falla / Solicitar mantenimiento' }}">
                                 </i>
                             </a>
                         @else
-                            <i class="fa fa-flag pull-right" style="{{ $vehicle->flags[1]==1 ? 'color:orange;' : '' }}"
-                               title="{{ $vehicle->flags[1]==1 ? 'Se ha solicitado mantenimiento' : 'Solicitar mantenimiento' }}">
+                            <i class="fa fa-flag pull-right" style="{{ $vehicle->flags[1] == 1 ? 'color:orange;' : '' }}"
+                               title="{{ $vehicle->flags[1] == 1 ? 'Se ha solicitado mantenimiento' : 'Solicitar mantenimiento' }}">
                             </i>
                         @endif
 
-                        @if(($vehicle->responsible==$user->id||$user->priv_level==4||$user->work_type=='Transporte')&&
-                            $vehicle->flags!='0000' /*Baja*/)
+                        @if(($vehicle->responsible == $user->id || $user->priv_level == 4 || $user->work_type == 'Transporte') &&
+                            $vehicle->flags != '0000' /*Baja*/)
                             {{--
                             @if($vehicle->flags[1]==0&&$vehicle->flags[0]==0)
                                 <a href="/vehicle/report_malfunction/{{ $vehicle->id }}" style="color:inherit">
@@ -316,7 +314,8 @@
             if (r === true) {
                 $.post('/flag/vehicle', { flag: flag, id: id }, function(data){
                     //alert(data);
-                    $(element).parent().find('.status').html(data);
+                    $(element).parent().find('.status').html(data.estado);
+                    $(element).parent().parent().find('.responsable').html(data.responsable);
                     element.style.color = flag_color;
                 });
             }

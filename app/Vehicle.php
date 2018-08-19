@@ -87,4 +87,8 @@ class Vehicle extends Model
     public function branch_record(){
         return $this->hasOne('App\Branch', 'id', 'branch_id');
     }
+
+    public function requirements(){
+        return $this->hasMany('App\VehicleRequirement');
+    }
 }
