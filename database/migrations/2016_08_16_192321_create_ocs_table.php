@@ -12,7 +12,7 @@ class CreateOcsTable extends Migration
      */
     public function up()
     {
-        Schema::create('ocs', function (Blueprint $table) {
+        Schema::create('o_c_s', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
             $table->integer('pm_id');
@@ -36,6 +36,6 @@ class CreateOcsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('ocs');
+        Schema::drop('o_c_s');
     }
 }

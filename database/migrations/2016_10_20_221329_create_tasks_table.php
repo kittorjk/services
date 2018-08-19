@@ -25,10 +25,10 @@ class CreateTasksTable extends Migration
             $table->decimal('progress',10,2);
             $table->string('status');
             $table->integer('responsible');
-            $table->integer('quote_price');
-            $table->integer('executed_price');
-            $table->integer('assigned_price');
-            $table->integer('charged_price');
+            // $table->integer('quote_price');
+            // $table->integer('executed_price');
+            // $table->integer('assigned_price');
+            // $table->integer('charged_price');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->timestamps();
