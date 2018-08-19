@@ -16,13 +16,15 @@ use App\User;
 use App\Vehicle;
 use App\Email;
 use App\Branch;
-use App\VehicleHistory;
+// use App\VehicleHistory;
 use App\VehicleRequirement;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ActiveTrait;
 
 class VehicleRequirementController extends Controller
 {
+    use ActiveTrait;
     /**
      * Display a listing of the resource.
      *
@@ -166,7 +168,8 @@ class VehicleRequirementController extends Controller
         $vehicle = $requirement->vehicle;
 
         /* Insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, $requirement, 'store', $user);
+        // $this->add_history_record($vehicle, $requirement, 'store', $user);
+        $this->add_vhc_history_record($vehicle, $requirement, 'store', $user, 'requirement');
 
         /* Send notification mail */
         $this->send_email($requirement, 'store' /*$recipient, $cc, $data, $mail_structure, $subject*/);
@@ -300,7 +303,8 @@ class VehicleRequirementController extends Controller
         $vehicle = $requirement->vehicle;
 
         /* Insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, $requirement, 'update', $user);
+        // $this->add_history_record($vehicle, $requirement, 'update', $user);
+        $this->add_vhc_history_record($vehicle, $requirement, 'update', $user, 'requirement');
 
         /* Send notification mail */
         $this->send_email($requirement, 'update' /*$recipient, $cc, $data, $mail_structure, $subject*/);
@@ -390,7 +394,8 @@ class VehicleRequirementController extends Controller
         $vehicle = $requirement->vehicle;
 
         /* Insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, $requirement, 'reject', $user);
+        // $this->add_history_record($vehicle, $requirement, 'reject', $user);
+        $this->add_vhc_history_record($vehicle, $requirement, 'reject', $user, 'requirement');
 
         /* Send notification mail */
         $this->send_email($requirement, 'reject' /*$recipient, $cc, $data, $mail_structure, $subject*/);
@@ -461,6 +466,7 @@ class VehicleRequirementController extends Controller
         }
     }
 
+    /*
     function add_history_record($vehicle, $requirement, $mode, $user)
     {
         $vehicle_history = new VehicleHistory;
@@ -487,4 +493,5 @@ class VehicleRequirementController extends Controller
         $vehicle_history->historyable()->associate($requirement);
         $vehicle_history->save();
     }
+    */
 }

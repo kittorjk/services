@@ -30,7 +30,7 @@ use App\User;
 use App\Contract;
 use App\Invoice;
 use App\Email;
-use App\VehicleHistory;
+// use App\VehicleHistory;
 use App\DeviceHistory;
 use App\Material;
 use App\Warehouse;
@@ -51,9 +51,11 @@ use Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Intervention\Image\ImageManagerStatic as Image;
 use Validator;
+use App\Http\Traits\ActiveTrait;
 
 class FilesController extends Controller
 {
+    use ActiveTrait;
 
     public function index()
     {
@@ -1931,7 +1933,8 @@ class FilesController extends Controller
                 $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
 
                 /* insert new entry on vehicle history table */
-                $this->add_history_record('vehicle_file', $vehicle, $file, $user);
+                // $this->add_history_record('vehicle_file', $vehicle, $file, $user);
+                $this->add_vhc_history_record($vehicle, $file, 'vehicle_file', $user, 'file');
 
                 if($type=='vhc_gas_inspection') {
                     $vehicle->gas_inspection_exp = $request->input('exp_date');
@@ -2527,6 +2530,7 @@ class FilesController extends Controller
             $device_history->historyable()->associate($file);
             $device_history->save();
         }
+        /*
         elseif($mode=='vehicle_file'){
             $vehicle = $model;
             $vehicle_history = new VehicleHistory;
@@ -2537,6 +2541,7 @@ class FilesController extends Controller
             $vehicle_history->historyable()->associate($file);
             $vehicle_history->save();
         }
+        */
     }
 
     function update_oc($file, $oc, $type, $path)

@@ -15,14 +15,16 @@ use App\User;
 use App\Vehicle;
 use App\Device;
 use App\ServiceParameter;
-use App\VehicleHistory;
+// use App\VehicleHistory;
 use App\DeviceHistory;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ActiveTrait;
 
 class MaintenanceController extends Controller
 {
     use FilesTrait;
+    use ActiveTrait;
     /**
      * Display a listing of the resource.
      *
@@ -167,7 +169,8 @@ class MaintenanceController extends Controller
             $maintenance->save();
 
             /* insert new entry on vehicle history table */
-            $this->add_vhc_history_record($vehicle, $maintenance, 'store', $user);
+            // $this->add_vhc_history_record($vehicle, $maintenance, 'store', $user);
+            $this->add_vhc_history_record($vehicle, $maintenance, 'store', $user, 'maintenance');
 
             $message = "Se movió el vehículo a activos en mantenimiento";
         }
@@ -315,7 +318,8 @@ class MaintenanceController extends Controller
             $vehicle->save();
 
             /* insert new entry on vehicle history table */
-            $this->add_vhc_history_record($vehicle, $maintenance, 'close', $user);
+            // $this->add_vhc_history_record($vehicle, $maintenance, 'close', $user);
+            $this->add_vhc_history_record($vehicle, $maintenance, 'close', $user, 'maintenance');
         }
         if($maintenance->device_id!=0&&$maintenance->device){
             $device = $maintenance->device; /*Device::find($maintenance->device_id);*/
@@ -417,7 +421,8 @@ class MaintenanceController extends Controller
             $vehicle->save();
 
             /* insert new entry on vehicle history table */
-            $this->add_vhc_history_record($vehicle, $maintenance, 'move', $user);
+            // $this->add_vhc_history_record($vehicle, $maintenance, 'move', $user);
+            $this->add_vhc_history_record($vehicle, $maintenance, 'move', $user, 'maintenance');
 
             $message = "Se movió el vehículo a activos en mantenimiento";
         }
@@ -440,6 +445,7 @@ class MaintenanceController extends Controller
             return redirect()->route('maintenance.index');
     }
 
+    /*
     function add_vhc_history_record($vehicle, $maintenance, $mode, $user)
     {
         $vehicle_history = new VehicleHistory;
@@ -456,9 +462,10 @@ class MaintenanceController extends Controller
         }
 
         $vehicle_history->status = $vehicle->status;
-        $vehicle_history->historyable()->associate($maintenance /*Maintenance::find($maintenance->id)*/);
+        $vehicle_history->historyable()->associate($maintenance //Maintenance::find($maintenance->id));
         $vehicle_history->save();
     }
+    */
 
     function add_dvc_history_record($device, $maintenance, $mode, $user)
     {

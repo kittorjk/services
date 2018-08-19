@@ -20,13 +20,15 @@ use App\ServiceParameter;
 use App\Guarantee;
 use App\Email;
 use App\Branch;
-use App\VehicleHistory;
+// use App\VehicleHistory;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ActiveTrait;
 
 class VehicleController extends Controller
 {
     use FilesTrait;
+    use ActiveTrait;
     /**
      * Display a listing of the resource.
      *
@@ -123,7 +125,7 @@ class VehicleController extends Controller
 
         $branch = Branch::find($vehicle->branch_id);
 
-        $responsible = User::where('work_type', 'Transporte')->where('branch_id', $vehicle->branch_id)->first();
+        $responsible = User::where('work_type', 'Transporte')->where('branch_id', $vehicle->branch_id)->where('status', 'Activo')->first();
 
         $vehicle->responsible = $responsible ? $responsible->id : $user->id;
         $vehicle->destination = $branch->city;
@@ -137,7 +139,8 @@ class VehicleController extends Controller
         $vehicle->save();
 
         /* insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, 'store', $vehicle, $user);
+        // $this->add_history_record($vehicle, 'store', $vehicle, $user);
+        $this->add_vhc_history_record($vehicle, $vehicle, 'store', $user, 'vehicle');
         
         Session::flash('message', "Vehículo registrado correctamente");
         return redirect()->route('vehicle.index');
@@ -389,7 +392,8 @@ class VehicleController extends Controller
         $this->add_failure_report($vehicle, $user);
         
         /* insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, 'malfunction', $vehicle, $user);
+        // $this->add_history_record($vehicle, 'malfunction', $vehicle, $user);
+        $this->add_vhc_history_record($vehicle, $vehicle, 'malfunction', $user, 'vehicle');
         
         // Send email notification to responsible of transports
         $this->send_mail($vehicle, $user);
@@ -562,7 +566,8 @@ class VehicleController extends Controller
         }
 
         /* insert new entry on vehicle history table */
-        $this->add_history_record($vehicle, 'disable', $vehicle, $user);
+        // $this->add_history_record($vehicle, 'disable', $vehicle, $user);
+        $this->add_vhc_history_record($vehicle, $vehicle, 'disable', $user, 'vehicle');
 
         Session::flash('message', "El vehículo con placa $vehicle->license_plate ha sido dado de baja");
         if(Session::has('url'))
@@ -571,6 +576,7 @@ class VehicleController extends Controller
             return redirect()->route('vehicle.index');
     }
 
+    /*
     function add_history_record($vehicle, $mode, $model, $user)
     {
         $vehicle_history = new VehicleHistory;
@@ -593,9 +599,10 @@ class VehicleController extends Controller
         }
 
         $vehicle_history->status = $vehicle->status;
-        $vehicle_history->historyable()->associate($model /*Vehicle::find($vehicle->id)*/);
+        $vehicle_history->historyable()->associate($model //Vehicle::find($vehicle->id));
         $vehicle_history->save();
     }
+    */
 
     function add_failure_report($vehicle, $user)
     {

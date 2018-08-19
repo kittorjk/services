@@ -37,9 +37,11 @@ use App\Warehouse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ActiveTrait;
 
 class AjaxController extends Controller
 {
+    use ActiveTrait;
     use FilesTrait;
     /**
      * Display a listing of the resource.
@@ -1301,12 +1303,8 @@ class AjaxController extends Controller
         $vehicle->responsible = $user->id;
         $vehicle->save();
 
-        /* insert new entry on vehicle history table */
-        // $type = 'Reasignación por mantenimiento';
-        // $this->record_history_entry($driver, $vehicle, $type);
-
-        /* insert new entry on vehicle history table */
-        // $this->add_vhc_history_record($vehicle, $maintenance, 'store', $user);
+        // Agregar un nuevo registro en la tabla de historial de vehiculo
+        $this->add_vhc_history_record($vehicle, $maintenance, 'move', $user, 'maintenance');
         
         return $vehicle;
     }

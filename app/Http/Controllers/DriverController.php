@@ -17,13 +17,15 @@ use App\Vehicle;
 use App\Assignment;
 use App\License;
 use App\Email;
-use App\VehicleHistory;
+// use App\VehicleHistory;
 use App\VehicleRequirement;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ActiveTrait;
 
 class DriverController extends Controller
 {
+    use ActiveTrait;
     use FilesTrait;
     /**
      * Display a listing of the resource.
@@ -292,8 +294,9 @@ class DriverController extends Controller
         $vehicle->save();
 
         /* insert new entry on vehicle history table */
-        $type = $requirement->type=='devolution' ? 'Devolución' : 'Asignación';
-        $this->record_history_entry($driver, $vehicle, $type);
+        $mode = $requirement->type=='devolution' ? 'Devolución' : 'Asignación';
+        // $this->record_history_entry($driver, $vehicle, $type);
+        $this->add_vhc_history_record($vehicle, $driver, $mode, $user, 'driver');
 
         /* Send email notification */
         $recipient = User::find($vehicle->responsible);
@@ -507,8 +510,9 @@ class DriverController extends Controller
             */
 
             /* insert new entry on vehicle history table */
-            $type = 'Corrección de asignación/devolución';
-            $this->record_history_entry($driver, $vehicle, $type);
+            $mode = 'Corrección de asignación/devolución';
+            // $this->record_history_entry($driver, $vehicle, $type);
+            $this->add_vhc_history_record($vehicle, $driver, $mode, $user, 'driver');
 
             /* Send notification email */
             $recipient = User::find($vehicle->responsible);
@@ -690,8 +694,9 @@ class DriverController extends Controller
         $vehicle = $driver->vehicle;
 
         /* Insert new entry on vehicle history table */
-        $type = 'Confirmación de recepción';
-        $this->record_history_entry($driver, $vehicle, $type);
+        $mode = 'Confirmación de recepción';
+        // $this->record_history_entry($driver, $vehicle, $type);
+        $this->add_vhc_history_record($vehicle, $driver, $mode, $user, 'driver');
 
         Session::flash('message', "Se ha confirmado la recepción de este vehículo");
         if(Session::has('url'))
@@ -726,6 +731,7 @@ class DriverController extends Controller
         $email->save();
     }
 
+    /*
     function record_history_entry($driver, $vehicle, $type)
     {
         $vehicle_history = new VehicleHistory;
@@ -746,4 +752,5 @@ class DriverController extends Controller
         $vehicle_history->historyable()->associate($driver);
         $vehicle_history->save();
     }
+    */
 }
