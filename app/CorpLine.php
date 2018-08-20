@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CorpLine extends Model
 {
-    protected $fillable = ['id', 'number', 'service_area', 'technology', 'pin', 'puk', 'avg_consumption',
-        'credit_assigned', 'status', 'responsible_id', 'observations', 'flags'];
+    protected $fillable = ['id', 'number', 'service_area', 'technology', 'pin', 'puk', 'data_plan',
+        'avg_consumption', 'credit_assigned', 'status', 'responsible_id', 'observations', 'flags'];
 
     public function files(){
         return $this->morphMany('App\File','imageable');

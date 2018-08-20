@@ -117,6 +117,17 @@
                         disabled="disabled">
 
                   <div class="input-group" style="width: 100%">
+                    <label for="data_plan" class="input-group-addon" style="width: 23%;text-align: left">
+                        Plan de datos:
+                    </label>
+
+                    <input required="required" type="text" class="form-control" name="data_plan"
+                            id="data_plan"
+                            value="{{ $line ? $line->data_plan : old('data_plan') }}"
+                            placeholder="Plan de datos asignado a la línea">
+                  </div>
+
+                  <div class="input-group" style="width: 100%">
                     <label for="pin" class="input-group-addon" style="width: 23%;text-align: left">
                         PIN:
                     </label>
