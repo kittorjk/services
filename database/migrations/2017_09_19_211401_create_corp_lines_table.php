@@ -24,7 +24,8 @@ class CreateCorpLinesTable extends Migration
             $table->string('status');
             $table->integer('responsible_id');
             $table->string('observations', 1000);
-            $table->integer('flags');
+            // $table->integer('flags');
+            $table->char('flags',4);
             $table->timestamps();
         });
     }

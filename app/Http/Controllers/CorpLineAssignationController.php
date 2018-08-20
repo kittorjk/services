@@ -335,7 +335,7 @@ class CorpLineAssignationController extends Controller
         $devolution->save();
 
         /* Update line information */
-        $this->touch_line($line, 0, 0, $user, 'update');
+        $this->touch_line($line, $devolution, $user, $user, 'devolution');
 
         Session::flash('message', "Se registró correctamente la devolución de la línea $line->number");
         if(Session::has('url'))
@@ -344,30 +344,24 @@ class CorpLineAssignationController extends Controller
             return redirect()->route('corporate_line.index');
     }
 
-    function touch_line($line, $assignation, $resp_after, $user, $mode)
-    {
-        if($mode=='store'){
+    function touch_line($line, $assignation, $resp_after, $user, $mode) {
+        if ($mode == 'store') {
             $line->status = 'En uso';
             $line->flags = '0010';
             $line->service_area = $assignation->service_area;
-            $line->responsible_id = $resp_after->id;
-        }
-        elseif($mode=='update'){
+        } elseif ($mode == 'update') {
             $line->service_area = $assignation->service_area;
-            $line->responsible_id = $resp_after->id;
-        }
-        elseif($mode=='devolution'){
+        } elseif ($mode == 'devolution') {
             $line->status = 'Disponible';
             $line->flags = '0001';
             $line->service_area = 'Oficina '.$user->branch;
-            $line->responsible_id = $user->id;
         }
 
+        $line->responsible_id = $resp_after->id;
         $line->save();
     }
 
-    function touch_req($requirement, $mode)
-    {
+    function touch_req($requirement, $mode) {
         $requirement->status = 2; //Requirement completed
         $requirement->stat_change = Carbon::now();
 

@@ -20,6 +20,7 @@ use App\Http\Traits\FilesTrait;
 
 class CorpLineController extends Controller
 {
+    use FilesTrait;
     /**
      * Display a listing of the resource.
      *
@@ -222,6 +223,65 @@ class CorpLineController extends Controller
         $line->save();
 
         Session::flash('message', "Información de línea corporativa modificada correctamente");
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('corporate_line.index');
+    }
+
+    public function disable_form() {
+        $user = Session::get('user');
+        if ((is_null($user)) || (!$user->id))
+            return redirect()->route('root');
+
+        $service = Session::get('service');
+
+        $cl_id = Input::get('cl_id');
+        
+        $line = CorpLine::find($cl_id);
+
+        if (!$line) {
+            Session::flash('message', "Ocurrió un error al recuperar el registro de la línea, intente de nuevo por favor.");
+            return redirect()->back();
+        }
+
+        return View::make('app.corp_line_disable_form', ['line' => $line, 'service' => $service, 'user' => $user]);
+    }
+
+    public function disable_record(Request $request) {
+        $user = Session::get('user');
+        if ((is_null($user)) || (!$user->id))
+            return redirect()->route('root');
+
+        $v = \Validator::make(Request::all(), [
+            'observations'             => 'required|filled',
+        ],
+            [
+                'observations.required'        => 'Debe especificar el motivo para dar de baja esta línea!',
+                'observations.filled'          => 'El campo "Motivo de baja" no puede estar vacío!',
+            ]
+        );
+
+        if ($v->fails()) {
+            Session::flash('message', $v->messages()->first());
+            return redirect()->back()->withInput();
+        }
+
+        $id = Request::input('line_id');
+
+        $line = CorpLine::find($id);
+
+        $line->fill(Request::all());
+
+        $line->status = 'Baja';
+        $line->flags = '0000';
+        $line->save();
+
+        foreach ($line->files as $file) {
+            $this->blockFile($file);
+        }
+
+        Session::flash('message', "La línea corporativa número $line->number ha sido dada de baja");
         if(Session::has('url'))
             return redirect(Session::get('url'));
         else

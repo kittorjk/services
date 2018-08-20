@@ -134,11 +134,20 @@
                     </table>
                 </div>
 
-                @if($user->action->acv_ln_edt /*($user->area=='Gerencia General'&&$user->priv_level>=2)*/||$user->priv_level==4)
+                @if(($user->action->acv_ln_edt && $line->status !== 'Baja') || $user->priv_level == 4)
                     <div class="col-sm-12 mg10" align="center">
                         <a href="/corporate_line/{{ $line->id }}/edit" class="btn btn-success">
                             <i class="fa fa-pencil-square-o"></i> Modificar registro
                         </a>
+
+                        @if(($user->action->acv_ln_asg || $user->priv_level == 4) && $line->status === 'Disponible')
+                            <a href="{{ '/corporate_line/disable?cl_id='.$line->id }}" class="btn btn-danger"
+                                onclick="return confirm('Está seguro de que desea dar de baja esta línea corporativa? ' +
+                                 'Una vez dada de baja la línea ya no podrá modificarla')"
+                                title="Dar de baja esta línea corporativa (Bloquear modificaciones en este registro)">
+                                <i class="fa fa-ban"></i> Dar de baja
+                            </a>
+                        @endif
                     </div>
                 @endif
             </div>

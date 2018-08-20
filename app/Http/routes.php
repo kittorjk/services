@@ -37,7 +37,6 @@ Route::resource('/branch', 'BranchController');
 Route::resource('/cite', 'CitesController');
 Route::resource('/client_listed_material', 'ClientListedMaterialController');
 Route::resource('/contact', 'ContactController');
-Route::resource('/corporate_line', 'CorpLineController');
 Route::resource('/employee', 'EmployeeController');
 Route::resource('/item', 'ItemController');
 Route::resource('/license', 'LicenseController');
@@ -109,6 +108,10 @@ Route::put('/characteristics/device/{id}', 'DeviceCharacteristicController@updat
 Route::get('/characteristics/device/{id}/create', 'DeviceCharacteristicController@create');
 Route::post('/characteristics/device', 'DeviceCharacteristicController@store');
 Route::delete('/characteristics/device/{id}', 'DeviceCharacteristicController@destroy');
+
+Route::get('/corporate_line/disable', 'CorpLineController@disable_form');
+Route::put('/corporate_line/disable', 'CorpLineController@disable_record');
+Route::resource('/corporate_line', 'CorpLineController');
 
 Route::get('/dead_interval/close/{id}', 'DeadIntervalController@close_interval');
 Route::resource('/dead_interval', 'DeadIntervalController');
