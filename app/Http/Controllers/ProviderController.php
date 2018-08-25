@@ -12,9 +12,11 @@ use App\Cite;
 use App\User;
 use App\OC;
 use App\Provider;
+use App\Http\Traits\ProviderTrait;
 
 class ProviderController extends Controller
 {
+    use ProviderTrait;
     /**
      * Display a listing of the resource.
      *
@@ -78,7 +80,7 @@ class ProviderController extends Controller
             'prov_name'         => 'required',
             'nit'               => 'required|unique:providers|numeric|digits_between:8,10',
             'specialty'         => 'required',
-            //'bnk_account'       => 'required',
+            'bnk_account'       => 'required',
             'address'           => 'required',
             'bnk_name'          => 'required',
             'other_bnk_name'    => 'required_if:bnk_name,Otro',
@@ -97,7 +99,7 @@ class ProviderController extends Controller
                 'nit.numeric'                     => 'El campo NIT sólo puede contener números!',
                 'nit.digits_between'              => 'Número de NIT no válido!',
                 'specialty.required'              => 'Debe especificar el área de especialidad del proveedor!',
-                //'bnk_account.required'            => 'Debe especificar un número de cuenta!',
+                'bnk_account.required'            => 'Debe especificar un número de cuenta!',
                 'address.required'                => 'Debe especificar la dirección del proveedor!',
                 'bnk_name.required'               => 'Debe especificar un Banco!',
                 'other_bnk_name.required_if'      => 'Debe especificar un banco!',
@@ -214,7 +216,7 @@ class ProviderController extends Controller
         $v = \Validator::make(Request::all(), [
             'prov_name'         => 'required',
             'specialty'         => 'required',
-            //'bnk_account'       => 'required',
+            'bnk_account'       => 'required',
             'address'           => 'required',
             'bnk_name'          => 'required',
             'other_bnk_name'    => 'required_if:bnk_name,Otro',
@@ -229,7 +231,7 @@ class ProviderController extends Controller
             [
                 'prov_name.required'              => 'Debe especificar un nombre o razón social!',
                 'specialty.required'              => 'Debe especificar el área de especialidad del proveedor!',
-                //'bnk_account.required'            => 'Debe especificar un número de cuenta!',
+                'bnk_account.required'            => 'Debe especificar un número de cuenta!',
                 'address.required'                => 'Debe especificar la dirección del proveedor!',
                 'bnk_name.required'               => 'Debe especificar un Banco!',
                 'other_bnk_name.required_if'      => 'Debe especificar un banco!',
@@ -290,13 +292,16 @@ class ProviderController extends Controller
             return redirect()->route('root');
         
         $service = Session::get('service');
-
-        // TODO agregar campo specialty a condiciones de registro de proveedor incompleto (Bloquea seleccion en OC)
-        $providers = Provider::where('nit','=',0)->orwhere('phone_number','=',0)
+        
+        $providers = $this->incompleteProviderRecords();
+        
+        /*
+        $providers = Provider::whereNull('specialty')->orwhere('nit','=',0)->orwhere('phone_number','=',0)
             ->orwhere('address','=','')->orwhere('bnk_account','=','')->orwhere('bnk_name','=','')
             ->orwhere('contact_name','=','')->orwhere('contact_id','=',0)
             ->orwhere('contact_id_place','=','')->orwhere('contact_phone','=',0)
             ->orderBy('prov_name')->get();
+            */
 
         return View::make('app.provider_incomplete_list', ['providers' => $providers, 'service' => $service,
             'user' => $user]);

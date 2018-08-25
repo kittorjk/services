@@ -24,10 +24,12 @@ use App\Event;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\ProviderTrait;
 
 class OCController extends Controller
 {
     use FilesTrait;
+    use ProviderTrait;
     /**
      * Display a listing of the resource.
      *
@@ -89,10 +91,11 @@ class OCController extends Controller
         }
         */
 
-        $incomplete_providers = Provider::where('prov_name','')->orwhere('nit','=',0)->orwhere('phone_number','=',0)
-            ->orwhere('address','=','')/*->orwhere('bnk_account','=','')*/->orwhere('bnk_name','=','')
-            ->orwhere('contact_name','=','')->orwhere('contact_id','=',0)
-            ->orwhere('contact_id_place','=','')->orwhere('contact_phone','=',0)->count();
+        /*
+        $incomplete_providers = Provider::whereNull('specialty')->orwhere('prov_name','')->orwhere('nit','=',0)->orwhere('phone_number','=',0)->orwhere('address','=','')->orwhere('bnk_account','=','')->orwhere('bnk_name','=','')->orwhere('contact_name','=','')->orwhere('contact_id','=',0)->orwhere('contact_id_place','=','')->orwhere('contact_phone','=',0)->count();
+            */
+        
+        $incomplete_providers = $this->incompleteProviderRecords()->count();
 
         //$incomplete_providers = $providers->count();
 
@@ -125,10 +128,14 @@ class OCController extends Controller
 
         $pm_candidates = User::select('id', 'name')->where('status', 'Activo')->OrderBy('name')->get();
 
-        $providers = Provider::select('id','prov_name')->where('prov_name','<>','')->where('nit','<>',0)
-            ->where('phone_number','<>',0)->where('address','<>','')/*->where('bnk_account','<>','')*/->where('bnk_name','<>','')
+        /*
+        $providers = Provider::select('id','prov_name')->where('prov_name','<>','')->where('nit','<>',0)->whereNotNull('specialty')
+            ->where('phone_number','<>',0)->where('address','<>','')->where('bnk_account','<>','')->where('bnk_name','<>','')
             ->where('contact_name','<>','')->where('contact_id','<>',0)->where('contact_id_place','<>','')
             ->where('contact_phone','<>',0)->OrderBy('prov_name')->get();
+            */
+            
+        $providers = $this->validProviderRecords();
 
         $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
 
@@ -332,11 +339,15 @@ class OCController extends Controller
 
         $pm_candidates = User::select('id', 'name')->where('status', 'Activo')->OrderBy('name')->get();
 
-        $providers = Provider::select('id','prov_name')->where('nit','<>',0)->where('phone_number','<>',0)
+        /*
+        $providers = Provider::select('id','prov_name')->where('nit','<>',0)->whereNotNull('specialty')->where('phone_number','<>',0)
             ->where('address','<>','')->where('bnk_account','<>','')->where('bnk_name','<>','')
             ->where('contact_name','<>','')->where('contact_id','<>',0)
             ->where('contact_id_place','<>','')->where('contact_phone','<>',0)
             ->OrderBy('prov_name')->get();
+            */
+            
+        $providers = $this->validProviderRecords();
 
         $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
 

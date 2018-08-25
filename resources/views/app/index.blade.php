@@ -70,6 +70,7 @@
                             </a>
                         </div>
                     </div>
+                    <!--
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><span class="badge">7</span> Acceder al registro de </span>
@@ -86,6 +87,7 @@
                             </a>
                         </div>
                     </div>
+                    -->
                     {{--
                     <div class="form-group">
                         <div class="input-group">
@@ -100,7 +102,7 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon" style="width:185px; text-align:left">
-                                    <span class="badge">9</span> Acceder al menú de
+                                    <span class="badge">7</span> Acceder al menú de
                                 </span>
                                 <a href="{{ route('admin_menu') }}" class="btn btn-primary uniform_width">
                                     <i class="fa fa-key"></i> Admin
