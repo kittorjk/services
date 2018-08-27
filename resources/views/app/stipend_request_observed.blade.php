@@ -54,7 +54,7 @@
                             <tr>
                                 <td align="center">
                                     <a href="/stipend_request/{{ $stipend->id }}" title="Ver información de solicitud">
-                                        {{ 'STP-'.$stipend->id }}
+                                        {{ $stipend->code }}
                                     </a>
                                 </td>
                                 <td>{{ date_format($stipend->created_at,'d-m-Y') }}</td>

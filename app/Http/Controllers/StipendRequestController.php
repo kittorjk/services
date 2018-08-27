@@ -54,7 +54,7 @@ class StipendRequestController extends Controller
 
         $stipend_requests = $stipend_requests->orderBy('created_at', 'desc')->paginate(20);
 
-        $waiting_payment = StipendRequest::where('status', 'Approved_tech')->count();
+        $waiting_payment = StipendRequest::where('status', 'Sent')->count();
         $waiting_approval = StipendRequest::where('status', 'Pending')->count();
         $observed = StipendRequest::where('status', 'Observed')->count();
         
@@ -117,7 +117,8 @@ class StipendRequestController extends Controller
         $service = Session::get('service');
 
         if($user->action->prj_vtc_pmt /*$user->priv_level>=3*/){
-            $stipend_requests = StipendRequest::where('status', 'Approved_tech')->orderBy('created_at', 'desc')->get();
+            // $stipend_requests = StipendRequest::where('status', 'Approved_tech')->orderBy('created_at', 'desc')->get();
+            $stipend_requests = StipendRequest::where('status', 'Sent')->orderBy('created_at', 'desc')->get();
 
             return View::make('app.stipend_request_pending_payment', ['stipend_requests' => $stipend_requests,
                 'service' => $service, 'user' => $user]);

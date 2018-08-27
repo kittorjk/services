@@ -46,14 +46,14 @@
                             <th>Fecha</th>
                             <th>Solicitado para</th>
                             <th>Total</th>
-                            <th width="20%">Motivo</th>
+                            <th width="15%">Motivo</th>
                             <th>Acciones</th>
                         </tr>
                         @foreach($stipend_requests as $stipend)
                             <tr>
                                 <td align="center">
                                     <a href="/stipend_request/{{ $stipend->id }}" title="Ver información de solicitud">
-                                        {{ 'STP-'.$stipend->id }}
+                                        {{ $stipend->code }}
                                     </a>
                                 </td>
                                 <td>{{ date_format($stipend->created_at,'d-m-Y') }}</td>

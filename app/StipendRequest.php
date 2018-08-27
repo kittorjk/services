@@ -41,5 +41,6 @@ class StipendRequest extends Model
         'Rejected'      => 'Rechazada',
         'Completed'     => 'Completada',
         'Sent'          => 'Enviada',
+        'Documented'    => 'Rendido'
     );
 }
