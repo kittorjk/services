@@ -1,76 +1,75 @@
 @extends('layouts.projects_structure')
 
 @section('header')
-    @parent
-    <link rel="stylesheet" href="{{ asset("app/css/custom_table.css") }}">
-    <link rel="stylesheet" href="{{ asset("app/css/progress_bar.css") }}">
-    <style>
-        .dropdown-menu-prim > li > a {
-            width: 190px;
-            /*white-space: normal; /* Set content to a second line */
-        }
-    </style>
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
+  @parent
+  <link rel="stylesheet" href="{{ asset("app/css/custom_table.css") }}">
+  <link rel="stylesheet" href="{{ asset("app/css/progress_bar.css") }}">
+  <style>
+    .dropdown-menu-prim > li > a {
+      width: 190px;
+      /*white-space: normal; /* Set content to a second line */
+    }
+  </style>
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('menu_options')
-    @include('app.project_navigation_button', array('user'=>$user))
-    <div class="btn-group">
-        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
-            <i class="fa fa-cogs"></i> Asignaciones <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/assignment' }}"><i class="fa fa-bars fa-fw"></i> Resumen </a></li>
-            @if($user->priv_level>=1)
-                <li><a href="{{ '/assignment/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva asignación </a></li>
-            @endif
-            @if($user->priv_level>=2||$user->role=='Director regional'||($user->area=='Gerencia Tecnica'&&$user->priv_level==1))
-                <li><a href="{{ '/assignment?mode=rb' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de RB </a></li>
-                <li><a href="{{ '/assignment?mode=fo' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de FO </a></li>
-            @endif
-            @if($user->action->prj_vtc_rep /*$user->priv_level>=3*/)
-                <li><a href="{{ '/assignment/expense_report/stipend' }}"><i class="fa fa-money fa-fw"></i> Reporte de gastos</a></li>
-            @endif
-            @if($user->action->prj_asg_exp)
-                <li class="divider"></li>
-                <li><a href="{{ '/excel/assignments' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel</a></li>
-            @endif
-            {{--
-            @if($user->priv_level==4)
-                <li><a href="/delete/assignment"><i class="fa fa-trash-o"></i> Borrar archivo</a></li>
-            @endif
-            --}}
-        </ul>
-    </div>
-    @if($user->priv_level>=2)
-        <!--<a href="/search/assignments/0" class="btn btn-primary"><i class="fa fa-search"></i> Buscar </a>-->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
-            <i class="fa fa-search"></i> Buscar
-        </button>
-    @endif
+  @include('app.project_navigation_button', array('user'=>$user))
+  <div class="btn-group">
+    <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+      <i class="fa fa-cogs"></i> Asignaciones <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-prim">
+      <li><a href="{{ '/assignment' }}"><i class="fa fa-bars fa-fw"></i> Resumen </a></li>
+      @if($user->priv_level>=1)
+        <li><a href="{{ '/assignment/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva asignación </a></li>
+      @endif
+      @if($user->priv_level>=2||$user->role=='Director regional'||($user->area=='Gerencia Tecnica'&&$user->priv_level==1))
+        <li><a href="{{ '/assignment?mode=rb' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de RB </a></li>
+        <li><a href="{{ '/assignment?mode=fo' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de FO </a></li>
+      @endif
+      @if($user->action->prj_vtc_rep /*$user->priv_level>=3*/)
+        <li><a href="{{ '/assignment/expense_report/stipend' }}"><i class="fa fa-money fa-fw"></i> Reporte de gastos</a></li>
+      @endif
+      @if($user->action->prj_asg_exp)
+        <li class="divider"></li>
+        <li><a href="{{ '/excel/assignments' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel</a></li>
+      @endif
+      {{--
+      @if($user->priv_level==4)
+        <li><a href="/delete/assignment"><i class="fa fa-trash-o"></i> Borrar archivo</a></li>
+      @endif
+      --}}
+    </ul>
+  </div>
+  @if($user->priv_level>=2)
+    <!--<a href="/search/assignments/0" class="btn btn-primary"><i class="fa fa-search"></i> Buscar </a>-->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+      <i class="fa fa-search"></i> Buscar
+    </button>
+  @endif
 @endsection
 
 @section('content')
 
-    @foreach($assignments as $assignment)
-        @foreach($assignment->guarantees as $guarantee)
-            @if(($assignment->status<>$assignment->last_stat()/*Concluído*/&&$assignment->status<>0/*'No asignado'*/)&&
-                ($user->area=='Gerencia General'||$user->priv_level==4))
-                @if($current_date->diffInDays($guarantee->expiration_date,false)<=5&&$guarantee->closed==0)
-                    <div class="col-sm-12 mg10">
-                        <div class="alert alert-danger" align="center">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <a href="assignment/{{ $assignment->id }}" style="color: darkred">
-                                {{ 'La poliza de garantia de la asignación '.$assignment->code.
-                                    ($current_date->diffInDays($guarantee->expiration_date,false)<0 ?
-                                     ' ha expirado' : ' expira pronto') }}
-                            </a>
-                        </div>
-                    </div>
-                @endif
-            @endif
-        @endforeach
+  @foreach($assignments as $assignment)
+    @foreach($assignment->guarantees as $guarantee)
+      @if(($assignment->status<>$assignment->last_stat()/*Concluído*/&&$assignment->status<>0/*'No asignado'*/)&&
+        ($user->area=='Gerencia General'||$user->priv_level==4))
+        @if($current_date->diffInDays($guarantee->expiration_date,false)<=5&&$guarantee->closed==0)
+          <div class="col-sm-12 mg10">
+            <div class="alert alert-danger" align="center">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <a href="assignment/{{ $assignment->id }}" style="color: darkred">
+                {{ 'La poliza de garantia de la asignación '.$assignment->code.
+                ($current_date->diffInDays($guarantee->expiration_date,false)<0 ? ' ha expirado' : ' expira pronto') }}
+              </a>
+            </div>
+          </div>
+        @endif
+      @endif
     @endforeach
+  @endforeach
 
     <div class="col-sm-12 mg10">
         @include('app.session_flashed_messages', array('opt' => 0))
@@ -85,6 +84,7 @@
                 <tr>
                     <th width="9%">Código cliente</th>
                     <th width="10%" title="Identificador rápido de asignación según ABROS">Identificador</th>
+                    <th title="Centro de costos">C.C.</th>
                     <th width="16%">Asignación</th>
                     <th>Cliente</th>
                     <th>Tipo de trabajo</th>
@@ -100,27 +100,38 @@
             </thead>
             <tbody>
             <?php
-                $types = array();
-                    $types['Fibra óptica'] = 'FO';
-                    $types['Radiobases'] = 'RB';
-                    $types['Instalación de energía'] = 'IE';
-                    $types['Obras Civiles'] = 'CW';
-                    $types['Venta de material'] = 'VM';
+              $types = array();
+              $types['Fibra óptica'] = 'FO';
+              $types['Radiobases'] = 'RB';
+              $types['Instalación de energía'] = 'IE';
+              $types['Obras Civiles'] = 'CW';
+              $types['Venta de material'] = 'VM';
 
-                /*
-                $options_upgrade = array();
-                    $options_upgrade['Relevamiento'] = 'Cotizado';
-                    $options_upgrade['Cotizado'] = 'Ejecución';
-                    $options_upgrade['Ejecución'] = 'Revisión';
-                    $options_upgrade['Revisión'] = 'Cobro';
-                    $options_upgrade['Cobro'] = 'Concluído';
+              $acronimoCiudad = array();
+              $acronimoCiudad['Beni'] = 'BN';
+              $acronimoCiudad['Chuquisaca'] = 'CH';
+              $acronimoCiudad['Cochabamba'] = 'CB';
+              $acronimoCiudad['La Paz'] = 'LP';
+              $acronimoCiudad['Oruro'] = 'OR';
+              $acronimoCiudad['Pando'] = 'PD';
+              $acronimoCiudad['Potosi'] = 'PT';
+              $acronimoCiudad['Santa Cruz'] = 'SC';
+              $acronimoCiudad['Tarija'] = 'TJ';
 
-                $options_downgrade = array();
-                    $options_downgrade['Cobro'] = 'Revisión';
-                    $options_downgrade['Revisión'] = 'Ejecución';
-                    $options_downgrade['Ejecución'] = 'Cotizado';
-                    $options_downgrade['Cotizado'] = 'Relevamiento';
-                */
+              /*
+              $options_upgrade = array();
+                  $options_upgrade['Relevamiento'] = 'Cotizado';
+                  $options_upgrade['Cotizado'] = 'Ejecución';
+                  $options_upgrade['Ejecución'] = 'Revisión';
+                  $options_upgrade['Revisión'] = 'Cobro';
+                  $options_upgrade['Cobro'] = 'Concluído';
+
+              $options_downgrade = array();
+                  $options_downgrade['Cobro'] = 'Revisión';
+                  $options_downgrade['Revisión'] = 'Ejecución';
+                  $options_downgrade['Ejecución'] = 'Cotizado';
+                  $options_downgrade['Cotizado'] = 'Relevamiento';
+              */
             ?>
             @foreach ($assignments as $assignment)
                 <tr class="accordion-toggle">
@@ -133,7 +144,12 @@
                             {{ $assignment->code }}
                         @endif
                     </td>
-                    <td>{{ $assignment->literal_code }}</td>
+                    <td>
+                      <span title="{{ $assignment->literal_code }}">
+                        {{ str_limit($assignment->literal_code, 30) }}
+                      </span>
+                    </td>
+                    <td>{{ $assignment->cost_center > 0 ? $assignment->cost_center : '' }}</td>
                     <td>
                         {{ $assignment->name }}
                         @if((/*(($user->area=='Gerencia Tecnica'&&$user->priv_level>=1)||$user->priv_level>=3)*/
@@ -147,7 +163,7 @@
                     </td>
                     <td>{{ $assignment->client }}</td>
                     <td>{{ $types[$assignment->type].' > '.$assignment->sub_type }}</td>
-                    <td>{{ $assignment->branch_record ? $assignment->branch_record->name : 'N/E' }}</td>
+                    <td>{{ $assignment->branch_record ? $acronimoCiudad[$assignment->branch_record->name] : 'N/E' }}</td>
                     <td>
                         {{ $assignment->statuses($assignment->status) }}
                         @if($assignment->statuses($assignment->status)=='Cotización')

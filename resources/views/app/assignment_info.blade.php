@@ -73,6 +73,12 @@
                                     <td width="25%">{{ $assignment->code }}</td>
                                 </tr>
                                 <tr>
+                                  <th>
+                                    <span title="Centro de costos">C.C.:</span>
+                                  </th>
+                                  <td>{{ $assignment->cost_center > 0 ? $assignment->cost_center : 'N/E' }}</td>
+                                </tr>
+                                <tr>
                                     <th>Asignación:</th>
                                     <td colspan="3">{{ $assignment->name }}</td>
                                 </tr>

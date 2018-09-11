@@ -1,17 +1,17 @@
 @extends('layouts.master')
 
 @section('header')
-    @parent
-    {{--
-    <link rel="stylesheet" href="//codeorigin.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-    <script src="//codeorigin.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
-    --}}
+  @parent
+  {{--
+  <link rel="stylesheet" href="//codeorigin.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+  <script src="//codeorigin.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
+  --}}
 
-    <link rel="stylesheet" href="{{ asset("app/css/custom_autocomplete.css") }}">
-    <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.27/jquery.autocomplete.js') }}">
-    </script>
+  <link rel="stylesheet" href="{{ asset("app/css/custom_autocomplete.css") }}">
+  <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.27/jquery.autocomplete.js') }}">
+  </script>
 
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('content')
@@ -66,7 +66,7 @@
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
-                                        <label for="literal_code" class="input-group-addon" style="width: 23%;text-align: left">
+                                        <label for="literal_code" class="input-group-addon" style="width: 23%; text-align: left">
                                             Identificador <span class="pull-right">*</span>
                                         </label>
 
@@ -74,6 +74,15 @@
                                                id="literal_code"
                                                value="{{ $assignment ? $assignment->literal_code : old('literal_code') }}"
                                                placeholder="Nombre abreviado">
+                                    </div>
+
+                                    <div class="input-group" style="width: 100%">
+                                        <label for="cost_center" class="input-group-addon" style="width: 23%; text-align: left" title="Centro de costos">
+                                            C.C.: <span class="pull-right">*</span>
+                                        </label>
+                                        <input required="required" type="number" class="form-control" name="cost_center"
+                                              step="any" min="0" value="{{ $assignment && $assignment->cost_center > 0 ? $assignment->cost_center : old('cost_center') }}"
+                                              placeholder="Centro de costos">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">

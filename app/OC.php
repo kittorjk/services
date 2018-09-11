@@ -56,6 +56,6 @@ class OC extends Model
     }
 
     public function assignment(){
-        return $this->hasOne('App\Assignment');
+        return $this->belongsTo('App\Assignment');
     }
 }

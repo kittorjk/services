@@ -1679,8 +1679,9 @@ class ExcelController extends Controller
                         //$reader->getActiveSheet()->setCellValue('AM2', $oc->id);
                         $sheetToChange->setCellValue('AM2', $oc->id)
                             ->setCellValue('AM3', date_format($oc->created_at, 'd-m-Y'))
-                            ->setCellValue('AM6', $oc->client_oc)
+                            ->setCellValue('AM6', $oc->client_oc && $oc->client_oc > 0 ? $oc->client_oc : '')
                             ->setCellValue('AM7', $oc->client_ad)
+                            ->setCellValue('AM8', $oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0 ? $oc->assignment->cost_center : '')
                             ->setCellValue('F10', $oc->provider)
                             ->setCellValue('F11', $provider->address)
                             ->setCellValue('F12', $provider->phone_number)

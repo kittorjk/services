@@ -658,93 +658,95 @@ class StipendRequestController extends Controller
 
     public function generate_request_file()
     {
-        $content = collect();
+      $content = collect();
 
-        //$stipend = StipendRequest::find($id);
+      //$stipend = StipendRequest::find($id);
 
-        $requests = StipendRequest::where('status', 'Approved_tech')->get();
+      $requests = StipendRequest::where('status', 'Approved_tech')->get();
 
-        foreach($requests as $request)
-        {
-            if($request->total_amount>0){
-                $content->push(
-                    [   'Cuenta'            => $request->employee->bnk_account,
-                        'Monto'             => $request->total_amount+1-1, //Add and substract to convert to a number
-                        'Dias'              => $request->in_days==1 ? '1 dia de viatico' : $request->in_days.' dias de viatico ',
-                        'Tipo DocId'        => 'Q -CEDULA DE IDENTIDAD',
-                        'DocId'             => $request->employee->id_card,
-                        'Extensión'         => $request->employee->id_extension,
-                        'Cliente'           => $this->normalize_name($request->employee->last_name).' '.
-                            $this->normalize_name($request->employee->first_name),
-                        'Motivo'            => $this->normalize_name($request->reason),
-                        'Proyecto'          => $request->assignment ? ($request->assignment->project ?
-                            $this->normalize_name($request->assignment->project->name) : 'N E') : 'N E',
-                    ]);
-            }
-
-            if($request->additional>0){
-                $description = '';
-
-                if($request->transport_amount>0)
-                    $description .= $description=='' ? 'TR' : ' TR';
-                if($request->gas_amount>0)
-                    $description .= $description=='' ? 'COMB' : ' COMB';
-                if($request->taxi_amount>0)
-                    $description .= $description=='' ? 'TX' : ' TX';
-                if($request->comm_amount>0)
-                    $description .= $description=='' ? 'COM' : ' COM';
-                if($request->hotel_amount>0)
-                    $description .= $description=='' ? 'AL' : ' AL';
-                if($request->materials_amount>0)
-                    $description .= $description=='' ? 'MAT' : ' MAT';
-                if($request->extras_amount>0)
-                    $description .= $description=='' ? 'EX' : ' EX';
-
-                $content->push(
-                    [   'Cuenta'            => $request->employee->bnk_account,
-                        'Monto'             => $request->additional+1-1, //Add and substract to convert to a number
-                        'Dias'              => $description,
-                        'Tipo DocId'        => 'Q -CEDULA DE IDENTIDAD',
-                        'DocId'             => $request->employee->id_card,
-                        'Extensión'         => $request->employee->id_extension,
-                        'Cliente'           => $this->normalize_name($request->employee->last_name).' '.
-                            $this->normalize_name($request->employee->first_name),
-                        'Motivo'            => $this->normalize_name($request->reason),
-                        'Proyecto'          => $request->assignment ? ($request->assignment->project ?
-                            $this->normalize_name($request->assignment->project->name) : 'N E') : 'N E',
-                    ]);
-            }
+      foreach ($requests as $request) {
+        if ($request->total_amount > 0) {
+          $content->push([
+            'Cuenta'            => $request->employee->bnk_account,
+            'Monto'             => $request->total_amount+1-1, //Add and substract to convert to a number
+            'Dias'              => $request->in_days==1 ? '1 dia de viatico' : $request->in_days.' dias de viatico ',
+            'Tipo DocId'        => 'Q -CEDULA DE IDENTIDAD',
+            'DocId'             => $request->employee->id_card,
+            'Extensión'         => $request->employee->id_extension,
+            'Cliente'           => $this->normalize_name($request->employee->last_name).' '.
+                $this->normalize_name($request->employee->first_name),
+            'Motivo'            => $this->normalize_name($request->reason),
+            'Centro de costo'   => $request->assignment && $request->assignment->cost_center && 
+                $request->assignment->cost_center > 0 ? $request->assignment->cost_center : '',
+            'Proyecto'          => $request->assignment ? ($request->assignment->project ?
+                $this->normalize_name($request->assignment->project->name) : 'N E') : 'N E',
+          ]);
         }
 
-        Excel::load('/public/file_layouts/stipend_request_model.xlsx', function($reader) use($content)
-        {
-            //foreach($reader->get() as $key => $sheet) {
-                //$sheetTitle = $sheet->getTitle();
-            $reader->sheet('Planilla', function($sheet) use($content) {
+        if ($request->additional > 0) {
+          $description = '';
 
-                //$sheetToChange = $reader->setActiveSheetIndex($key);
+          if($request->transport_amount>0)
+              $description .= $description=='' ? 'TR' : ' TR';
+          if($request->gas_amount>0)
+              $description .= $description=='' ? 'COMB' : ' COMB';
+          if($request->taxi_amount>0)
+              $description .= $description=='' ? 'TX' : ' TX';
+          if($request->comm_amount>0)
+              $description .= $description=='' ? 'COM' : ' COM';
+          if($request->hotel_amount>0)
+              $description .= $description=='' ? 'AL' : ' AL';
+          if($request->materials_amount>0)
+              $description .= $description=='' ? 'MAT' : ' MAT';
+          if($request->extras_amount>0)
+              $description .= $description=='' ? 'EX' : ' EX';
 
-                //if($sheetTitle === 'Planilla') {
-
-                    $sheet->fromArray($content, null, 'A2', true, false);
-
-                    $i = count($content)+1;
-
-                    $sheet->setBorder('A1:I'.$i, 'thin');
-
-                //}
-            });
-        })->store('xlsx', public_path('files/stipend_requests'));
-
-        $timestamp = Carbon::now()->format('ymdhis');
-
-        foreach($requests as $request){
-            $request->status = 'Sent';
-            $request->xls_gen = 'XLS_'.$timestamp;
-            $request->save();
+          $content->push([
+            'Cuenta'            => $request->employee->bnk_account,
+            'Monto'             => $request->additional+1-1, //Add and substract to convert to a number
+            'Dias'              => $description,
+            'Tipo DocId'        => 'Q -CEDULA DE IDENTIDAD',
+            'DocId'             => $request->employee->id_card,
+            'Extensión'         => $request->employee->id_extension,
+            'Cliente'           => $this->normalize_name($request->employee->last_name).' '.
+                $this->normalize_name($request->employee->first_name),
+            'Motivo'            => $this->normalize_name($request->reason),
+            'Centro de costo'   => $request->assignment && $request->assignment->cost_center && 
+                $request->assignment->cost_center > 0 ? $request->assignment->cost_center : '',
+            'Proyecto'          => $request->assignment ? ($request->assignment->project ?
+                $this->normalize_name($request->assignment->project->name) : 'N E') : 'N E'
+          ]);
         }
+      }
 
-        return $requests;
+      Excel::load('/public/file_layouts/stipend_request_model.xlsx', function($reader) use($content) {
+        //foreach($reader->get() as $key => $sheet) {
+            //$sheetTitle = $sheet->getTitle();
+        $reader->sheet('Planilla', function($sheet) use($content) {
+
+            //$sheetToChange = $reader->setActiveSheetIndex($key);
+
+            //if($sheetTitle === 'Planilla') {
+
+            $sheet->fromArray($content, null, 'A2', true, false);
+
+            $i = count($content) + 1;
+
+            $sheet->setBorder('A1:I'.$i, 'thin');
+
+            //}
+        });
+      })->store('xlsx', public_path('files/stipend_requests'));
+
+      $timestamp = Carbon::now()->format('ymdhis');
+
+      foreach ($requests as $request) {
+        $request->status = 'Sent';
+        $request->xls_gen = 'XLS_'.$timestamp;
+        $request->save();
+      }
+
+      return $requests;
     }
 
     function notify_request($stipend, $requests)
