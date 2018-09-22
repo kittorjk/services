@@ -14,22 +14,27 @@ use Mail;
 use Hash;
 use Input;
 use Exception;
-use App\OC;
-use App\File;
-use App\User;
-use App\Provider;
-use App\Invoice;
+
+use App\ClientSession;
 use App\Email;
 use App\Event;
+use App\File;
+use App\Invoice;
+use App\OC;
+use App\Provider;
+use App\User;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
 use App\Http\Traits\ProviderTrait;
+use App\Http\Traits\UserTrait;
 
 class OCController extends Controller
 {
     use FilesTrait;
     use ProviderTrait;
+    use UserTrait;
     /**
      * Display a listing of the resource.
      *
@@ -45,7 +50,11 @@ class OCController extends Controller
         if($user->acc_oc==0)
             return redirect()->action('LoginController@logout', ['service' => 'oc']);
 
+        Session::put('service', 'oc');
+        
         $service = Session::get('service');
+        
+        $this->trackService($user, $service);
 
         //if($user->priv_level>=3||$user->area=='Gerencia Tecnica'||$user->area=='Gerencia General')
         if($user->priv_level>=2||($user->priv_level==1&&$user->area=='Gerencia General')){
@@ -485,8 +494,12 @@ class OCController extends Controller
     public function approve_form()
     {
         $user = Session::get('user');
-        if ((is_null($user)) || (!$user->id))
+        if ((is_null($user)) || (!$user->id)) {
+            // $ref = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $ref = $_SERVER['REQUEST_URI'];
+            Session::put('url.intended', $ref);
             return redirect()->route('root');
+        }
 
         $service = Session::get('service');
 

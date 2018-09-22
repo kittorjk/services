@@ -9,22 +9,27 @@ use App\Http\Controllers\Controller;
 
 use Session;
 use View;
-use App\File;
 use Hash;
-use App\User;
-use App\Driver;
-use App\Vehicle;
-use App\VehicleRequirement;
+
+use App\ClientSession;
 use App\Device;
 use App\DeviceRequirement;
-use App\Operator;
-use App\VehicleCondition;
+use App\Driver;
+use App\File;
 use App\Maintenance;
+use App\Operator;
+use App\User;
+use App\Vehicle;
+use App\VehicleCondition;
+use App\VehicleRequirement;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
+use App\Http\Traits\UserTrait;
 
 class ActiveController extends Controller
 {
+    use UserTrait;
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +44,11 @@ class ActiveController extends Controller
         if($user->acc_active==0)
             return redirect()->action('LoginController@logout', ['service' => 'active']);
 
+        Session::put('service', 'active');
+        
         $service = Session::get('service');
+        
+        $this->trackService($user, $service);
 
         if(($user->priv_level>=1&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3){
             $drivers = Driver::where('id', '>', 0)->orderBy('date','desc')->take(5)->get();

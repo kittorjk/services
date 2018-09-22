@@ -12,25 +12,30 @@ use View;
 use Mail;
 use Input;
 use Exception;
-use App\Project;
-use App\File;
-use App\User;
-use App\Contact;
+
 use App\Assignment;
+use App\ClientSession;
+use App\Contact;
 use App\Email;
-use App\Event;
 use App\Employee;
+use App\Event;
+use App\File;
+use App\Project;
 use App\StipendRequest;
 use App\Tender;
+use App\User;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use PHPExcel_Worksheet_Drawing;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\UserTrait;
 
 class ProjectsController extends Controller
 {
     use FilesTrait;
+    use UserTrait;
     /**
      * Display a listing of the resource.
      *
@@ -51,7 +56,11 @@ class ProjectsController extends Controller
         return redirect()->route('assignment.index');
         */
 
+        Session::put('service', 'project');
+        
         $service = Session::get('service');
+        
+        $this->trackService($user, $service);
 
         //if($user->priv_level>=2||($user->priv_level==1&&$user->area=='Gerencia Tecnica')){
 

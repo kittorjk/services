@@ -13,28 +13,33 @@ use View;
 use Mail;
 use Input;
 use Exception;
+
 use App\Activity;
 use App\Assignment;
-use App\File;
-use App\User;
-use App\Contact;
-use App\Site;
 use App\Branch;
+use App\ClientSession;
+use App\Contact;
+use App\DeadInterval;
 use App\Email;
 use App\Event;
+use App\File;
 use App\Project;
-use App\DeadInterval;
+use App\Site;
+use App\User;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use PHPExcel_Worksheet_Drawing;
 use App\Http\Traits\FilesTrait;
 use App\Http\Traits\ProjectTrait;
+use App\Http\Traits\UserTrait;
 
 class AssignmentController extends Controller
 {
     use FilesTrait;
     use ProjectTrait;
+    use UserTrait;
     /**
      * Display a listing of the resource.
      *
@@ -49,7 +54,11 @@ class AssignmentController extends Controller
         if($user->acc_project==0)
             return redirect()->action('LoginController@logout', ['service' => 'project']);
 
+        Session::put('service', 'project');
+        
         $service = Session::get('service');
+        
+        $this->trackService($user, $service);
 
         $prj = Input::get('prj');
         $mode = Input::get('mode');

@@ -9,16 +9,21 @@ use App\Http\Controllers\Controller;
 use Session;
 use View;
 use Input;
+
 use App\Cite;
+use App\ClientSession;
 use App\File;
 use App\User;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
+use App\Http\Traits\UserTrait;
 
 class CitesController extends Controller
 {
     use FilesTrait;
+    use UserTrait;
     /**
      * Display a listing of the resource.
      *
@@ -34,7 +39,11 @@ class CitesController extends Controller
         if($user->acc_cite==0)
             return redirect()->action('LoginController@logout', ['service' => 'cite']);
 
+        Session::put('service', 'cite');
+        
         $service = Session::get('service');
+        
+        $this->trackService($user, $service);
 
         if($user->action->ct_vw_all /*($user->priv_level==3&&$user->area=='Gerencia General')*/||$user->priv_level==4){
 

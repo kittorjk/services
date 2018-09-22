@@ -284,8 +284,13 @@ class InvoiceController extends Controller
     public function show($id)
     {
         $user = Session::get('user');
-        if ((is_null($user)) || (!$user->id))
+        if ((is_null($user)) || (!$user->id)) {
+            //$ref = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+            //$ref = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $ref = $_SERVER['REQUEST_URI'];
+            Session::put('url.intended', $ref);
             return redirect()->route('root');
+        }
 
         $service = Session::get('service');
 
