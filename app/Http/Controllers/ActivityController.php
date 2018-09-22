@@ -272,7 +272,7 @@ class ActivityController extends Controller
             }
         }
 
-        Session::flash('message', "La actividad fu registrada en el sistema correctamente");
+        Session::flash('message', "La actividad fue registrada en el sistema correctamente");
         return redirect()->action('ActivityController@activities_per_task', ['id' => $activity->task_id]);
 
         /* Old code with interaction to cites and ocs tables

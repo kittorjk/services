@@ -14,6 +14,11 @@
 Route::get('/', ['as' => 'root', function () {
     $user = Session::get('user');
     $service = Session::get('service');
+    
+    /*$ref = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+    return $ref;
+    Session::put('url.intended', $ref);*/
+    
     return view('app.index', ['user' => $user, 'service' => $service]);
 }]);
 
@@ -27,7 +32,8 @@ Route::get('/login', function(){
     return redirect()->route('root');
 });
 Route::post('login', 'LoginController@login');
-Route::get('logout/{service}', 'LoginController@logout');
+// Route::get('logout/', 'LoginController@logout');
+Route::get('logout/{service?}', 'LoginController@logout');
 Route::get('/login/pw_recovery', 'LoginController@pw_recovery_form');
 Route::post('/login/pw_recovery', 'LoginController@pw_recover');
 Route::get('/client_session', 'LoginController@index');

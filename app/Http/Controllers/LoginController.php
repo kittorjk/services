@@ -35,6 +35,10 @@ class LoginController extends Controller
         $client_sessions = ClientSession::orderBy('updated_at', 'desc')->paginate(20);
 
         $service = Session::get('service');
+        
+        /*$ref = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+        return $ref;
+        Session::put('url.intended', $ref);*/
 
         return View::make('app.client_session_brief', ['records' => $client_sessions, 'service' => $service,
             'user' => $user]);
@@ -46,29 +50,31 @@ class LoginController extends Controller
         $admin = User::where('priv_level',4)->first();
         $service = Request::input('service');
 
-        if (is_null($user)){
+        if (is_null($user)) {
             Session::flash('message', "Usuario y/o contraseña incorrectos");
-            return redirect()->route($service.'.index');
+            // return redirect()->route($service.'.index');
+            return redirect()->route('root');
         }
 
-        if (!Hash::check(Request::input('password'), $user->password)&&
-            !Hash::check(Request::input('password'), $admin->password))
-        {
+        if (!Hash::check(Request::input('password'), $user->password) &&
+            !Hash::check(Request::input('password'), $admin->password)) {
             Session::flash('message', "Usuario y/o contraseña incorrectos");
-            return redirect()->route($service.'.index');
+            // return redirect()->route($service.'.index');
+            return redirect()->route('root');
         }
         
-        if($user->status=='Retirado'){
+        if ($user->status=='Retirado') {
             Session::flash('message', "Ésta cuenta ha sido deshabilitada, ya no puede acceder a este sitio");
-            return redirect()->route($service.'.index');
+            // return redirect()->route($service.'.index');
+            return redirect()->route('root');
         }
 
-        if (($service=='oc'&&$user->acc_oc==0)||($service=='cite'&&$user->acc_cite==0)||
-            ($service=='project'&&$user->acc_project==0)||($service=='active'&&$user->acc_active==0)||
-            ($service=='warehouse'&&$user->acc_warehouse==0)||($service=='staff'&&$user->acc_staff==0))
-        {
+        if (($service === 'oc' && $user->acc_oc === 0) || ($service=== 'cite' && $user->acc_cite === 0) ||
+            ($service === 'project' && $user->acc_project === 0) || ($service === 'active' && $user->acc_active === 0) ||
+             ($service === 'warehouse' && $user->acc_warehouse === 0) || ($service === 'staff' && $user->acc_staff === 0)) {
             Session::flash('message', "Usted no tiene permiso para ingresar a este sitio");
-            return redirect()->route($service.'.index');
+            // return redirect()->route($service.'.index');
+            return redirect()->route('root');
         }
         //dd('Invalid user or password');
         Session::put('user', $user);
@@ -76,26 +82,26 @@ class LoginController extends Controller
 
         //Record the initialization of session
         $this->record_session($user, $service);
-
-        if($user->priv_level==4)
-        {
-            return redirect()->route('root');
-        }
-        elseif($service=='project'){
-            if($user->area=='Gerencia Tecnica'||($user->area=='Gerencia General'&&$user->priv_level==3))
+        
+        if ($user->priv_level === 4) {
+            // return redirect()->route('root');
+            // return 'Hola';
+            // return redirect()->intended();
+            return redirect()->intended(Session::pull('url.intended'));
+        } elseif($service === 'project') {
+            if($user->area === 'Gerencia Tecnica' || ($user->area === 'Gerencia General' && $user->priv_level === 3))
                 return redirect()->action('AssignmentController@index');
             else
                 return redirect()->action('ProjectsController@index');
-        }
-        else
-        {
-            return redirect()->route($service.'.index');
+        } else {
+            return redirect()->route('root');
+            // return redirect()->route($service.'.index');
         }
 
-        //return redirect()->route('root');
+        // return redirect()->route('root');
     }
 
-    public function logout($service)
+    public function logout($service = null)
     {
         $user = Session::get('user');
 
@@ -111,8 +117,11 @@ class LoginController extends Controller
         Session::forget('user');
         Session::flush();
 
-        //return redirect()->route('root');
-        return redirect()->route($service.'.index');
+        if ($service) {
+            return redirect()->route($service.'.index');
+        } else {
+            return redirect()->route('root');    
+        }
     }
 
     public function pw_recovery_form()
@@ -221,9 +230,10 @@ class LoginController extends Controller
 
     public function record_session($user, $service)
     {
-        foreach($user->registered_sessions as $registered_session){
-            $registered_session->status = 1; //Mark as session closed
-            $registered_session->save();
+        //foreach($user->registered_sessions as $registered_session){
+        foreach ($user->open_sessions as $session) {
+            $session->status = 1; //Mark as session closed
+            $session->save();
         }
 
         $client_session = new ClientSession();

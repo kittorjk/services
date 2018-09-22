@@ -139,7 +139,8 @@
                         </div>
                     </div>
                 </div>
-            @elseif($service&&empty($user))
+            @elseif(empty($user))
+            {{-- $service&&empty($user) --}}
                 <div class="panel-heading">
                     <div class="panel-title" align="center">Iniciar sesión</div>
                 </div>
