@@ -5,18 +5,16 @@
     {{--espera su aprobación.--}}
 </p>
 <p>
-    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>
+    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>.
 </p>
 <p>
-    Puede ver los detalles de esta factura y proceder a su pago //aprobación haga click
+    Para ver los detalles de esta factura y proceder a su pago haga click
     <a href="http://services.gerteabros.com/invoice/{{ $invoice->id }}">aquí</a>,
     es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 <!--
 <p>
-    Para ver los detalles de esta factura haga click ingresando al sistema a través de este
-    <a href="http://services.gerteabros.com/oc">enlace</a> y seleccionando la opción Pagos en la parte
-    superior de la página.
+    Puede ver los detalles de ésta factura ingresando al sistema a través de éste <a href="http://services.gerteabros.com/oc">enlace</a> y seleccionando la opción Pagos en la parte superior de la página.
 </p>
 -->
 
