@@ -404,6 +404,9 @@
                                             <option value="area">Area de trabajo</option>
                                             <option value="status">Estado</option>
                                         @endif
+                                        @if ($table === 'client_sessions')
+                                            <option value="service_accessed">Servicio</option>
+                                        @endif
                                     </select>
                                     <input required="required" type="text" class="form-control" name="buscar"
                                            placeholder="Parámetro de búsqueda">

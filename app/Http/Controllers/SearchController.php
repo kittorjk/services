@@ -9,52 +9,53 @@ use App\Http\Controllers\Controller;
 use Session;
 use View;
 use Input;
-use App\OC;
-use App\Cite;
-use App\File;
-use App\User;
-use App\Event;
-use App\Provider;
-use App\Order;
-use App\Bill;
-use App\Site;
-use App\Task;
 use App\Assignment;
-use App\Invoice;
-use App\Vehicle;
-use App\Device;
-use App\Driver;
-use App\Operator;
-use App\Maintenance;
-use App\Contact;
-use App\VehicleCondition;
-//use App\Contract;
-use App\Guarantee;
-use App\Project;
+use App\Bill;
+use App\Branch;
 use App\Calibration;
+use App\Cite;
+use App\ClientSession;
+use App\Contact;
+use App\CorpLine;
+use App\CorpLineAssignation;
+use App\CorpLineRequirement;
 use App\DeadInterval;
+use App\Device;
 use App\DeviceHistory;
+use App\DeviceRequirement;
+use App\Driver;
+use App\DvcFailureReport;
+use App\Email;
+use App\Employee;
+use App\Event;
+use App\ExportedFiles;
+use App\File;
+use App\Guarantee;
+use App\Invoice;
+use App\ItemCategory;
+use App\Maintenance;
+use App\OC;
 use App\OcCertification;
+use App\Operator;
+use App\Order;
+use App\Project;
+use App\Provider;
+use App\Site;
+use App\StipendRequest;
+use App\Task;
+use App\Tender;
+use App\User;
+use App\Vehicle;
+use App\VehicleCondition;
 use App\VehicleHistory;
+use App\VehicleRequirement;
+use App\VhcFailureReport;
+//use App\Contract;
 //use App\Material;
 //use App\Warehouse;
 //use App\WarehouseEntry;
 //use App\WarehouseOutlet;
-use App\Email;
-use App\DeviceRequirement;
-use App\VehicleRequirement;
-use App\ExportedFiles;
 //use App\RbsViatic;
-use App\CorpLine;
-use App\CorpLineAssignation;
-use App\CorpLineRequirement;
-use App\DvcFailureReport;
-use App\ItemCategory;
-use App\StipendRequest;
-use App\VhcFailureReport;
-use App\Branch;
-use App\Employee;
-use App\Tender;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -298,6 +299,16 @@ class SearchController extends Controller
             $cites = $cites->orderBy('created_at', 'desc')->paginate(20);
 
             return View::make('app.cite_brief', ['cites' => $cites, 'service' => $service, 'user' => $user]);
+        }
+        
+        elseif ($table === 'client_sessions') {
+            if ($has_date) {
+                $sessions = ClientSession::whereBetween('created_at', [$from, $to])->orderBy('created_at')->paginate(20);
+            } else {
+                $sessions = ClientSession::where("$parameter", 'like', "%$search_term%")->orderBy('created_at')->paginate(20);
+            }
+
+            return View::make('app.client_session_brief', ['records' => $sessions, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'contacts') {
