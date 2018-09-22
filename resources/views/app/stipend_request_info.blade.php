@@ -65,6 +65,12 @@
                                     <th width="25%">Solicitud #</th>
                                     <td width="25%" align="right">{{ $stipend->code }}</td>
                                 </tr>
+                                @if($stipend->assignment && $stipend->assignment->cost_center > 0)
+                                    <tr>
+                                        <th><span title="Centro de costos">C.C.</span></th>
+                                        <td colspan="3">{{ $stipend->assignment->cost_center }}</td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <th>Estado</th>
                                     <td colspan="3">

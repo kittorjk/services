@@ -89,6 +89,7 @@ class ExcelController extends Controller
             {
                 $sheet_content->prepend(
                     [   'Código'                => $assignment->code,
+                        'C.C.'                  => $assignment->cost_center,
                         'Asignación'            => $assignment->name,
                         'Proyecto'              => $assignment->project ? $assignment->project->name : '',
                         'Cliente'               => $assignment->client,
@@ -1063,6 +1064,12 @@ class ExcelController extends Controller
             $sheet_name = 'Solicitudes de viaticos';
 
             $stipend_requests = StipendRequest::all();
+            
+            foreach($stipend_requests as $stipend_request) {
+                $stipend_request->cost_center = $stipend_request->assignment && $stipend_request->assignment->cost_center > 0 ? $stipend_request->assignment->cost_center : '';
+                
+                unset($stipend_request->assignment);
+            }
 
             $this->record_export('/stipend_request', 'Full table stipend_requests', 0);
 
@@ -3346,15 +3353,19 @@ class ExcelController extends Controller
 
             return $this->create_excel($excel_name, $sheet_name, $reports);
         }
-        elseif($table=='stipend_requests')
-        {
+        
+        elseif ($table === 'stipend_requests') {
             $assignment = Assignment::find($id);
 
             $excel_name = 'Tabla de solicitudes de viaticos - asignacion '.$assignment->code;
             $sheet_name = 'Viaticos - '.$assignment->code;
 
             $stipend_requests = StipendRequest::where('assignment_id', $assignment->id)->get();
-
+            
+            foreach($stipend_requests as $stipend_request) {
+                $stipend_request->cost_center = $assignment && $assignment->cost_center > 0 ? $assignment->cost_center : '';
+            }
+            
             $this->record_export('/stipend_request?asg='.$assignment->id,
                 'stipend_requests records with '.$assignment->code, 0);
 

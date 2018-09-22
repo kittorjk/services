@@ -133,6 +133,7 @@
             <thead>
             <tr>
                 <th>Núm</th>
+                <th title="Centro de costos">C.C.</th>
                 <th width="8%">Fecha</th>
                 <th width="15%">Solicitado para</th>
                 <th>Viático</th>
@@ -153,12 +154,13 @@
                             {{ $stipend->code }}
                         </a>
 
-                        @if($user->action->prj_vtc_edt /*$user->priv_level==4*/)
+                        @if(/*$user->action->prj_vtc_edt*/ $user->priv_level==4)
                             <a href="/stipend_request/{{ $stipend->id }}/edit" title="Modificar solicitud">
                                 <i class="fa fa-pencil-square-o pull-right"></i>
                             </a>
                         @endif
                     </td>
+                    <td>{{ $stipend->assignment && $stipend->assignment->cost_center > 0 ? $stipend->assignment->cost_center : '' }}</td>
                     <td>{{ date_format($stipend->created_at,'d-m-Y') }}</td>
                     <td>
                         {{ $stipend->employee->first_name.' '.$stipend->employee->last_name }}

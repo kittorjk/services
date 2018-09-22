@@ -137,6 +137,14 @@
                                     <td>Proyecto:</td>
                                     <td colspan="3">{{ $oc->proy_name }}</td>
                                 </tr>
+                                @if($oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0)
+                                <tr>
+                                  <td>
+                                    <span title="Centro de costos">C.C.:</span>
+                                  </td>
+                                  <td colspan="3">{{ $oc->assignment->cost_center }}</td>
+                                </tr>
+                                @endif
                                 @if($oc->proy_description)
                                 <tr>
                                     <td>Descripción:</td>
