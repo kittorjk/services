@@ -246,6 +246,11 @@
                                         @foreach($oc->files as $file)
                                             @if(substr(explode('_',$file->name)[2],0,3)=='sgn')
                                                 @include('app.info_document_options', array('file'=>$file))
+                                                
+                                                @if($file->status === 0 || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo"><i class="fa fa-refresh"></i> Reemplazar</a>
+                                                @endif
 
                                                 {{--
                                                 <a href="/download/{{ $file->id }}" style="text-decoration: none">

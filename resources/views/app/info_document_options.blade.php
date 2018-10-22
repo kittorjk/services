@@ -20,10 +20,10 @@
 </a>
 
 &ensp;
-<a href="/file/{{ $file->id }}" title="Ver información de archivo">Detalles</a>
+<a href="/file/{{ $file->id }}" title="Ver información de archivo">Inf. de archivo</a>
 
 @if($file->type=='pdf')
     &ensp;
     <a href="/display_file/{{ $file->id }}" target="_blank"
-       title="Mostrar archivo en una nueva pestaña del navegador">Ver</a>
+       title="Mostrar archivo en una nueva pestaña del navegador">Ver PDF</a>
 @endif
