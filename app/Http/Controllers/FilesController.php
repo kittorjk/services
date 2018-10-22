@@ -1657,22 +1657,22 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='replace') {
+        if ($type == 'replace') {
             $mime = File::find($id)->type;
             $status = File::find($id)->status;
             $blocked = $status==1 ? true : false;
 
-            if($blocked){
+            if ($blocked && $user->priv_level < 4) {
                 Session::flash('message', 'Este archivo ha sido bloqueado y no puede ser modificado!');
                 return redirect()->back()->withInput();
             }
 
-            if($mime=='jpg'||$mime=='jpeg'||$mime=='png'){
+            if ($mime=='jpg'||$mime=='jpeg'||$mime=='png') {
                 $v = \Validator::make($request->file(), [
                     'file' => 'mimes:jpg,jpeg,png',
                 ]);
             }
-            else{
+            else {
                 $v = \Validator::make($request->file(), [
                     'file' => 'mimes:'.$mime,
                 ]);
