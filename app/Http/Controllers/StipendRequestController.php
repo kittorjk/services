@@ -781,7 +781,7 @@ class StipendRequestController extends Controller
             
             //$copies = User::where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->get();
             $copies = User::where(function ($query){
-                $query->where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->where('status', 'Activo');
+                $query->where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->where('priv_level', '>=', 2)->where('status', 'Activo');
             })->orwhere(function ($query1){
                 $query1->where('area', 'Gerencia Tecnica')->where('priv_level', 3);
             })->get();
