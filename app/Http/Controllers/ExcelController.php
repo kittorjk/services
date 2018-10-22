@@ -640,6 +640,7 @@ class ExcelController extends Controller
                 $sheet_content->prepend(
                     [   'Fecha de registro' => date_format($invoice->created_at,'d/m/Y'),
                         'Código de OC'      => 'OC-'.str_pad($invoice->oc_id, 5, "0", STR_PAD_LEFT),
+                        'Centro de costos'  => $invoice->oc->assignment && $invoice->oc->assignment->cost_center && $invoice->oc->assignment->cost_center > 0 ? $invoice->oc->assignment->cost_center : '',
                         'Proveedor'         => $invoice->oc->provider,
                         'Nº de factura'     => $invoice->number,
                         'Fecha de emisión'  => Carbon::parse($invoice->date_issued)->format('d/m/Y'),
@@ -764,6 +765,7 @@ class ExcelController extends Controller
                     [   'ID'                    => $oc_certification->id,
                         'Código'                => $oc_certification->code,
                         'Código OC'             => $oc_certification->oc->code,
+                        'Centro de costos'      => $oc_certification->oc->assignment && $oc_certification->oc->assignment->cost_center && $oc_certification->oc->assignment->cost_center > 0 ? $oc_certification->oc->assignment->cost_center : '',
                         'Monto ejecutado'       => number_format($oc_certification->amount,2).' Bs',
                         'Certificado por'       => $oc_certification->user->name,
                         'ID usuario'            => $oc_certification->user_id,
@@ -814,6 +816,7 @@ class ExcelController extends Controller
                         'Saldo'                         => number_format($oc->executed_amount-$oc->payed_amount,2),
                         'Porcentajes de pago'           => str_replace('-','% - ',$oc->percentages).'%',
                         'Proyecto'                      => wordwrap($oc->proy_name, 70, "\n", false),
+                        'Centro de costos'              => $oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0 ? $oc->assignment->cost_center : '',
                         'Descripción proyecto'          => wordwrap($oc->proy_description, 70, "\n", false),
                         'Cliente'                       => $oc->client,
                         'OC Cliente'                    => $oc->client_oc,
