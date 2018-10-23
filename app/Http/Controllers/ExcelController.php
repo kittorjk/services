@@ -2576,6 +2576,7 @@ class ExcelController extends Controller
                         //'OC-'.str_pad($certificate->oc_id, 5, "0", STR_PAD_LEFT)
                     ->setCellValue('L15', wordwrap($certificate->oc->proy_name.' '.
                         $certificate->oc->proy_description, 100, "\n", false))
+                    ->setCellValue('AL12', $certificate->oc->assignment ? $certificate->oc->assignment->cost_center : '')
                     ->setCellValue('AL13', $certificate->oc->provider_record->nit)
                     ->setCellValue('AL14', $certificate->oc->client_oc)
                     ->setCellValue('M19', $certificate->type_reception=='Total' ? 'X' : '')
@@ -2587,10 +2588,10 @@ class ExcelController extends Controller
                     ->setCellValue('AH22', $certificate->user->priv_level==4&&$certificate->oc->responsible ?
                         $certificate->oc->responsible->name : $certificate->oc->user->name)
                     ->setCellValue('AN24', 'Importe total bruto según '.$certificate->oc->code)
-                    ->setCellValue('AP52', number_format($certificate->amount,2))
-                    ->setCellValue('C53', ucfirst($this->convert_number_to_words($certificate->amount)).' Bolivianos')
+                    ->setCellValue('AP53', number_format($certificate->amount,2))
+                    ->setCellValue('C54', ucfirst($this->convert_number_to_words($certificate->amount)).' Bolivianos')
                     ->setCellValue('E27', wordwrap($certificate->oc->proy_concept, 70, "\n", false))
-                    ->setCellValue('AN27', number_format($certificate->oc->oc_amount,2))
+                    ->setCellValue('AO27', number_format($certificate->oc->oc_amount,2))
                     //->setCellValue('C42', ucfirst($this->convert_number_to_words($certificate->oc->payed_amount)).' Bolivianos')
                     //->setCellValue('AP39', number_format($certificate->amount,2))
                     //->setCellValue('AP42', number_format($certificate->oc->payed_amount,2)
@@ -2600,7 +2601,7 @@ class ExcelController extends Controller
                     ->setCellValue('B47', wordwrap($certificate->observations, 100, "\n", false));
 
                 if ($certificate->type_reception == 'Total') {
-                    $posicionCierre = $certificate->observations ? 'B48' : 'B47';
+                    $posicionCierre = $certificate->observations ? 'B49' : 'B48';
                     $sheetToChange->setCellValue($posicionCierre, 'Con el presente certificado se cierra la orden de compra');
                 }
 
@@ -2626,7 +2627,7 @@ class ExcelController extends Controller
                             ->setCellValue('AF'.$i, $invoice->transaction_date!='0000-00-00 00:00:00' ?
                                 Carbon::parse($invoice->transaction_date)->format('d/m/Y') :
                                 'Factura emitida '.Carbon::parse($invoice->date_issued)->format('d/m/Y') )
-                            ->setCellValue('AO'.$i, $invoice->amount);
+                            ->setCellValue('AP'.$i, $invoice->amount);
 
                         $i++;
                         $listed_amount += $invoice->amount;
@@ -2635,20 +2636,40 @@ class ExcelController extends Controller
                 }
 
                 $sheetToChange->setCellValue('A'.$i, $i-31)
+                    ->setCellValue('A'.$i, $i-31)
                     ->setCellValue('E'.$i, 'Monto certificado actual')
-                    ->setCellValue('AO'.$i, number_format($certificate->amount,2))
+                    ->setCellValue('AF'.$i, '------')
+                    ->setCellValue('AP'.$i, number_format($certificate->amount,2))
                     //->setCellValue('E'.($i+1), 'Monto pagado a la fecha')
                     //->setCellValue('AO'.($i+1), number_format($certificate->oc->payed_amount,2))
                     //->setCellValue('E'.($i+3), 'Saldo no ejecutado')
                     //->setCellValue('AO'.($i+3), number_format($certificate->oc->oc_amount-$certificate->amount
                     //    -$listed_amount,2));
+                    ->setCellValue('A'.($i+1), $i-30)
+                    ->setCellValue('E'.($i+1), 'Total monto certificado a la fecha')
+                    ->setCellValue('AF'.($i+1), '------')
+                    ->setCellValue('AP'.($i+1), number_format($certificate->amount + $listed_amount, 2))
+                    ->setCellValue('A'.($i+2), $i-29)
                     ->setCellValue('E'.($i+2), 'Saldo nominal según Orden de Compra')
-                    ->setCellValue('AO'.($i+2), number_format($certificate->oc->oc_amount-$certificate->amount
+                    ->setCellValue('AF'.($i+2), '------')
+                    ->setCellValue('AP'.($i+2), number_format($certificate->oc->oc_amount-$certificate->amount
                         -$listed_amount,2));
+
+                $reader->sheet('Certificado', function($sheet) use($i) {
+                  $sheet->cells('AO'.($i+1).':AP'.($i+1), function($cells) {
+                    $cells->setAlignment('right')
+                          ->setFontWeight('bold');
+                    //$cells->setBorder(array(
+                    //  'top'   => array(
+                    //      'style' => 'solid'
+                    //  ),
+                    //));
+                  });
+                });
 
             })->export('xlsx');
         }
-        elseif($table=='vehicle_history')
+        elseif ($table == 'vehicle_history')
         {
             $vehicle = Vehicle::find($id);
 
