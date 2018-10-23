@@ -43,11 +43,22 @@
             li.appBlue:hover {background: #429ff0;}
         </style>
     --}}
+    <style>
+        .menuFijo {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        .margenSuperior {
+            top: 41px;
+        }
+    </style>
 </head>
 <body>
 
 @section('menu_bar')
-    <div class="mg20">
+    <div class="mg20 menuFijo">
         <nav>
             <ul class="menu navblue">
                 @if($user->priv_level==4)
@@ -76,7 +87,9 @@
     </div>
 @show
 
-@yield('content')
+<div style="margin-top:60px">
+    @yield('content')
+</div>
 
 @section('footer')
     <div class="row_spacing"></div>

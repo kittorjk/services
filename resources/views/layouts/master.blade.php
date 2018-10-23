@@ -32,10 +32,23 @@
 
     @yield('stylesheet')
 
+    <style>
+        .menuFijo {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        .margenSuperior {
+            top: 41px;
+        }
+    </style>
 </head>
 <body>
 
-@yield('content')
+<div style="margin-top:60px">
+    @yield('content')
+</div>
 
 @section('footer')
     <div class="row_spacing"></div>

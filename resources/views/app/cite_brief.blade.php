@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-    <div class="mg20">
+    <div class="mg20 menuFijo">
         <nav>
             <ul class="menu navgreen">
                 @if($user->priv_level==4)

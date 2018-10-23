@@ -23,5 +23,5 @@ $.fn.popover.Constructor.prototype.leave = function(obj){
     }
 };
 
-$('body').popover({ selector: '[data-popover]', trigger: 'click hover', placement: 'auto', delay: {show: 50, hide: 200}});
+$('body').popover({ selector: '[data-popover]', trigger: 'click hover', placement: 'bottom', delay: {show: 50, hide: 200}});
 /* hide: 400 previously */

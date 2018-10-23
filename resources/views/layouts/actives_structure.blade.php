@@ -37,36 +37,51 @@
     @show
 
     @yield('stylesheet')
-
+    <style>
+        .menuFijo {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            background: #FFF;
+        }
+        .margenSuperior {
+            top: 64px;
+        }
+    </style>
 </head>
 <body>
 
 @section('menu_bar')
-    <div class="col-sm-12 mg20 mg-tp-px-10">
-        <div class="row">
-            <div class="col-sm-8">
-                @if($user->priv_level==4)
-                    <a href="/" class="btn btn-primary" title="Menú raíz del sistema">{{ '/' }}</a>
-                @endif
-
-                @include('app.menu_app_popup', array('user' => $user, 'mode' => 'a'))
-
-                <a href="{{ '/active' }}" class="btn btn-primary"><i class="fa fa-home"></i> Inicio</a>
-                <a href="#" onclick="history.back();" class="btn btn-primary">
-                    <i class="fa fa-arrow-circle-left"></i> Volver
-                </a>
-
-                @yield('menu_options')
-
-            </div>
-            <div class="col-sm-4" align="right">
-                @include('app.menu_upper_right')
+    <div class="menuFijo">
+        <div class="col-sm-12 mg20 mg-tp-px-10">
+            <div class="row">
+                <div class="col-sm-8">
+                    @if($user->priv_level==4)
+                        <a href="/" class="btn btn-primary" title="Menú raíz del sistema">{{ '/' }}</a>
+                    @endif
+        
+                    @include('app.menu_app_popup', array('user' => $user, 'mode' => 'a'))
+        
+                    <a href="{{ '/active' }}" class="btn btn-primary"><i class="fa fa-home"></i> Inicio</a>
+                    <a href="#" onclick="history.back();" class="btn btn-primary">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+        
+                    @yield('menu_options')
+        
+                </div>
+                <div class="col-sm-4" align="right">
+                    @include('app.menu_upper_right')
+                </div>
             </div>
         </div>
     </div>
 @show
 
-@yield('content')
+<div style="margin-top:60px">
+    @yield('content')
+</div>
 
 @section('footer')
     <div class="row_spacing"></div>
