@@ -15,7 +15,7 @@
 
 @section('content')
 
-    <div id="loginbox" class="mg-tp-px-50 col-sm-4 col-sm-offset-4 col-xs-12">
+    <div id="loginbox" class="mg-tp-px-20 col-sm-4 col-sm-offset-4 col-xs-12">
         <div class="panel panel-info">
             <div class="panel-heading">
                 <div class="panel-title" align="center">Menú de administrador</div>

@@ -2649,7 +2649,7 @@ class ExcelController extends Controller
                     ->setCellValue('A'.($i+1), $i-30)
                     ->setCellValue('E'.($i+1), 'Total monto certificado a la fecha')
                     ->setCellValue('AF'.($i+1), '------')
-                    ->setCellValue('AO'.($i+1), number_format($certificate->amount + $listed_amount, 2))
+                    ->setCellValue('AP'.($i+1), number_format($certificate->amount + $listed_amount, 2))
                     ->setCellValue('A'.($i+2), $i-29)
                     ->setCellValue('E'.($i+2), 'Saldo nominal según Orden de Compra')
                     ->setCellValue('AF'.($i+2), '------')
@@ -2657,9 +2657,9 @@ class ExcelController extends Controller
                         -$listed_amount,2));
 
                 $reader->sheet('Certificado', function($sheet) use($i) {
-                  $sheet->mergeCells('AO'.($i+1).':AT'.($i+1));
+                  // $sheet->mergeCells('AO'.($i+1).':AP'.($i+1));
                 
-                  $sheet->cell('AO'.($i+1), function($cell) {
+                  $sheet->cell('AP'.($i+1), function($cell) {
                     $cell->setAlignment('right')
                         ->setFontWeight('bold');
                         // ->setBorder('solid', 'none', 'none', 'none');
