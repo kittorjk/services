@@ -1,8 +1,27 @@
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-exchange"></i> Asignación de equipos <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/operator' }}"><i class="fa fa-refresh"></i> Ver asignaciones </a></li>
+            <li>
+                <a href="{{ '/operator?conf=pending' }}"><i class="fa fa-hourglass-2 fa-fw"></i> Ver asignaciones sin confirmar</a>
+            </li>
+            <li><a href="{{ '/device' }}"><i class="fa fa-arrow-right"></i> Ver equipos </a></li>
+            <li><a href="{{ '/device_requirement' }}"><i class="fa fa-arrow-right"></i> Ver requerimientos</a></li>
+            @if($user->action->acv_dvc_req /*$user->priv_level>=2*/)
+                <li><a href="{{ '/device_requirement/create' }}"><i class="fa fa-plus"></i> Nuevo requerimiento </a></li>
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')

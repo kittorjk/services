@@ -7,10 +7,19 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.adm_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-key"></i> PARAMETROS <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/service_parameter' }}"><i class="fa fa-list-ul fa-fw"></i> Ver todos</a></li>
+            <li><a href="{{ '/service_parameter/create' }}"><i class="fa fa-plus fa-fw"></i> Nuevo parámetro</a></li>
+        </ul>
+    </li>
 @endsection
 
 @section('content')

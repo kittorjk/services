@@ -7,11 +7,19 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.ocs_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-file-text-o"></i> CERTIFICADOS <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/oc_certificate' }}"><i class="fa fa-bars"></i> Ver todo </a></li>
+        </ul>
+    </li>
 @endsection
 
 @section('content')

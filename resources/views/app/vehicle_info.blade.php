@@ -1,8 +1,28 @@
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-car"></i> Vehiculos <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/vehicle' }}"><i class="fa fa-bars fa-fw"></i> Ver todo</a></li>
+            <li><a href="{{ '/driver' }}"><i class="fa fa-list-ul fa-fw"></i> Ver asignaciones</a></li>
+            <li><a href="{{ '/vehicle_requirement' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver requerimientos</a></li>
+            @if($user->action->acv_vhc_req /*$user->priv_level>=2*/)
+                <li><a href="{{ '/vehicle_requirement/create' }}"><i class="fa fa-plus fa-fw"></i> Nuevo requerimiento </a></li>
+            @endif
+            @if($user->action->acv_vhc_add /*$user->priv_level>=2||$user->work_type=='Transporte'*/)
+                <li><a href="{{ '/vehicle/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar vehículo</a></li>
+            @endif
+        </ul>
+    </div>
+    <a href="{{ '/maintenance?vhc=true' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Vehículos en mantenimiento</a>
 @endsection
 
 @section('content')

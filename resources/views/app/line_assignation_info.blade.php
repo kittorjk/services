@@ -7,11 +7,30 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-exchange"></i> Asignación de líneas <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/line_assignation' }}"><i class="fa fa-refresh fa-fw"></i> Ver asignaciones </a></li>
+            <li><a href="{{ '/corporate_line' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver lista de líneas </a></li>
+            <li><a href="{{ '/line_requirement' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver requerimientos </a></li>
+            @if($user->action->acv_ln_asg /*($user->area=='Gerencia General'&&$user->priv_level>=2)||$user->priv_level==4*/)
+                <li><a href="{{ '/line_assignation/create' }}"><i class="fa fa-exchange fa-fw"></i> Asignar línea </a></li>
+            @endif
+            @if($user->action->acv_ln_req /*$user->priv_level>=1*/)
+                <li><a href="{{ '/line_requirement/create' }}"><i class="fa fa-plus fa-fw"></i> Nuevo requerimiento </a></li>
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')

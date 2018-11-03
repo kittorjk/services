@@ -1,8 +1,68 @@
-@extends('layouts.info_master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+    @if($task->site)
+        <a href="/site/{{ $task->site->assignment_id }}" class="btn btn-primary">
+            <i class="fa fa-arrow-circle-up"></i> Sitios
+        </a>
+    @endif
+
+    @include('app.project_navigation_button', array('user'=>$user))
+
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-cogs"></i> Items <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li>
+                <a href="/task/{{ $task->site ? $task->site->id : '' }}"><i class="fa fa-bars fa-fw"></i> Resumen</a>
+            </li>
+            @if(($task->site && $task->site->status != $task->site->last_stat() /*'Concluído'*/ && $task->site->status != 0 /*'No asignado'*/ &&
+                $user->priv_level >= 1) || $user->priv_level == 4)
+                <li>
+                    <a href="/task/{{ $task->site->id }}/add" title="Agregar items desde la lista proporcionada por el cliente">
+                        <i class="fa fa-plus fa-fw"></i> Agregar item(s)
+                    </a>
+                </li>
+                <li>
+                    <a href="/task/{{ $task->site->id }}/create"><i class="fa fa-plus fa-fw"></i> Crear item adicional</a>
+                </li>
+                <li class="dropdown-submenu">
+                    <a href="#" data-toggle="dropdown"><i class="fa fa-upload fa-fw"></i> Importar</a>
+                    <ul class="dropdown-menu dropdown-menu-prim">
+                        <li>
+                            <a href="/import/items/{{ $task->site->id }}" title="Cargar una nueva categoría de items de proyecto">
+                                <i class="fa fa-upload fa-fw"></i> Cargar items
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @if($user->action->prj_acc_cat)
+                    <li>
+                        <a href="{{ '/item_category' }}"><i class="fa fa-list fa-fw"></i> Categorías</a>
+                    </li>
+                @endif
+                <li class="dropdown-submenu">
+                    <a href="#" data-toggle="dropdown">
+                        <i class="fa fa-file-excel-o fa-fw"></i> Planilla de cantidades
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-prim">
+                        <li>
+                            <a href="/excel/tasks_qty/{{'raw-'.$task->site->id }}"
+                               title="Exportar a excel cantidades ejecutadas de  los items de éste sitio">
+                                <i class="fa fa-download fa-fw"></i> Lista actual
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')

@@ -7,11 +7,43 @@
  */
 ?>
 
-@extends('layouts.master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
     <meta name="csrf-token" content="{{ csrf_token() }}" />
+@endsection
+
+@section('menu_options')
+    @include('app.project_navigation_button', array('user'=>$user))
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/stipend_request' }}"><i class="fa fa-refresh fa-fw"></i> Ver solicitudes </a></li>
+            <li><a href="{{ '/stipend_request/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+            @if($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
+                <li>
+                    <a href="{{ '/stipend_request/approve_list' }}">
+                        <i class="fa fa-check fa-fw"></i> Ver pendientes de aprobación
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ '/stipend_request/observed_list' }}">
+                        <i class="fa fa-eye fa-fw"></i> Ver observadas
+                    </a>
+                </li>
+            @endif
+            @if($user->action->prj_vtc_pmt)
+                <li>
+                    <a href="{{ '/stipend_request/payment_list' }}">
+                        <i class="fa fa-check fa-fw"></i> Ver pendientes de pago
+                    </a>
+                </li>
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')

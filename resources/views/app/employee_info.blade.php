@@ -7,10 +7,21 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.adm_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-users"></i> EMPLEADOS <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/employee' }}"><i class="fa fa-bars fa-fw"></i> Ver todo </a></li>
+            <li><a href="{{ '/employee?stat=active' }}"><i class="fa fa-bars fa-fw"></i> Ver empleados activos </a></li>
+            <li><a href="{{ '/employee?stat=retired' }}"><i class="fa fa-bars fa-fw"></i> Ver empleados retirados </a></li>
+            <li><a href="{{ '/employee/create' }}"><i class="fa fa-user-plus fa-fw"></i> Agregar empleado </a></li>
+        </ul>
+    </li>
 @endsection
 
 @section('content')

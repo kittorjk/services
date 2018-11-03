@@ -7,10 +7,19 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.adm_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-users"></i> USUARIOS <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/user' }}"><i class="fa fa-bars fa-fw"></i> Ver todos </a></li>
+            <li><a href="{{ '/user/create' }}"><i class="fa fa-user-plus fa-fw"></i> Agregar usuario </a></li>
+        </ul>
+    </li>
 @endsection
 
 @section('content')

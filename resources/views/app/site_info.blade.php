@@ -1,9 +1,75 @@
-@extends('layouts.info_master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+    <a href="{{ '/assignment' }}" class="btn btn-primary" title="Ir a resumen de asignaciones">
+        <i class="fa fa-arrow-up"></i> Asig.
+    </a>
+    @include('app.project_navigation_button', array('user'=>$user))
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-map-marker"></i> Sitios <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li>
+                <a href="/site/{{ $site->assignment->id }}">
+                    <i class="fa fa-bars fa-fw"></i> Resumen
+                </a>
+            </li>
+            @if(($site->assignment && $site->assignment->status != $site->assignment->last_stat()/*'Concluído'*/ &&
+                $site->assignment->status != 0/*'No asignado'*/ && $user->priv_level >= 1) || $user->priv_level == 4)
+                <li>
+                    <a href="/site/{{ $site->assignment ? $site->assignment->id : 0 }}/create">
+                        <i class="fa fa-plus fa-fw"></i> Nuevo Sitio
+                    </a>
+                </li>
+            @endif
+            <li class="dropdown-submenu">
+                <a href="#" data-toggle="dropdown"><i class="fa fa-list fa-fw"></i> Lista de materiales de cliente</a>
+                <ul class="dropdown-menu dropdown-menu-prim">
+                    <li>
+                        <a href="{{ '/client_listed_material?client='.($site->assignment ? $site->assignment->client : 'all') }}">
+                            <i class="fa fa-list fa-fw"></i> Ver materiales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/import/client_listed_materials/{{ $site->assignment ? $site->assignment->id : 0 }}">
+                            <i class="fa fa-upload fa-fw"></i> Importar lista de materiales
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            @if($site->assignment)
+                <li>
+                    <a href="/excel/report/per-assignment-progress/{{ $site->assignment->id }}">
+                        <i class="fa fa-file-excel-o fa-fw"></i> Reporte de avance general
+                    </a>
+                </li>
+                <li>
+                    <a href="/excel/load_format/tracking-report/{{ $site->assignment->id }}">
+                        <i class=" fa fa-file-excel-o fa-fw"></i> Tracking report
+                    </a>
+                </li>
+                @if($user->action->prj_vtc_rep /*$user->priv_level>=3*/)
+                    <li>
+                        <a href="{{ '/site/expense_report/stipend/'.$site->assignment->id }}">
+                            <i class="fa fa-money fa-fw"></i> Reporte de gastos
+                        </a>
+                    </li>
+                @endif
+            @endif
+        </ul>
+    </div>
+    
+    <a href="{{ '/stipend_request?asg='.($site->assignment ? $site->assignment->id : 0) }}" class="btn btn-primary">
+        <i class="fa fa-money"></i> Viáticos
+    </a>
 @endsection
 
 @section('content')

@@ -1,8 +1,30 @@
-@extends('layouts.info_master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+  @include('app.project_navigation_button', array('user'=>$user))
+  <div class="btn-group">
+    <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+      <i class="fa fa-cogs"></i> Asignaciones <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-prim">
+      <li><a href="{{ '/assignment' }}"><i class="fa fa-bars fa-fw"></i> Resumen </a></li>
+      @if($user->priv_level>=1)
+        <li><a href="{{ '/assignment/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva asignación </a></li>
+      @endif
+      @if($user->priv_level>=2||$user->role=='Director regional'||($user->area=='Gerencia Tecnica'&&$user->priv_level==1))
+        <li><a href="{{ '/assignment?mode=rb' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de RB </a></li>
+        <li><a href="{{ '/assignment?mode=fo' }}"><i class="fa fa-bars fa-fw"></i> Asignaciones de FO </a></li>
+      @endif
+      @if($user->action->prj_vtc_rep /*$user->priv_level>=3*/)
+        <li><a href="{{ '/assignment/expense_report/stipend' }}"><i class="fa fa-money fa-fw"></i> Reporte de gastos</a></li>
+      @endif
+    </ul>
+  </div>
 @endsection
 
 @section('content')

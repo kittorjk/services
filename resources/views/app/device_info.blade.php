@@ -1,4 +1,4 @@
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
@@ -9,6 +9,27 @@
             max-height: 80%;
         }
     </style>
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-laptop"></i> Equipos <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/device' }}"><i class="fa fa-refresh"></i> Ver equipos </a></li>
+            <li><a href="{{ '/operator' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones </a></li>
+            <li><a href="{{ '/device_requirement' }}"><i class="fa fa-arrow-right"></i> Ver requerimientos</a></li>
+            @if($user->action->acv_dvc_req /*$user->priv_level>=2*/)
+                <li><a href="{{ '/device_requirement/create' }}"><i class="fa fa-plus"></i> Nuevo requerimiento </a></li>
+            @endif
+            @if($user->action->acv_dvc_add /*$user->work_type=='Almacén'||$user->priv_level>=3*/)
+                <li><a href="{{ '/device/create' }}"><i class="fa fa-plus"></i> Agregar equipo </a></li>
+            @endif
+        </ul>
+    </div>
+    <a href="{{ '/calibration' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Calibraciones</a>
+    <a href="{{ '/maintenance?dvc=true' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Equipos en mantenimiento</a>
 @endsection
 
 @section('content')

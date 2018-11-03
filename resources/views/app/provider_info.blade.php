@@ -1,8 +1,18 @@
-@extends('layouts.info_master')
+@extends('layouts.ocs_structure')
 
 @section('header')
   @parent
   <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+  <li><a href="#">&ensp;<i class="fa fa-truck"></i> PROVEEDORES <span class="caret"></span>&ensp;</a>
+    <ul class="sub-menu">
+      <li><a href="{{ '/provider' }}"><i class="fa fa-list fa-fw"></i> Ver todo </a></li>
+      <li><a href="{{ '/provider/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar proveedor </a></li>
+      <li><a href="{{ '/provider/incomplete' }}"><i class="fa fa-list fa-fw"></i> Lista de registros incompletos </a></li>
+    </ul>
+  </li>
 @endsection
 
 @section('content')

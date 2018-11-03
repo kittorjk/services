@@ -87,7 +87,7 @@
                 <th class="{sorter: 'digit'}">Km final</th>
                 <th class="{sorter: 'digit'}">Nivel de combustible</th>
                 <th class="{sorter: 'digit'}">Carga de combustible</th>
-                <th>Observaciones</th>
+                <th width="30%">Observaciones</th>
                 <th>Último mantenimiento</th>
             </tr>
             </thead>

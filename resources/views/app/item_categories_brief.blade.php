@@ -52,11 +52,11 @@
         <table class="formal_table table_blue tablesorter" id="fixable_table">
             <thead>
             <tr>
-                <th width="15%">Nombre</th>
-                <th width="15%">Descripción</th>
+                <th width="14%">Nombre</th>
+                <th width="14%">Descripción</th>
                 <th>Área</th>
                 <th width="12%">Cliente</th>
-                <th>Proyecto</th>
+                <th width="28%">Proyecto</th>
                 <th width="12%">Estado</th>
                 <th>Contenido</th>
                 <th>Fecha creación</th>

@@ -1,7 +1,22 @@
-@extends('layouts.info_master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    @include('app.project_navigation_button', array('user'=>$user))
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-user"></i> Contactos <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/contact' }}"><i class="fa fa-bars"></i> Ver todo </a></li>
+            <li><a href="{{ '/contact/create' }}"><i class="fa fa-plus"></i> Agregar contacto </a></li>
+            <li class="divider"></li>
+            <li><a href="{{ '/excel/contacts' }}"><i class="fa fa-file-excel-o"></i> Exportar a Excel </a></li>
+        </ul>
+    </div>
 @endsection
 
 @section('content')

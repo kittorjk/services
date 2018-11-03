@@ -7,11 +7,26 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.projects_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+@endsection
+
+@section('menu_options')
+    @include('app.project_navigation_button', array('user'=>$user))
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-file-text"></i> Polizas <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/guarantee' }}"><i class="fa fa-bars fa-fw"></i> Ver polizas</a></li>
+            <li><a href="{{ '/guarantee/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar poliza</a></li>
+            <li><a href="{{ '/guarantee?arch=0' }}"><i class="fa fa-list-ul fa-fw"></i> Ver polizas vigentes</a></li>
+            <li><a href="{{ '/guarantee?arch=1' }}"><i class="fa fa-list-ul fa-fw"></i> Ver polizas archivadas</a></li>
+        </ul>
+    </div>
 @endsection
 
 @section('content')

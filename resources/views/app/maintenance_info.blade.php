@@ -1,7 +1,24 @@
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-wrench"></i> Opciones de mantenimiento <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ Request::fullurl() }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            <li><a href="{{ '/maintenance?vhc=true' }}"><i class="fa fa-car fa-fw"></i> Vehículos en mantenimiento </a></li>
+            <li><a href="{{ '/maintenance?dvc=true' }}"><i class="fa fa-laptop fa-fw"></i> Equipos en mantenimiento </a></li>
+            @if($user->action->acv_mnt_add
+                /*$user->work_type=='Almacén'||$user->work_type=='Transporte'||$user->priv_level>=3*/)
+                <li><a href="{{ '/maintenance/create' }}"><i class="fa fa-plus fa-fw"></i> Registrar mantenimiento</a></li>
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')

@@ -1,8 +1,49 @@
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-car"></i> Vehículos asignados <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/driver' }}"><i class="fa fa-refresh fa-fw"></i> Ver asignaciones </a></li>
+            <li><a href="{{ '/driver?conf=pending' }}"><i class="fa fa-hourglass-2 fa-fw"></i> Ver asignaciones sin confirmar</a></li>
+            <li><a href="{{ '/vehicle' }}"><i class="fa fa-car fa-fw"></i> Ver vehículos </a></li>
+            <li><a href="{{ '/vehicle_requirement' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver requerimientos</a></li>
+            @if($user->action->acv_vhc_req /*$user->priv_level>=2*/)
+                <li><a href="{{ '/vehicle_requirement/create' }}"><i class="fa fa-plus fa-fw"></i> Nuevo requerimiento </a></li>
+            @endif
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-file-pdf"></i> Formulario de entrega <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li><a href="{{ '/download/dr-0' }}"><i class="fa fa-download"></i> Descargar </a></li>
+            @if($user->action->acv_drv_upl_fmt /*$user->priv_level>=3*/)
+                <li><a href="{{ '/files/driver_form/0' }}"><i class="fa fa-upload"></i> Nuevo formato </a></li>
+            @endif
+        </ul>
+    </div>
+    @if($user->work_type=='Transporte'||$user->priv_level>=2)
+        <div class="btn-group">
+            <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+                <i class="fa fa-drivers-license-o"></i> Licencias <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-prim">
+                <li><a href="{{ '/license/create' }}"><i class="fa fa-plus"></i> Agregar licencia </a></li>
+                @if($user->priv_level==4)
+                    <li><a href="{{ '/excel/licenses' }}"><i class="fa fa-plus"></i> Exportar licencias </a></li>
+                @endif
+            </ul>
+        </div>
+    @endif
 @endsection
 
 @section('content')

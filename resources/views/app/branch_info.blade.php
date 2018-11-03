@@ -7,10 +7,21 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.adm_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-building-o"></i> SUCURSALES <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/branch' }}"><i class="fa fa-bars fa-fw"></i> Ver todo </a></li>
+            @if($user->action->adm_bch_mod/*$user->priv_level==4*/)
+                <li><a href="{{ '/branch/create' }}"><i class="fa fa-user-plus fa-fw"></i> Nueva sucursal </a></li>
+            @endif
+        </ul>
+    </li>
 @endsection
 
 @section('content')

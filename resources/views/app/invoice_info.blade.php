@@ -1,7 +1,16 @@
-@extends('layouts.info_master')
+@extends('layouts.ocs_structure')
 
 @section('header')
     @parent
+@endsection
+
+@section('menu_options')
+    <li><a href="#">&ensp;<i class="fa fa-money"></i> PAGOS <span class="caret"></span>&ensp;</a>
+        <ul class="sub-menu">
+            <li><a href="{{ '/invoice' }}"><i class="fa fa-bars"></i> Ver todo </a></li>
+            <li><a href="{{ '/invoice/create' }}"><i class="fa fa-plus"></i> Agregar factura </a></li>
+        </ul>
+    </li>
 @endsection
 
 @section('content')

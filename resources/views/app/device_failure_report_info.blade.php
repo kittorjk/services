@@ -7,11 +7,39 @@
  */
 ?>
 
-@extends('layouts.info_master')
+@extends('layouts.actives_structure')
 
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
+@endsection
+
+@section('menu_options')
+    <div class="btn-group">
+        <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
+            <i class="fa fa-warning"></i> Reportes de falla <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-prim">
+            <li>
+                <a href="{{ '/device_failure_report'.($report->device ? '?dvc='.$report->device->id : '') }}">
+                    <i class="fa fa-refresh"></i> Ver lista de fallas reportadas
+                </a>
+            </li>
+            <li><a href="{{ '/device' }}"><i class="fa fa-arrow-right"></i> Ver equipos</a></li>
+            <li><a href="{{ '/operator' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones</a></li>
+            <li><a href="{{ '/device_requirement' }}"><i class="fa fa-arrow-right"></i> Ver requerimientos</a></li>
+            @if($user->action->acv_dfr_mod /*$user->priv_level==4*/)
+                <li class="divider"></li>
+                @if($report->device)
+                    <li>
+                        <a href="{{ '/excel/dvc_failure_reports/'.$report->device->id }}">
+                            <i class="fa fa-file-excel-o"></i> Exportar reportes de este equipo
+                        </a>
+                    </li>
+                @endif
+            @endif
+        </ul>
+    </div>
 @endsection
 
 @section('content')
