@@ -644,7 +644,7 @@ class ExcelController extends Controller
                         'Proveedor'         => $invoice->oc->provider,
                         'Nº de factura'     => $invoice->number,
                         'Fecha de emisión'  => Carbon::parse($invoice->date_issued)->format('d/m/Y'),
-                        'Monto facturado'   => number_format($invoice->amount,2),
+                        'Monto facturado'   => $invoice->amount + 0, // number_format($invoice->amount,2),
                         'Concepto'          => $concept,
                         'Estado'            => $status,
                         'Fecha de pago'     => $payment_date,
@@ -766,7 +766,7 @@ class ExcelController extends Controller
                         'Código'                => $oc_certification->code,
                         'Código OC'             => $oc_certification->oc->code,
                         'Centro de costos'      => $oc_certification->oc->assignment && $oc_certification->oc->assignment->cost_center && $oc_certification->oc->assignment->cost_center > 0 ? $oc_certification->oc->assignment->cost_center : '',
-                        'Monto ejecutado'       => number_format($oc_certification->amount,2).' Bs',
+                        'Monto ejecutado [Bs]'  => $oc_certification->amount + 0, // number_format($oc_certification->amount,2).' Bs',
                         'Certificado por'       => $oc_certification->user->name,
                         'ID usuario'            => $oc_certification->user_id,
                         'Tipo de aceptación'    => $oc_certification->type_reception,
@@ -810,10 +810,10 @@ class ExcelController extends Controller
                         'Mes'                           => date_format($oc->created_at,'m'),
                         'Proveedor'                     => $oc->provider,
                         'Concepto'                      => wordwrap($oc->proy_concept, 70, "\n", false),
-                        'Monto OC'                      => number_format($oc->oc_amount,2),
-                        'Monto ejecutado'               => number_format($oc->executed_amount,2),
-                        'Monto cancelado'               => number_format($oc->payed_amount,2),
-                        'Saldo'                         => number_format($oc->executed_amount-$oc->payed_amount,2),
+                        'Monto OC'                      => $oc->oc_amount + 0, // number_format($oc->oc_amount,2),
+                        'Monto ejecutado'               => $oc->executed_amount + 0, // number_format($oc->executed_amount,2),
+                        'Monto cancelado'               => $oc->payed_amount + 0, // number_format($oc->payed_amount,2),
+                        'Saldo'                         => $oc->executed_amount - $oc->payed_amount + 0, // number_format($oc->executed_amount-$oc->payed_amount,2),
                         'Porcentajes de pago'           => str_replace('-','% - ',$oc->percentages).'%',
                         'Proyecto'                      => wordwrap($oc->proy_name, 70, "\n", false),
                         'Centro de costos'              => $oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0 ? $oc->assignment->cost_center : '',
@@ -1188,8 +1188,8 @@ class ExcelController extends Controller
                         'Modelo'            => $vehicle->model,
                         'Propietario'       => $vehicle->owner,
                         'Sucursal'          => $vehicle->branch,
-                        'kilometraje'       => number_format($vehicle->mileage,2),
-                        'Capacidad de combustible' => number_format($vehicle->gas_capacity,2),
+                        'kilometraje'       => $vehicle->mileage + 0, // number_format($vehicle->mileage,2),
+                        'Capacidad de combustible' => $vehicle->gas_capacity + 0, // number_format($vehicle->gas_capacity,2),
                         'Estado'            => $vehicle->status,
                         'Responsable actual' => ($vehicle->responsible!=0 ?
                             ($vehicle->last_driver&&$vehicle->last_driver->confirmation_flags[3]==1 ?
@@ -2294,9 +2294,9 @@ class ExcelController extends Controller
                     [   //'Código'                => $task->code,
                         'Item'                  => wordwrap($task->name, 40, "\n", false),
                         //'Descripción'           => wordwrap($task->description, 50, "\n", false),
-                        'Cantidad proyectada'   => number_format($task->total_expected,2),
+                        'Cantidad proyectada'   => $task->total_expected + 0, // number_format($task->total_expected,2),
                         'Unidades'              => $task->units,
-                        'Cantidad avanzada'     => number_format($task->progress,2),
+                        'Cantidad avanzada'     => $task->progress + 0, // number_format($task->progress,2),
                         'Estado'                => $task->statuses($task->status),
                         '% Avance'              => number_format(($task->progress/$task->total_expected)*100,2).' %',
                         'Fecha de inicio'       => $task->start_date, //date_format($task->start_date,'d-m-Y')
@@ -2624,9 +2624,10 @@ class ExcelController extends Controller
                         $sheetToChange->setCellValue('A'.$i, $i-31)
                             ->setCellValue('E'.$i, $reason)
                             ->setCellValue('Z'.$i, $invoice->number)
-                            ->setCellValue('AF'.$i, $invoice->transaction_date!='0000-00-00 00:00:00' ?
+                            ->setCellValue('AF'.$i, Carbon::parse($invoice->date_issued)->format('d/m/Y') )
+                            /* ->setCellValue('AF'.$i, $invoice->transaction_date!='0000-00-00 00:00:00' ?
                                 Carbon::parse($invoice->transaction_date)->format('d/m/Y') :
-                                'Factura emitida '.Carbon::parse($invoice->date_issued)->format('d/m/Y') )
+                                'Factura emitida '.Carbon::parse($invoice->date_issued)->format('d/m/Y') ) */
                             ->setCellValue('AP'.$i, $invoice->amount);
 
                         $i++;
@@ -2648,7 +2649,7 @@ class ExcelController extends Controller
                     ->setCellValue('A'.($i+1), $i-30)
                     ->setCellValue('E'.($i+1), 'Total monto certificado a la fecha')
                     ->setCellValue('AF'.($i+1), '------')
-                    ->setCellValue('AP'.($i+1), number_format($certificate->amount + $listed_amount, 2))
+                    ->setCellValue('AO'.($i+1), number_format($certificate->amount + $listed_amount, 2))
                     ->setCellValue('A'.($i+2), $i-29)
                     ->setCellValue('E'.($i+2), 'Saldo nominal según Orden de Compra')
                     ->setCellValue('AF'.($i+2), '------')
@@ -2656,7 +2657,19 @@ class ExcelController extends Controller
                         -$listed_amount,2));
 
                 $reader->sheet('Certificado', function($sheet) use($i) {
-                  $sheet->cells('AO'.($i+1).':AP'.($i+1), function($cells) {
+                  $sheet->mergeCells('AO'.($i+1).':AT'.($i+1));
+                
+                  $sheet->cell('AO'.($i+1), function($cell) {
+                    $cell->setAlignment('right')
+                        ->setFontWeight('bold');
+                        // ->setBorder('solid', 'none', 'none', 'none');
+                        /*->setBorder(array(
+                          'top'   => array(
+                              'style' => 'solid'
+                          ),
+                        ));*/
+                  });
+                  /*$sheet->cells('AO'.($i+1).':AP'.($i+1), function($cells) {
                     $cells->setAlignment('right')
                           ->setFontWeight('bold');
                     //$cells->setBorder(array(
@@ -2664,7 +2677,7 @@ class ExcelController extends Controller
                     //      'style' => 'solid'
                     //  ),
                     //));
-                  });
+                  });*/
                 });
 
             })->export('xlsx');
