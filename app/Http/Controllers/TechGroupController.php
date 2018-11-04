@@ -146,7 +146,10 @@ class TechGroupController extends Controller
         $group->save();
 
         Session::flash('message', "El grupo de trabajo fue agegado al sistema");
-        return redirect()->route('tech_group.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('tech_group.index');
     }
 
     /**

@@ -88,8 +88,8 @@ class LoginController extends Controller
             // return 'Hola';
             // return redirect()->intended();
             return redirect()->intended(Session::pull('url.intended'));
-        } elseif($service === 'project') {
-            if($user->area === 'Gerencia Tecnica' || ($user->area === 'Gerencia General' && $user->priv_level === 3))
+        } elseif ($service === 'project') {
+            if ($user->area === 'Gerencia Tecnica' || ($user->area === 'Gerencia General' && $user->priv_level === 3))
                 return redirect()->action('AssignmentController@index');
             else
                 return redirect()->action('ProjectsController@index');
@@ -158,7 +158,7 @@ class LoginController extends Controller
 
         $user = User::where('login',$login)->first();
 
-        if($user->email){
+        if ($user->email) {
             $new_password = $this->generatePass();
             $user->password = Hash::make($new_password);
 
@@ -191,16 +191,15 @@ class LoginController extends Controller
             $email->success = $success;
             $email->save();
             
-            if($success==1)
+            if ($success == 1)
                 Session::flash('message', 'Por favor revise su bandeja de correo electrónico');
             else
                 Session::flash('message', 'El reestablecimiento de contraseña no se completó correctamente,
                 comuníquese con el administrador');
         }
-        else{
+        else {
             Session::flash('message', 'El reestablecimiento de contraseña para este usuario no se completó,
              comuníquese con el administrador');
-            
         }
 
         return redirect('/'.$return);
@@ -218,7 +217,7 @@ class LoginController extends Controller
         //a variable to define the length of the pass
         $longitudPass=8;
 
-        for($i=1 ; $i<=$longitudPass ; $i++){
+        for ($i=1 ; $i<=$longitudPass ; $i++) {
             //generate a random number indicating the position of the character on the string from 0 to length-1
             $pos=rand(0,$longitudCadena-1);
 

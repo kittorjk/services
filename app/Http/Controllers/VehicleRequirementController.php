@@ -175,7 +175,10 @@ class VehicleRequirementController extends Controller
         $this->send_email($requirement, 'store' /*$recipient, $cc, $data, $mail_structure, $subject*/);
 
         Session::flash('message', "El requerimiento de vehículo fue registrado correctamente");
-        return redirect()->route('vehicle_requirement.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('vehicle_requirement.index');
     }
 
     /**

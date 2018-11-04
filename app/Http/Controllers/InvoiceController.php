@@ -35,7 +35,7 @@ class InvoiceController extends Controller
         if ((is_null($user)) || (!$user->id)) {
             return View('app.index', ['service' => 'oc', 'user' => null]);
         }
-        if($user->acc_oc==0)
+        if ($user->acc_oc == 0)
             return redirect()->action('LoginController@logout', ['service' => 'oc']);
         
         $service = Session::get('service');
@@ -53,7 +53,7 @@ class InvoiceController extends Controller
         }
         */
 
-        if($user->priv_level>=3){
+        if ($user->priv_level >= 3) {
             $invoices = Invoice::where('created_at', '>=', Carbon::now()->subDays(30))->orWhere('flags','like','0%');
         }
         /*
@@ -272,7 +272,10 @@ class InvoiceController extends Controller
         }
 
         Session::flash('message', "La factura fue agregada al sistema");
-        return redirect()->route('invoice.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('invoice.index');
     }
 
     /**

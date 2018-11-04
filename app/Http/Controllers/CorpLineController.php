@@ -120,7 +120,10 @@ class CorpLineController extends Controller
         $line->save();
 
         Session::flash('message', "Línea corporativa registrada correctamente");
-        return redirect()->route('corporate_line.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('corporate_line.index');
     }
 
     /**

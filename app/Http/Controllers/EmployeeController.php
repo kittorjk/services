@@ -136,7 +136,10 @@ class EmployeeController extends Controller
         
         Session::flash('message', "El empleado fue registrado correctamente");
 
-        return redirect()->route('employee.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('employee.index');
     }
 
     /**

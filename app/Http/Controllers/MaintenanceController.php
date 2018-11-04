@@ -158,7 +158,7 @@ class MaintenanceController extends Controller
         $active_type = Request::input('active_type');
         $active = Request::input('active');
 
-        if($active_type=='vehicle' /*Request::input('active_type')*/){
+        if ($active_type == 'vehicle' /*Request::input('active_type')*/) {
             $vehicle = Vehicle::where('license_plate', $active /*Request::input('active')*/)->first();
             $vehicle->status = 'En mantenimiento';
             $vehicle->flags = '1000';
@@ -174,7 +174,7 @@ class MaintenanceController extends Controller
 
             $message = "Se movió el vehículo a activos en mantenimiento";
         }
-        elseif($active_type=='device' /*Request::input('active_type')*/){
+        elseif ($active_type == 'device' /*Request::input('active_type')*/) {
             $device = Device::where('serial', $active /*Request::input('active')*/)->first();
             $device->status = 'En mantenimiento';
             $device->flags = '1000';
@@ -190,7 +190,10 @@ class MaintenanceController extends Controller
         }
 
         Session::flash('message', $message);
-        return redirect()->route('maintenance.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('maintenance.index');
     }
 
     /**
@@ -354,7 +357,7 @@ class MaintenanceController extends Controller
         
         $service = Session::get('service');
 
-        if($type=='vehicle'){
+        if ($type == 'vehicle') {
             $vehicles = Vehicle::where('status', '<>', 'En mantenimiento')->get();
             /*
             foreach($vehicles as $vehicle){

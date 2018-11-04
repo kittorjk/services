@@ -255,7 +255,10 @@ class ProjectsController extends Controller
         $this->send_email_notification($project, 'store');
 
         Session::flash('message', "Se agregó un contrato al sistema");
-        return redirect()->route('project.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('project.index');
     }
 
     /**
@@ -568,7 +571,10 @@ class ProjectsController extends Controller
         $this->send_email_notification($assignment, 'add_assignment');
 
         Session::flash('message', "Se creó la asignación y se almacenó en el sistema correctamente");
-        return redirect()->route('assignment.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('assignment.index');
     }
 
     public function send_email_notification($model, $mode)
@@ -791,7 +797,10 @@ class ProjectsController extends Controller
         }
         else{
             Session::flash('message', 'No se reconocen los parámetros necesarios para generar el reporte!');
-            return redirect()->route('project.index');
+            if(Session::has('url'))
+                return redirect(Session::get('url'));
+            else
+                return redirect()->route('project.index');
         }
     }
 
@@ -910,7 +919,10 @@ class ProjectsController extends Controller
         }
         else{
             Session::flash('message', 'No se reconocen los parámetros necesarios para generar el reporte!');
-            return redirect()->route('project.index');
+            if(Session::has('url'))
+                return redirect(Session::get('url'));
+            else
+                return redirect()->route('project.index');
         }
     }
 

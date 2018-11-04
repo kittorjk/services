@@ -128,7 +128,11 @@ class CalibrationController extends Controller
         $this->insert_history_record($calibration, $device, 'store_calibration');
 
         Session::flash('message', "Se ha insertado un nuevo registro de calibración en el sistema");
-        return redirect()->route('calibration.index');
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('calibration.index');
     }
 
     /**

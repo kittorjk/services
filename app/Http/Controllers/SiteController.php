@@ -475,7 +475,10 @@ class SiteController extends Controller
         $this->fill_code_column();
 
         Session::flash('message', "El sitio fue agregado al sistema correctamente");
-        return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
     }
 
     /**

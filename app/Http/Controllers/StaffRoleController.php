@@ -101,7 +101,10 @@ class StaffRoleController extends Controller
         $role->save();
 
         Session::flash('message', "Se ha registrado un nuevo cargo para personal en el sistema");
-        return redirect()->route('staff_role.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('staff_role.index');
     }
 
     /**

@@ -143,7 +143,10 @@ class VehicleController extends Controller
         $this->add_vhc_history_record($vehicle, $vehicle, 'store', $user, 'vehicle');
         
         Session::flash('message', "Vehículo registrado correctamente");
-        return redirect()->route('vehicle.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('vehicle.index');
     }
 
     /**

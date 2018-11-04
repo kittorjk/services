@@ -187,7 +187,9 @@ class UserController extends Controller
 
         Session::flash('message', "El usuario fue agregado al sistema de forma correcta!");
         
-        if($user->priv_level==4)
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        elseif ($user->priv_level == 4)
             return redirect()->route('user.index');
         else
             return redirect()->route($service.'.index');
@@ -236,7 +238,10 @@ class UserController extends Controller
                 'branches' => $branches, 'session_user' => $session_user]);
         }
         else{
-            return redirect()->route('root');
+            if(Session::has('url'))
+                return redirect(Session::get('url'));
+            else
+                return redirect()->route('root');
         }
     }
 

@@ -113,7 +113,10 @@ class ClientListedMaterialController extends Controller
         $listed_material->save();
 
         Session::flash('message', "El material fue registrado correctamente");
-        return redirect('/client_listed_material?client='.$listed_material->client);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect('/client_listed_material?client='.$listed_material->client);
     }
 
     /**

@@ -280,7 +280,10 @@ class TaskController extends Controller
         $this->fill_code_column();
 
         Session::flash('message', "El item fue agregado correctamente");
-        return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
     }
 
     /**

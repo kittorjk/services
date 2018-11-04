@@ -81,7 +81,10 @@ class LicenseController extends Controller
 
         $license->save();
 
-        return redirect()->route('driver.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('driver.index');
     }
 
     /**
@@ -148,7 +151,7 @@ class LicenseController extends Controller
             'user_id'               => 'unique:licenses',
         ],
             [
-                'unique'                          => 'El usuario seleccionado ya tiene registrada una licencia!',
+                'unique'                  => 'El usuario seleccionado ya tiene registrada una licencia!',
             ]
         );
 
@@ -167,11 +170,11 @@ class LicenseController extends Controller
             'exp_date'         => 'required|date',
         ],
             [
-                'user_id.required'                => 'Debe especificar el usuario a quien pertenece la licencia!',
-                'number.required'                 => 'Debe especificar el número de la licencia!',
-                'category.required'               => 'Debe especificar la categoría según la licencia!',
-                'exp_date.required'               => 'Debe especificar la fecha de vencimiento de la licencia!',
-                'exp_date.date'                   => 'El campo "fecha de vencimiento" debe contener una fecha válida!',
+                'user_id.required'            => 'Debe especificar el usuario a quien pertenece la licencia!',
+                'number.required'             => 'Debe especificar el número de la licencia!',
+                'category.required'           => 'Debe especificar la categoría según la licencia!',
+                'exp_date.required'           => 'Debe especificar la fecha de vencimiento de la licencia!',
+                'exp_date.date'               => 'El campo "fecha de vencimiento" debe contener una fecha válida!',
             ]
         );
 

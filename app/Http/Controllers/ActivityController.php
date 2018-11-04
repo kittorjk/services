@@ -273,7 +273,11 @@ class ActivityController extends Controller
         }
 
         Session::flash('message', "La actividad fue registrada en el sistema correctamente");
-        return redirect()->action('ActivityController@activities_per_task', ['id' => $activity->task_id]);
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('ActivityController@activities_per_task', ['id' => $activity->task_id]);
 
         /* Old code with interaction to cites and ocs tables
         $user = Session::get('user');
@@ -544,7 +548,11 @@ class ActivityController extends Controller
         }
 
         Session::flash('message', "Datos modificados correctamente");
-        return redirect()->action('ActivityController@activities_per_task', ['id' => $activity->task_id]);
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('ActivityController@activities_per_task', ['id' => $activity->task_id]);
         
         /* Old code for interaction with cites and ocs tables
         $user = Session::get('user');
@@ -688,11 +696,11 @@ class ActivityController extends Controller
 
         $activity = Activity::find($id);
 
-        if($activity){
+        if ($activity) {
             $to_return_id = $activity->task_id;
             $file_error = false;
 
-            foreach($activity->files as $file){
+            foreach ($activity->files as $file) {
                 /*
                 $success = true;
 
@@ -714,14 +722,16 @@ class ActivityController extends Controller
                 $activity->delete();
 
                 Session::flash('message', "El registro fue eliminado del sistema");
-                return redirect()->action('ActivityController@activities_per_task', ['id' => $to_return_id]);
-            }
-            else {
+
+                if(Session::has('url'))
+                    return redirect(Session::get('url'));
+                else
+                    return redirect()->action('ActivityController@activities_per_task', ['id' => $to_return_id]);
+            } else {
                 Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Error al ejecutar el borrado, no se encontró el registro solicitado.");
             return redirect()->back();
         }

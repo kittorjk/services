@@ -198,7 +198,10 @@ class OrderController extends Controller
         $order->save();
 
         Session::flash('message', "La orden de compra del cliente fue agregada al sistema");
-        return redirect()->route('order.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('order.index');
     }
 
     /**

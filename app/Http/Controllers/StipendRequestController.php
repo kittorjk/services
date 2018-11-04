@@ -290,7 +290,10 @@ class StipendRequestController extends Controller
         */
 
         Session::flash('message', "La solicitud de viáticos fue registrada en el sistema");
-        return redirect('/stipend_request?asg='.$stipend->assignment_id);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect('/stipend_request?asg='.$stipend->assignment_id);
     }
 
     /**

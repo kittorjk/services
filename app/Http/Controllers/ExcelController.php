@@ -78,9 +78,8 @@ class ExcelController extends Controller
         $sheet_name = 'empty';
         $sheet_content = collect();
 
-        if($table=='assignments')
-        {
-        $excel_name = 'Base de asignaciones';
+        if ($table == 'assignments') {
+            $excel_name = 'Base de asignaciones';
             $sheet_name = 'Asignaciones';
 
             $assignments = Assignment::all();
@@ -120,8 +119,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='bill_order')
-        {
+        if ($table == 'bill_order') {
             $excel_name = 'Base de asociaciones Orden-Factura';
             $sheet_name = 'Asociaciones Orden-Factura';
 
@@ -146,8 +144,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='bills')
-        {
+        if ($table == 'bills') {
             $excel_name = 'Base de facturas';
             $sheet_name = 'Facturas';
 
@@ -171,8 +168,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        if($table=='branches')
-        {
+        if ($table == 'branches') {
             $excel_name = 'Tabla de sucursales';
             $sheet_name = 'Sucursales';
 
@@ -183,8 +179,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $branches);
         }
 
-        elseif($table=='calibrations')
-        {
+        if ($table == 'calibrations') {
             $excel_name = 'Base de calibración de equipos';
             $sheet_name = 'Calibraciones';
 
@@ -214,8 +209,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='cites')
-        {
+        if ($table == 'cites') {
             $excel_name = 'Base de CITES';
             $sheet_name = 'CITES';
 
@@ -239,8 +233,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='contacts')
-        {
+        if ($table == 'contacts') {
             $excel_name = 'Base de contactos';
             $sheet_name = 'Contactos';
 
@@ -270,8 +263,7 @@ class ExcelController extends Controller
 
         //Contracts merged with Projects (all contract functions moved or merged with projects' functions)
         /*
-        elseif($table=='contracts')
-        {
+        if ($table == 'contracts') {
             $excel_name = 'Base de contratos';
             $sheet_name = 'Contratos';
 
@@ -296,8 +288,7 @@ class ExcelController extends Controller
         }
         */
 
-        if($table=='corp_line_assignations')
-        {
+        if ($table == 'corp_line_assignations') {
             $excel_name = 'Tabla de asignaciones de líneas corporativas';
             $sheet_name = 'Asignaciones';
 
@@ -308,8 +299,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $assignations);
         }
 
-        if($table=='corp_line_requirements')
-        {
+        if ($table == 'corp_line_requirements') {
             $excel_name = 'Tabla de requerimientos de líneas corporativas';
             $sheet_name = 'Requerimientos';
 
@@ -320,8 +310,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $requirements);
         }
 
-        if($table=='corp_lines')
-        {
+        if ($table == 'corp_lines') {
             $excel_name = 'Tabla de líneas corporativas';
             $sheet_name = 'Líneas corporativas';
 
@@ -351,8 +340,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='dead_intervals')
-        {
+        if ($table == 'dead_intervals') {
             $excel_name = 'Base de intervalos de tiempo muerto';
             $sheet_name = 'Intervalos de tiempo muerto';
 
@@ -380,8 +368,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='device_histories')
-        {
+        if ($table == 'device_histories') {
             $excel_name = 'Base - historial de equipos';
             $sheet_name = 'Historial de equipos';
 
@@ -409,8 +396,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='device_requirements')
-        {
+        if ($table == 'device_requirements') {
             $excel_name = 'Tabla de requerimientos de equipos';
             $sheet_name = 'Requerimientos';
 
@@ -421,8 +407,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $requirements);
         }
 
-        elseif($table=='devices')
-        {
+        if ($table == 'devices') {
             $excel_name = 'Base de Equipos';
             $sheet_name = 'Lista de equipos';
 
@@ -458,8 +443,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='drivers')
-        {
+        if ($table == 'drivers') {
             $excel_name = 'Base de asignación de vehículos';
             $sheet_name = 'Asignaciones';
 
@@ -488,8 +472,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        if($table=='dvc_failure_reports')
-        {
+        if ($table == 'dvc_failure_reports') {
             $excel_name = 'Tabla de reportes de falla - equipos';
             $sheet_name = 'Reportes de falla';
 
@@ -500,8 +483,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $reports);
         }
 
-        elseif($table=='emails')
-        {
+        if ($table == 'emails') {
             $excel_name = 'Base de correos';
             $sheet_name = 'Emails enviados';
 
@@ -526,8 +508,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        if($table=='employees')
-        {
+        if ($table == 'employees') {
             $excel_name = 'Tabla de personal';
             $sheet_name = 'Personal';
 
@@ -538,8 +519,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $employees);
         }
 
-        elseif($table=='files')
-        {
+        if ($table == 'files') {
             $excel_name = 'Base de archivos';
             $sheet_name = 'Archivos';
 
@@ -571,8 +551,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='guarantees')
-        {
+        if ($table == 'guarantees') {
             $excel_name = 'Base de polizas';
             $sheet_name = 'Polizas';
 
@@ -600,8 +579,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='invoices')
-        {
+        if ($table == 'invoices') {
             $excel_name = 'Base de Pagos a proveedores';
             $sheet_name = 'Facturas de proveedores';
 
@@ -658,8 +636,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        if($table=='item_categories')
-        {
+        if ($table == 'item_categories') {
             $excel_name = 'Tabla de categorias de item';
             $sheet_name = 'Categorias';
 
@@ -670,8 +647,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $categories);
         }
 
-        elseif($table=='items')
-        {
+        if ($table == 'items') {
             $excel_name = 'Base de items';
             $sheet_name = 'Items';
 
@@ -699,8 +675,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='licenses')
-        {
+        if ($table == 'licenses') {
             $excel_name = 'Base de licencias de conducir';
             $sheet_name = 'Licencias de conducir';
 
@@ -722,8 +697,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='maintenances')
-        {
+        if ($table == 'maintenances') {
             $excel_name = 'Base de mantenimientos';
             $sheet_name = 'Mantenimiento de activos';
 
@@ -752,8 +726,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='oc_certifications')
-        {
+        if ($table == 'oc_certifications') {
             $excel_name = 'Base de certificaciones de aceptación de OCs';
             $sheet_name = 'Certificaciones';
 
@@ -787,8 +760,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='ocs')
-        {
+        if ($table == 'ocs') {
             $excel_name = 'Base de OCs';
             $sheet_name = 'Ordenes de Compra';
 
@@ -835,8 +807,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='operators')
-        {
+        if ($table == 'operators') {
             $excel_name = 'Base de asignación de equipos';
             $sheet_name = 'Asignaciones';
 
@@ -864,8 +835,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='order_site')
-        {
+        if ($table == 'order_site') {
             $excel_name = 'Base de asociaciones Orden-Sitio';
             $sheet_name = 'Asociaciones Orden-Sitio';
 
@@ -891,8 +861,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='orders')
-        {
+        if ($table == 'orders') {
             $excel_name = 'Base de órdenes de compra de clientes';
             $sheet_name = 'Ordenes de Compra';
 
@@ -921,7 +890,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif ($table == 'projects') {
+        if ($table == 'projects') {
             $excel_name = 'Base de proyectos (glogal)';
             $sheet_name = 'Proyectos';
 
@@ -957,7 +926,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif ($table == 'providers') {
+        if ($table == 'providers') {
             $excel_name = 'Base de proveedores';
             $sheet_name = 'Proveedores';
 
@@ -990,8 +959,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='service_parameters')
-        {
+        if ($table == 'service_parameters') {
             $excel_name = 'Base de parámetros de sistema';
             $sheet_name = 'Parámetros de sistema';
 
@@ -1017,8 +985,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='sites')
-        {
+        if ($table == 'sites') {
             $excel_name = 'Base de sitios';
             $sheet_name = 'Sitios';
 
@@ -1061,8 +1028,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='stipend_requests')
-        {
+        if ($table == 'stipend_requests') {
             $excel_name = 'Tabla de solicitudes de viaticos';
             $sheet_name = 'Solicitudes de viaticos';
 
@@ -1079,8 +1045,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $stipend_requests);
         }
 
-        if($table=='tenders')
-        {
+        if ($table == 'tenders') {
             $excel_name = 'Tabla de licitaciones';
             $sheet_name = 'Licitaciones';
 
@@ -1091,8 +1056,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $tenders);
         }
 
-        elseif($table=='users')
-        {
+        if ($table == 'users') {
             $excel_name = 'Base de usuarios';
             $sheet_name = 'Usuarios';
 
@@ -1116,8 +1080,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='vehicle_histories')
-        {
+        if ($table == 'vehicle_histories') {
             $excel_name = 'Base - historial de vehículos';
             $sheet_name = 'Historial de vehículos';
 
@@ -1145,8 +1108,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='vehicle_requirements')
-        {
+        if ($table == 'vehicle_requirements') {
             $excel_name = 'Tabla de requerimientos de vehículos';
             $sheet_name = 'Requerimientos';
 
@@ -1157,8 +1119,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $requirements);
         }
 
-        elseif($table=='vehicles')
-        {
+        if ($table == 'vehicles') {
             $excel_name = 'Base de Vehículos';
             $sheet_name = 'Lista de vehículos';
 
@@ -1207,8 +1168,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        if($table=='vhc_failure_reports')
-        {
+        if ($table == 'vhc_failure_reports') {
             $excel_name = 'Tabla de reportes de falla - vehiculos';
             $sheet_name = 'Reportes de falla';
 
@@ -1221,8 +1181,7 @@ class ExcelController extends Controller
 
         //Obsolete function for projects export
         /*
-        elseif($table=='projects')
-        {
+        if ($table == 'projects') {
             $excel_name = 'Base de Proyectos';
             $sheet_name = 'Proyectos';
 
@@ -1315,8 +1274,7 @@ class ExcelController extends Controller
 
         //Obsolete functions part of Warehouse module (no longer in use)
         /*
-        elseif($table=='warehouses')
-        {
+        if ($table == 'warehouses') {
             $excel_name = 'Base de almacenes';
             $sheet_name = 'Almacenes';
 
@@ -1338,8 +1296,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='materials')
-        {
+        if ($table == 'materials') {
             $excel_name = 'Base de materiales';
             $sheet_name = 'Materiales';
 
@@ -1369,8 +1326,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='wh_entries')
-        {
+        if ($table == 'wh_entries') {
             $excel_name = 'Base de ingresos de material';
             $sheet_name = 'Ingresos de material';
 
@@ -1401,8 +1357,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='wh_outlets')
-        {
+        if ($table == 'wh_outlets') {
             $excel_name = 'Base de salidas de material';
             $sheet_name = 'Salidas de material';
 
@@ -1433,8 +1388,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
-        elseif($table=='material_warehouse')
-        {
+        if ($table == 'material_warehouse') {
             $excel_name = 'Base de asociaciones Material-Almacén';
             $sheet_name = 'Asociaciones Material-Almacén';
 
@@ -1463,8 +1417,7 @@ class ExcelController extends Controller
 
         //Rbs_viatics replaced with stipend_requests
         /*
-        elseif($table=='rbs_viatics')
-        {
+        if ($table == 'rbs_viatics') {
             $excel_name = 'Base de solicitudes de viáticos RBS';
             $sheet_name = 'Solicitudes';
 
@@ -1475,8 +1428,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $rbs_viatics);
         }
 
-        elseif($table=='rbs_viatic_requests')
-        {
+        if ($table == 'rbs_viatic_requests') {
             $excel_name = 'Base de viáticos asignados a técnicos RBS';
             $sheet_name = 'Viáticos';
 
@@ -1487,8 +1439,7 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $rbs_viatic_requests);
         }
 
-        elseif($table=='rbs_viatic_site')
-        {
+        if ($table == 'rbs_viatic_site') {
             $excel_name = 'Base de asociaciones Viático-Sitio';
             $sheet_name = 'Asociaciones Viático-Sitio';
 
@@ -1526,7 +1477,7 @@ class ExcelController extends Controller
 
         // Old code for projects table (obsolete)
         /*
-        if($table=='project'){
+        if ($table == 'project') {
             $project = Project::find($id);
 
             $excel_name = 'Reporte de Proyecto - '.$project->name;
@@ -1620,8 +1571,7 @@ class ExcelController extends Controller
             })->export('xls');
         }
         */
-        if($table=='oc'){
-
+        if ($table == 'oc') {
             $oc = OC::find($id);
 
             $provider = $oc->provider_record; // Provider::find($oc->provider_id);
@@ -1746,8 +1696,7 @@ class ExcelController extends Controller
                 }
             })->export('xlsx');
         }
-        elseif($table=='device_characteristics')
-        {
+        elseif ($table == 'device_characteristics') {
             $excel_name = 'Tabla de características de equipo';
             $sheet_name = 'Características';
             $documents = collect();
@@ -1862,10 +1811,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='vehicle_conditions')
-        {
+        elseif ($table == 'vehicle_conditions') {
             $excel_name = 'Libro de control de vehículo';
             $sheet_name = 'Registros';
 
@@ -1933,10 +1880,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='sites')
-        {
+        elseif ($table == 'sites') {
             $excel_name = 'Sitios por proyecto';
             $sheet_name = 'Sitios';
 
@@ -2011,10 +1956,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='per-assignment-progress')
-        {
+        elseif ($table == 'per-assignment-progress') {
             Date::setLocale('es');
 
             $assignment = Assignment::find($id);
@@ -2168,10 +2111,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='per-site-progress')
-        {
+        elseif ($table == 'per-site-progress') {
             $site = Site::find($id);
 
             if(!$site){
@@ -2275,10 +2216,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='tasks')
-        {
+        elseif ($table == 'tasks') {
             $excel_name = 'Items por sitio';
             $sheet_name = 'Items';
 
@@ -2357,10 +2296,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='activities-per-task')
-        {
+        elseif ($table == 'activities-per-task') {
             $excel_name = 'Actividades por Item';
             $sheet_name = 'Actividades';
 
@@ -2461,10 +2398,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='events_per_type')
-        {
+        elseif ($table == 'events_per_type') {
             if(!is_numeric($id)) {
                 $type = explode('-', $id)[0];
                 $true_id = explode('-', $id)[1];
@@ -2554,12 +2489,10 @@ class ExcelController extends Controller
                         });
 
                     })->export('xls');
-
                 }
             }
         }
-        elseif($table=='oc_certification')
-        {
+        elseif ($table == 'oc_certification') {
             $certificate = OcCertification::find($id);
 
             $this->record_export('/oc_certificate/'.$certificate->id,'Certificate to sign',$certificate);
@@ -2682,8 +2615,7 @@ class ExcelController extends Controller
 
             })->export('xlsx');
         }
-        elseif ($table == 'vehicle_history')
-        {
+        elseif ($table == 'vehicle_history') {
             $vehicle = Vehicle::find($id);
 
             $excel_name = 'Historial de vehículo - '.$vehicle->license_plate;
@@ -2757,8 +2689,7 @@ class ExcelController extends Controller
 
             })->export('xls');
         }
-        elseif($table=='device_history')
-        {
+        elseif ($table == 'device_history') {
             $device = Device::find($id);
 
             $excel_name = 'Historial de equipo - '.$device->serial;
@@ -2832,8 +2763,7 @@ class ExcelController extends Controller
 
             })->export('xls');
         }
-        elseif($table=='dead_intervals_assig')
-        {
+        elseif ($table == 'dead_intervals_assig') {
             $assignment = Assignment::find($id);
 
             $excel_name = 'Tiempos muertos - '.$assignment->code;
@@ -2906,8 +2836,7 @@ class ExcelController extends Controller
 
             })->export('xls');
         }
-        elseif($table=='dead_intervals_st')
-        {
+        elseif ($table == 'dead_intervals_st') {
             $site = Site::find($id);
 
             $excel_name = 'Tiempos muertos - '.$site->code;
@@ -2980,8 +2909,7 @@ class ExcelController extends Controller
 
             })->export('xls');
         }
-        elseif($table=='materials')
-        {
+        elseif ($table == 'materials') {
             $excel_name = 'Materiales por almacén';
             $sheet_name = 'Materiales';
 
@@ -3046,10 +2974,8 @@ class ExcelController extends Controller
                 });
 
             })->export('xls');
-
         }
-        elseif($table=='tasks_qty')
-        {
+        elseif ($table == 'tasks_qty') {
             $real_id = explode('-',$id)[1];
             $type = explode('-',$id)[0];
 
@@ -3248,19 +3174,15 @@ class ExcelController extends Controller
                         });
 
                     })->export('xlsx');
-
                 }
-                else{
+                else {
                     Session::flash('message', "No se encontraron datos para generar la planilla");
                     return redirect()->back();
                 }
             //}
-
         }
         /*
-        elseif($table=='rbs_viatics')
-        {
-
+        elseif ($table == 'rbs_viatics') {
             $rbs_viatics = RbsViatic::find($id);
 
             $technicians = $rbs_viatics->technician_requests;
@@ -3314,8 +3236,7 @@ class ExcelController extends Controller
             })->export('xlsx');
         }
         */
-        elseif($table=='client_listed_material')
-        {
+        elseif ($table == 'client_listed_material') {
             $rbs_char = RbsSiteCharacteristic::find($id);
 
             if($rbs_char->site->assignment->client=='ZTE'){
@@ -3362,8 +3283,7 @@ class ExcelController extends Controller
 
             })->export('xlsx');
         }
-        elseif($table=='vhc_failure_reports')
-        {
+        elseif ($table == 'vhc_failure_reports') {
             $vehicle = Vehicle::find($id);
 
             $excel_name = 'Tabla de reportes de falla - vehiculo '.$vehicle->license_plate;
@@ -3376,8 +3296,7 @@ class ExcelController extends Controller
 
             return $this->create_excel($excel_name, $sheet_name, $reports);
         }
-        elseif($table=='dvc_failure_reports')
-        {
+        elseif ($table == 'dvc_failure_reports') {
             $device = Device::find($id);
 
             $excel_name = 'Tabla de reportes de falla - equipo '.$device->serial;
@@ -3390,7 +3309,6 @@ class ExcelController extends Controller
 
             return $this->create_excel($excel_name, $sheet_name, $reports);
         }
-        
         elseif ($table === 'stipend_requests') {
             $assignment = Assignment::find($id);
 
@@ -3534,13 +3452,12 @@ class ExcelController extends Controller
                     return $converted_excelIsValid;
                 */
 
-                if($excelIsValid==false){
+                if ($excelIsValid == false) {
                     Session::flash('message', "El archivo seleccionado contiene datos que no pueden ser importados!");
                     return redirect()->back()->withInput();
                 }
 
-                if(!empty($data) && $data->count()){
-
+                if (!empty($data) && $data->count()) {
                     $prev_number = Task::select('number')->where('site_id',$id)->OrderBy('number','desc')->first();
                     $to_assign_number = empty($prev_number) ? 1 : $prev_number->number+1;
 
@@ -3575,7 +3492,7 @@ class ExcelController extends Controller
                             }
                         }
                     }
-                    if(!empty($insert)) {
+                    if (!empty($insert)) {
 
                         Task::insert($insert);
 
@@ -3594,7 +3511,10 @@ class ExcelController extends Controller
                     }
 
                     Session::flash('message', $message);
-                    return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
+                    if(Session::has('url'))
+                        return redirect(Session::get('url'));
+                    else
+                        return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
                 }
                 /*
                 * Old code (before the implementation of an items table)
@@ -3666,8 +3586,7 @@ class ExcelController extends Controller
                 */
             }
 
-            if($type=='sites') {
-
+            if ($type == 'sites') {
                 $assignment = Assignment::find($id);
 
                 $path = $file_to_import->getRealPath();
@@ -3700,13 +3619,13 @@ class ExcelController extends Controller
                     $i++;
                 }
 
-                if($excelIsValid==false){
+                if ($excelIsValid == false) {
                     Session::flash('message', "El archivo seleccionado contiene datos que no pueden ser importados. 
                             Descargue el archivo modelo para referencia!");
                     return redirect()->back()->withInput();
                 }
 
-                if(!empty($data) && $data->count()){
+                if (!empty($data) && $data->count()) {
                     foreach ($data as $key => $value) {
                         $insert[] = [
                             'user_id'           => $user->id,
@@ -3750,12 +3669,14 @@ class ExcelController extends Controller
                     }
 
                     Session::flash('message', $message);
-                    return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
+                    if(Session::has('url'))
+                        return redirect(Session::get('url'));
+                    else
+                        return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
                 }
             }
 
-            if($type=='items') {
-
+            if ($type == 'items') {
                 $category = $request->input('category');
                 $area = $request->input('area');
                 $project_id = $request->input('project_id');
@@ -3802,17 +3723,16 @@ class ExcelController extends Controller
                                 return $converted_excelIsValid;
                 */
 
-                if($excelIsValid==false){
+                if ($excelIsValid == false) {
                     Session::flash('message', "El archivo seleccionado contiene datos que no pueden ser importados!
                         Por favor utilice el formato modelo");
                     return redirect()->back()->withInput();
                 }
 
-                if(!empty($data)&&$data->count()){
-                    if(ItemCategory::where('name', $category)->exists()){
+                if (!empty($data) && $data->count()) {
+                    if (ItemCategory::where('name', $category)->exists()) {
                         $new_category = ItemCategory::where('name', $category)->first();
-                    }
-                    else{
+                    } else {
                         $new_category = new ItemCategory();
                         $new_category->project_id = $project_id ?: 0;
                         $new_category->name = $category;
@@ -3849,7 +3769,7 @@ class ExcelController extends Controller
                             }
                         }
                     }
-                    if(!empty($insert)){
+                    if (!empty($insert)) {
                         Item::insert($insert);
 
                         $message = "Los items fueron cargados al sistema correctamente";
@@ -3859,18 +3779,19 @@ class ExcelController extends Controller
                     }
 
                     Session::flash('message', $message);
-                    if($id!=0)
+                    if(Session::has('url'))
+                        return redirect(Session::get('url'));
+                    elseif ($id!=0)
                         return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
                     else
                         return redirect()->route('item_category.index');
                 }
             }
 
-            if($type=='client_listed_materials') {
-
+            if ($type == 'client_listed_materials') {
                 $client = $request->input('client');
 
-                if($client=='Otro'||$client==''){
+                if ($client=='Otro'||$client=='') {
                     if($request->input('other_client')==""){
                         Session::flash('message', 'Debe indicar un cliente!');
                         return redirect()->back();
@@ -3905,13 +3826,13 @@ class ExcelController extends Controller
                     $i++;
                 }
 
-                if($excelIsValid==false){
+                if ($excelIsValid == false) {
                     Session::flash('message', "El archivo seleccionado contiene datos que no pueden ser importados. 
                             Descargue el archivo modelo para referencia!");
                     return redirect()->back();
                 }
 
-                if(!empty($data) && $data->count()){
+                if (!empty($data) && $data->count()) {
                     foreach ($data as $key => $value) {
                         if(!empty($value->nombre)) {
                             $insert[] = [
@@ -3929,18 +3850,19 @@ class ExcelController extends Controller
                         ClientListedMaterial::insert($insert);
 
                         $message = "Los materiales contenidos en el archivo fueron importados correctamente";
-                    }
-                    else{
+                    } else {
                         $message = 'No se cargó ningún material!';
                     }
 
                     Session::flash('message', $message);
-                    return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
+                    if(Session::has('url'))
+                        return redirect(Session::get('url'));
+                    else
+                        return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
                 }
             }
 
-            if($type=='stipend_requests') {
-
+            if ($type == 'stipend_requests') {
                 $assignment = Assignment::find($id);
                 $assignment->start_date = Carbon::parse($assignment->start_date);
                 $assignment->end_date = Carbon::parse($assignment->end_date);
@@ -3988,20 +3910,20 @@ class ExcelController extends Controller
                     $i++;
                 }
 
-                if($excelIsValid==false){
+                if ($excelIsValid == false) {
                     Session::flash('message', "El archivo seleccionado contiene datos que no pueden ser importados. 
                             Descargue el archivo modelo para referencia!");
                     return redirect()->back()->withInput();
                 }
 
-                if(!empty($data) && $data->count()){
+                if (!empty($data) && $data->count()) {
                     foreach ($data as $key => $value) {
 
                         $employee = Employee::where(function ($query) use($value){
                             $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$value->solicitado_para%");
                         })->first();
 
-                        if($employee){
+                        if ($employee) {
                             $insert[] = [
                                 'user_id'           => $user->id,
                                 'employee_id'       => $employee->id,
@@ -4028,7 +3950,7 @@ class ExcelController extends Controller
 
                         }
                     }
-                    if(!empty($insert)){
+                    if (!empty($insert)) {
 
                         StipendRequest::insert($insert);
 
@@ -4054,18 +3976,20 @@ class ExcelController extends Controller
                         }
 
                         $message = "Las solicitudes de viáticos fueron importadas correctamente";
-                    }
-                    else{
+                    } else {
                         $message = 'No se cargó ninguna solicitud de viáticos!';
                     }
 
                     Session::flash('message', $message);
-                    return redirect('/stipend_request?asg='.$assignment->id);
+                    if(Session::has('url'))
+                        return redirect(Session::get('url'));
+                    else
+                        return redirect('/stipend_request?asg='.$assignment->id);
                 }
             }
         }
         /*
-        elseif($type=='tasks-from-oc') {
+        elseif ($type == 'tasks-from-oc') {
 
             $site = Site::find($id);
 
@@ -4171,7 +4095,7 @@ class ExcelController extends Controller
 
         $service = Session::get('service');
         
-        if(is_numeric($format)){
+        if (is_numeric($format)) {
             $aux = $format;
             $format = $id;
             $id = $aux;
@@ -4187,7 +4111,7 @@ class ExcelController extends Controller
         if ((is_null($user))||(!$user->id))
             return redirect()->route('root');
 
-        if(is_numeric($format)){
+        if (is_numeric($format)) {
             $aux = $format;
             $format = $id;
             $id = $aux;
@@ -4202,20 +4126,21 @@ class ExcelController extends Controller
 
         $filePath = $modelFile->getRealPath();
 
-        if($format=='tracking-report'){
+        if ($format=='tracking-report') {
             
             $assignment = Assignment::find($id);
 
-            if(!$assignment){
+            if (!$assignment) {
                 Session::flash('message', "No se encontró el registro solicitado!");
                 return redirect()->back();
             }
 
             $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
 
-            //$this->record_export('/oc/'.$oc->id,'OC to sign',$oc);
+            // $this->record_export('/oc/'.$oc->id,'OC to sign',$oc);
 
-            Excel::load($filePath, function($reader) use($assignment, $current_date /*$qr_code*/)
+            // Excel::load($filePath, function($reader) use($assignment, $current_date, /*$qr_code*/)
+            Excel::load($filePath, function($reader) use($assignment, $current_date)
             {
                 $sheetToChange = $reader->getActiveSheet();
 
@@ -4277,7 +4202,7 @@ class ExcelController extends Controller
                                 //if($cell_date==$current_date)
                                 //    $sheetToChange->setCellValue($i.'4', 'Hoy');
 
-                                if($progress==0)
+                                if ($progress == 0)
                                     $progress = '';
 
                                 $sheetToChange->setCellValue($col.$j, $progress);
@@ -4332,7 +4257,7 @@ class ExcelController extends Controller
         $options = collect();
         $complements = 0;
 
-        if($type=='per-assignment-progress'){
+        if ($type == 'per-assignment-progress') {
             $place = Assignment::find($id);
             $place->start_date = Carbon::parse($place->start_date)->format('Y-m-d');
             $place->end_date = Carbon::parse($place->end_date)->format('Y-m-d');
@@ -4348,7 +4273,7 @@ class ExcelController extends Controller
         if ((is_null($user))||(!$user->id))
             return redirect()->route('root');
 
-        if($request->date_to!='')
+        if ($request->date_to!='')
             $request->date_to = $request->date_to.' 23:59:59';
 
         $validate = ['date_from' => $request->date_from, 'date_to' => $request->date_to];
@@ -4363,8 +4288,7 @@ class ExcelController extends Controller
                 'after'         => 'La fecha "Hasta" debe ser posterior o igual a la fecha "Desde"!'
             ]);
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -4372,8 +4296,7 @@ class ExcelController extends Controller
         $date_from = Carbon::parse($request->date_from);
         $date_to = Carbon::parse($request->date_to);
         
-        if(abs($date_to->diffInDays($date_from))>31)
-        {
+        if (abs($date_to->diffInDays($date_from)) > 31) {
             Session::flash('message', "El intervalo de fechas no puede exceder los 31 días!");
             return redirect()->back()->withInput();
         }
@@ -4382,8 +4305,7 @@ class ExcelController extends Controller
         $sheet_name = 'empty';
         $sheet_content = collect();
 
-        if($type=='per-assignment-progress')
-        {
+        if ($type == 'per-assignment-progress') {
             Date::setLocale('es');
 
             $assignment = Assignment::find($id);
@@ -4430,7 +4352,7 @@ class ExcelController extends Controller
                         }
                     }
 
-                    $var = $var==0 ? '' : $var;
+                    $var = $var == 0 ? '' : $var;
 
                     $line[$item->name] = $var;
                 }
@@ -4628,7 +4550,7 @@ class ExcelController extends Controller
         $record->url = $url;
         $record->description = $description;
 
-        if($model){
+        if ($model) {
             $record->exportable()->associate($model);
         }
 

@@ -109,7 +109,11 @@ class BranchController extends Controller
         $branch->save();
         
         Session::flash('message', "La sucursal fue registrada correctamente");
-        return redirect()->route('branch.index');
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('branch.index');
     }
 
     /**

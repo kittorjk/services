@@ -146,7 +146,10 @@ class CorpLineAssignationController extends Controller
         $this->touch_line($line, $assignation, $resp_after, $user, 'store');
 
         Session::flash('message', "El cambio de responsable de la línea corporativa fue registrado correctamente");
-        return redirect()->route('line_assignation.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('line_assignation.index');
     }
 
     /**

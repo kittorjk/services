@@ -173,7 +173,10 @@ class OcCertificationController extends Controller
         $oc->save();
         
         Session::flash('message', "El certificado fue agregado al sistema correctamente");
-        return redirect()->route('oc_certificate.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('oc_certificate.index');
     }
 
     /**

@@ -415,7 +415,11 @@ class AssignmentController extends Controller
         }
         
         Session::flash('message', "La asignación fue registrada en el sistema correctamente");
-        return redirect()->route('assignment.index');
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('assignment.index');
     }
 
     /**

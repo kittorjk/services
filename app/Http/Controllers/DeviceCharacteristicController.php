@@ -133,7 +133,10 @@ class DeviceCharacteristicController extends Controller
         $characteristic->save();
 
         Session::flash('message', "Se agregó una nueva característica a este equipo correctamente");
-        return redirect()->route('device.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('device.index');
         //return redirect()->action('DeviceCharacteristicController@device_characteristics',
         //    ['id' => $characteristic->device_id]);
     }

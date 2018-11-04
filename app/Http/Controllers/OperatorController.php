@@ -223,7 +223,10 @@ class OperatorController extends Controller
         $this->send_email($recipient, '', $data, $mail_structure, $subject);
 
         Session::flash('message', "El cambio de responsable de equipo fue registrado correctamente");
-        return redirect()->route('operator.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('operator.index');
     }
 
     /**

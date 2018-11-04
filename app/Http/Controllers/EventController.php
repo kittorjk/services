@@ -247,7 +247,10 @@ class EventController extends Controller
         $event->save();
 
         Session::flash('message', "El evento fue registrado correctamente");
-        return redirect()->action('EventController@events_per_type', [ 'type' => $type , 'id' => $id ]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('EventController@events_per_type', [ 'type' => $type , 'id' => $id ]);
     }
 
     /**

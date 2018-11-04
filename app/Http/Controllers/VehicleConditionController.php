@@ -194,7 +194,10 @@ class VehicleConditionController extends Controller
         $vehicle->save();
 
         Session::flash('message', "El registro fue agregado correctamente");
-        return redirect()->action('VehicleConditionController@vehicle_records', ['id' => $vehicle_condition->vehicle_id]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('VehicleConditionController@vehicle_records', ['id' => $vehicle_condition->vehicle_id]);
     }
 
     /**

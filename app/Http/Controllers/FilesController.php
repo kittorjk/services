@@ -120,7 +120,7 @@ class FilesController extends Controller
         if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
-        if($id==0)
+        if ($id == 0)
             $file = File::where('imageable_id', 0)->where('type', 'pdf')->firstOrFail();
         else
             $file = File::find($id);
@@ -202,13 +202,14 @@ class FilesController extends Controller
         }
         */
 
-        if($file){
+        if ($file) {
             $success = true;
 
             try {
                 //$delete_file = File::where('name', 'like', $file_name)->firstOrFail()->name;
                 \Storage::disk('local')->delete($file->name);
-            } catch (Exception /*ModelNotFoundException*/ $ex) {
+            } catch (Exception $ex) {
+                // ModelNotFoundException $ex
                 $success = false;
             }
 
@@ -249,20 +250,20 @@ class FilesController extends Controller
         $service = Session::get('service');
         $options = '';
 
-        if(is_numeric($type)){
+        if (is_numeric($type)) {
             $aux = $type;
             $type = $id;
             $id = $aux;
         }
 
-        if($type=='format'||$type=='driver_form'){
+        if ($type == 'format' || $type == 'driver_form') {
             $id = 0;
         }
-        if($type=='assignment'||$type=='site'){
+        if ($type == 'assignment' || $type == 'site') {
             $file_qcc = $file_ctz = $file_sch = $file_asig = $file_qty_org = $file_qty_sgn = $file_cst_org =
             $file_cst_sgn = false;
 
-            if($type=='assignment')
+            if ($type == 'assignment')
                 $model = Assignment::find($id);
             else
                 $model = Site::find($id); // if type equals 'site'
@@ -346,7 +347,7 @@ class FilesController extends Controller
 
         $service = Session::get('service');
 
-        if(is_numeric($type)){
+        if (is_numeric($type)) {
             $aux = $type;
             $type = $id;
             $id = $aux;
@@ -360,7 +361,7 @@ class FilesController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if($type=='activity') {
+        if ($type == 'activity') {
             $activity = Activity::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -405,7 +406,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='assignment') {
+        if ($type == 'assignment') {
             $assignment = Assignment::find($id);
 
             $filename_hint = $request->input('name_of_file');
@@ -486,7 +487,7 @@ class FilesController extends Controller
                     $guarantee->save();
                 }
                 */
-                if($filename_hint=='qcc'){
+                if ($filename_hint == 'qcc') {
                     /* send email */
                     $this->send_mail('qcc_assignment', $assignment, $user);
                 }
@@ -502,8 +503,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='calibration') {
-
+        if ($type == 'calibration') {
             $calibration = Calibration::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -542,7 +542,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='cite') {
+        if ($type == 'cite') {
             $cite = Cite::find($id);
 
             $v = \Validator::make($request->file(), [
@@ -586,7 +586,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='corp_line') {
+        if ($type == 'corp_line') {
             $line = CorpLine::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -628,7 +628,7 @@ class FilesController extends Controller
 
         //Contracts merged with Projects by General Manager request (contract functions disabled or merged with project functions)
         /*
-        if($type=='contract') {
+        if ($type == 'contract') {
             $contract = Contract::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -670,7 +670,7 @@ class FilesController extends Controller
         }
         */
 
-        if($type=='dead_interval') {
+        if ($type == 'dead_interval') {
             $dead_interval = DeadInterval::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -719,7 +719,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='device_file') {
+        if ($type == 'device_file') {
             $device = Device::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -762,7 +762,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='device_img') {
+        if ($type == 'device_img') {
             $device = Device::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -819,7 +819,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='driver') {
+        if ($type == 'driver') {
             $driver = Driver::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -871,7 +871,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='driver_form') {
+        if ($type == 'driver_form') {
             /*Store driver receipt form format to print*/
 
             $v = $this->check_extension('pdf', $request->file());
@@ -928,7 +928,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='driver_receipt') {
+        if ($type == 'driver_receipt') {
             $driver = Driver::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -967,7 +967,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='dvc_failure_report') {
+        if ($type == 'dvc_failure_report') {
             $report = DvcFailureReport::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -1007,7 +1007,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='event') {
+        if ($type == 'event') {
             $event = Event::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -1063,7 +1063,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='format') {
+        if ($type == 'format') {
             $v = $this->check_extension('doc', $request->file());
             if ($v->fails()) {
                 Session::flash('message', "Tipo de archivo no soportado! El archivo debe ser WORD");
@@ -1117,7 +1117,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='guarantee') {
+        if ($type == 'guarantee') {
             $guarantee = Guarantee::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -1162,7 +1162,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='invoice') {
+        if ($type == 'invoice') {
             $invoice = Invoice::find($id);
 
             $v = \Validator::make($request->file(), [
@@ -1203,7 +1203,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='line_assignation') {
+        if ($type == 'line_assignation') {
             $assignation = CorpLineAssignation::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1243,7 +1243,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='maintenance') {
+        if ($type == 'maintenance') {
             $maintenance = Maintenance::find($id);
 
             $v = \Validator::make($request->file(), [
@@ -1303,7 +1303,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='oc_certificate') {
+        if ($type == 'oc_certificate') {
             $certificate = OcCertification::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1343,7 +1343,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='oc_certification_backup') {
+        if ($type == 'oc_certification_backup') {
 
             $certificate = OcCertification::find($id);
 
@@ -1385,15 +1385,14 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='oc_org'||$type=='oc_sgn') {
+        if ($type == 'oc_org' || $type == 'oc_sgn') {
             $oc = OC::find($id);
 
-            if($type=='oc_org'){
+            if ($type == 'oc_org') {
                 $v = \Validator::make($request->file(), [
                     'file' => 'mimes:pdf,xls,xlsx',
                 ]);
-            }
-            else{  //($type=='oc_sgn')
+            } else {  //($type=='oc_sgn')
                 $v = $this->check_extension('pdf', $request->file());
             }
 
@@ -1457,7 +1456,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='operator') {
+        if ($type == 'operator') {
             $operator = Operator::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -1509,7 +1508,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='operator_receipt') {
+        if ($type == 'operator_receipt') {
             $operator = Operator::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1548,7 +1547,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='order') {
+        if ($type == 'order') {
             $order = Order::find($id);
             $filename_hint = $request->input('name_of_file');
 
@@ -1616,8 +1615,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='project') {
-
+        if ($type == 'project') {
             $project = Project::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1772,7 +1770,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='site') {
+        if ($type == 'site') {
             $site = Site::find($id);
 
             $filename_hint = $request->input('name_of_file');
@@ -1858,8 +1856,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='tender') {
-
+        if ($type == 'tender') {
             $tender = Tender::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1897,7 +1894,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='vehicle_file'||$type=='vhc_gas_inspection') {
+        if ($type == 'vehicle_file' || $type == 'vhc_gas_inspection') {
             $vehicle = Vehicle::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -1911,7 +1908,7 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path().'/files/';
 
-            if($type=='vhc_gas_inspection')
+            if ($type == 'vhc_gas_inspection')
                 $FileName = 'VGI-'.str_pad($vehicle->id, 3, "0", STR_PAD_LEFT).'-'.
                     $current_date.'.'.strtolower($FileType);
             else
@@ -1953,7 +1950,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='vehicle_img') {
+        if ($type == 'vehicle_img') {
             $vehicle = Vehicle::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -2010,7 +2007,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='vhc_failure_report') {
+        if ($type == 'vhc_failure_report') {
             $report = VhcFailureReport::find($id);
 
             $v = $this->check_extension('all', $request->file());
@@ -2052,7 +2049,7 @@ class FilesController extends Controller
 
         //Obsolete functions for warehouse module (no longer in use)
         /*
-        if($type=='warehouse_img') {
+        if ($type == 'warehouse_img') {
             $warehouse = Warehouse::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -2101,7 +2098,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='warehouse_file') {
+        if ($type == 'warehouse_file') {
             $warehouse = Warehouse::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -2138,7 +2135,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='material_img') {
+        if ($type == 'material_img') {
             $material = Material::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -2192,7 +2189,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='wh_entry_img') {
+        if ($type == 'wh_entry_img') {
             $entry = WarehouseEntry::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -2241,7 +2238,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='wh_entry_receipt') {
+        if ($type == 'wh_entry_receipt') {
             $entry = WarehouseEntry::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -2277,7 +2274,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='wh_outlet_img') {
+        if ($type == 'wh_outlet_img') {
             $outlet = WarehouseOutlet::find($id);
 
             $v = $this->check_extension('image', $request->file());
@@ -2325,7 +2322,7 @@ class FilesController extends Controller
             }
         }
 
-        if($type=='wh_outlet_receipt') {
+        if ($type == 'wh_outlet_receipt') {
             $outlet = WarehouseOutlet::find($id);
 
             $v = $this->check_extension('pdf', $request->file());
@@ -2435,7 +2432,7 @@ class FilesController extends Controller
     {
         $old_thumb = Thumbnail::where('name','thumb_'.$FileName)->first();
 
-        if($old_thumb){
+        if ($old_thumb) {
             try {
                 \Storage::disk('local')->delete('thumbnails/'.$old_thumb->name);
                 $deleted = true;
@@ -2443,7 +2440,7 @@ class FilesController extends Controller
                 $deleted = false;
             }
 
-            if($deleted){
+            if ($deleted) {
                 $image = Image::make($newFile->getRealPath());
 
                 if($image->height()>$image->width())
@@ -2468,7 +2465,7 @@ class FilesController extends Controller
 
     function send_mail($mode, $model, $user)
     {
-        if($mode=='qcc_assignment'){
+        if ($mode == 'qcc_assignment') {
             $assignment = $model;
             $recipient = User::where('area','Gerencia General')->where('priv_level',2)->first();
             $pm = $assignment->resp_id!=0 ? User::find($assignment->resp_id) : 0;
@@ -2479,7 +2476,7 @@ class FilesController extends Controller
             $data = array('recipient' => $recipient, 'pm' => $pm, 'assignment' => $assignment);
             $mail_structure = 'emails.qcc_uploaded';
         }
-        elseif($mode=='qcc_site'){
+        elseif ($mode == 'qcc_site') {
             $site = $model;
             $assignment = $site->assignment;
             $recipient = User::where('area', 'Gerencia General')->where('priv_level', 2)->first();
@@ -2492,7 +2489,7 @@ class FilesController extends Controller
             $mail_structure = 'emails.qcc_uploaded';
         }
 
-        if($recipient){
+        if ($recipient) {
             $view = View::make($mail_structure, $data);
             $content = (string) $view;
             $success = 1;
@@ -2520,7 +2517,7 @@ class FilesController extends Controller
 
     function add_history_record($mode, $model, $file, $user)
     {
-        if($mode=='device_file'){
+        if ($mode == 'device_file') {
             $device = $model;
             $device_history = new DeviceHistory;
             $device_history->device_id = $device->id;
@@ -2546,7 +2543,7 @@ class FilesController extends Controller
 
     function update_oc($file, $oc, $type, $path)
     {
-        if($type=='oc_org'&&$file->type!='pdf') {
+        if ($type == 'oc_org' && $file->type != 'pdf') {
             Excel::load($path, function ($reader) use ($oc) {
                 $sheet = $reader->getSheetByName('OC');
                 $oc->oc_amount = $sheet->getCell('AR62')->getCalculatedValue();

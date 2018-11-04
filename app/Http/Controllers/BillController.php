@@ -125,7 +125,11 @@ class BillController extends Controller
         $bill->save();
 
         Session::flash('message', "La factura fue agregada al sistema");
-        return redirect()->route('bill.index');
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('bill.index');
     }
 
     /**

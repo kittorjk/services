@@ -267,7 +267,7 @@ class OCController extends Controller
         $date = Carbon::now()->format('Y');
         */
 
-        if($store){
+        if ($store) {
             $oc->save();
 
             $this->fill_code_column(); //Fill records' codes where empty
@@ -277,7 +277,10 @@ class OCController extends Controller
         }
 
         Session::flash('message', "La Orden de Compra fue agregada al sistema correctamente");
-        return redirect()->route('oc.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('oc.index');
     }
 
     /**
@@ -882,8 +885,7 @@ class OCController extends Controller
         $recipient = $user; //Temporary assigned to avoid empty collection errors
         $cc = '';
 
-        if($type=='new'&&$oc->flags=='00110000'){
-
+        if ($type == 'new' && $oc->flags == '00110000') {
             $oc = OC::find($oc->id); //Retrieve code
 
             //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
@@ -897,10 +899,8 @@ class OCController extends Controller
 
             $mail_structure = 'emails.oc_approved';
             $subject = 'Ordenes de compra pendientes de aprobación';
-
         }
-        elseif($type=='new'&&$oc->flags=='00010000'){
-
+        elseif ($type == 'new' && $oc->flags == '00010000') {
             //$recipient = User::where('area','Gerencia Tecnica')->where('priv_level',3)->first();
             $recipient = User::whereHas('action', function ($query) {
                 $query->where('oc_apv_tech', 1);
@@ -911,10 +911,8 @@ class OCController extends Controller
 
             $mail_structure = 'emails.oc_added';
             $subject = 'Nueva órden de compra agregada al sistema';
-
         }
-        elseif($type=='approved'){
-
+        elseif ($type == 'approved') {
             $approved = $oc; // In this case $oc is a string not a collection (see approve_action function)
             //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
 
@@ -927,9 +925,8 @@ class OCController extends Controller
 
             $mail_structure = 'emails.oc_approved';
             $subject = 'Ordenes de compra pendientes de aprobación';
-
         }
-        elseif($type=='rejected'){
+        elseif ($type == 'rejected') {
             $recipient = $oc->user ?: $user;
             $cc = $user->email;
             $data = array('recipient' => $recipient, 'oc' => $oc, 'user' => $user);
@@ -938,7 +935,7 @@ class OCController extends Controller
             $subject = 'Orden de compra rechazada';
         }
 
-        if($mail_structure!=''){
+        if ($mail_structure != '') {
             // If one condition is true then send email
 
             $view = View::make($mail_structure, $data);

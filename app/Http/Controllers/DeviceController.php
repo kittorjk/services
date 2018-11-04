@@ -153,7 +153,10 @@ class DeviceController extends Controller
         $this->add_history_record($device, 'store', $device, $user);
 
         Session::flash('message', "Equipo registrado correctamente");
-        return redirect()->route('device.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('device.index');
     }
 
     /**

@@ -140,7 +140,10 @@ class GuaranteeController extends Controller
         $guarantee->save();
 
         Session::flash('message', "La poliza fue agregada al sistema correctamente");
-        return redirect()->route('guarantee.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('guarantee.index');
     }
 
     /**

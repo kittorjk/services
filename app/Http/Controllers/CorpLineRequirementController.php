@@ -126,7 +126,10 @@ class CorpLineRequirementController extends Controller
         $this->send_email($recipient, $cc, $data, $mail_structure, $subject);
 
         Session::flash('message', "El requerimiento de línea fue registrado correctamente");
-        return redirect()->route('line_requirement.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('line_requirement.index');
     }
 
     /**

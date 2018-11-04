@@ -184,7 +184,10 @@ class TenderController extends Controller
         $this->send_email_notification($tender, 'store');
 
         Session::flash('message', "Se agregó una nueva licitación al sistema");
-        return redirect()->route('tender.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('tender.index');
     }
 
     /**
@@ -539,7 +542,10 @@ class TenderController extends Controller
         $this->send_email_notification($tender, 'add_contract');
 
         Session::flash('message', "Se agregó el contrato $project->name al sistema");
-        return redirect()->route('project.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('project.index');
     }
 
     public function send_email_notification($model, $mode)

@@ -106,7 +106,10 @@ class ServiceParameterController extends Controller
 
         Session::flash('message', "Se ha agregado un nuevo parámetro al sistema, por favor modifique el código para
             poder utilizarlo");
-        return redirect()->route('service_parameter.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('service_parameter.index');
     }
 
     /**

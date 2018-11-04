@@ -104,7 +104,10 @@ class RbsSiteCharacteristicController extends Controller
         $rbs_site_char->save();
 
         Session::flash('message', "El formulario fue guardado correctamente");
-        return redirect()->action('SiteController@sites_per_project', ['id' => $rbs_site_char->site->assignment_id]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('SiteController@sites_per_project', ['id' => $rbs_site_char->site->assignment_id]);
     }
 
     /**
@@ -196,7 +199,10 @@ class RbsSiteCharacteristicController extends Controller
         $rbs_site_char->save();
 
         Session::flash('message', "Datos actualizados correctamente");
-        return redirect()->action('SiteController@sites_per_project', ['id' => $rbs_site_char->site->assignment_id]);
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->action('SiteController@sites_per_project', ['id' => $rbs_site_char->site->assignment_id]);
     }
 
     /**
@@ -218,7 +224,10 @@ class RbsSiteCharacteristicController extends Controller
             $rbs_site_char->delete();
 
             Session::flash('message', "El registro fue eliminado del sistema");
-            return redirect()->action('SiteController@sites_per_project', ['id' => $return_id]);
+            if(Session::has('url'))
+                return redirect(Session::get('url'));
+            else
+                return redirect()->action('SiteController@sites_per_project', ['id' => $return_id]);
         }
         else {
             Session::flash('message', "Error al borrar el registro, la información solicitada no fue encontrada en el sistema");

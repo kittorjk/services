@@ -132,7 +132,10 @@ class ProviderController extends Controller
         $provider->save();
 
         Session::flash('message', "Proveedor registrado correctamente");
-        return redirect()->route('provider.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('provider.index');
     }
 
     /**

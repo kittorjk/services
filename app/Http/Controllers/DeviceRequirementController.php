@@ -178,7 +178,10 @@ class DeviceRequirementController extends Controller
         $this->send_email($recipient, $cc, $data, $mail_structure, $subject);
 
         Session::flash('message', "El requerimiento de equipo fue registrado correctamente");
-        return redirect()->route('device_requirement.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('device_requirement.index');
     }
 
     /**

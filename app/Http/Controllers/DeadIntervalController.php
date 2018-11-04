@@ -221,7 +221,10 @@ class DeadIntervalController extends Controller
         $this->add_event($dead_interval, $model, $model_name, $user);
 
         Session::flash('message', "El intervalo de tiempo muerto fue agregado al sistema");
-        if($model_name=='asignación')
+
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        elseif($model_name=='asignación')
             return redirect('/dead_interval?assig_id='.$model->id);
         elseif($model_name=='sitio')
             return redirect('/dead_interval?st_id='.$model->id);

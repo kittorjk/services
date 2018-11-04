@@ -100,7 +100,10 @@ class ContactController extends Controller
         $contact->save();
 
         Session::flash('message', "Contacto registrado correctamente");
-        return redirect()->route('contact.index');
+        if(Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('contact.index');
     }
 
     /**
