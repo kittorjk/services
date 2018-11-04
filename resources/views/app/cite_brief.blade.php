@@ -15,12 +15,14 @@
         <nav>
             <ul class="menu navgreen">
                 @if($user->priv_level==4)
-                    <li><a href="/" title="Menú raíz del sistema">&ensp;{{ '/' }}&ensp;</a></li>
+                    <li><a href="/" title="Menú raíz del sistema">&ensp;<b>{{ '/' }}</b>&ensp;</a></li>
                 @endif
 
                 @include('app.menu_app_popup', array('user' => $user, 'mode' => 'li'))
 
-                <li><a href="{{ '/cite' }}">&ensp;<i class="fa fa-home"></i> INICIO&ensp;</a></li>
+                <li><a href="{{ '/cite' }}" title="Inicio">&ensp;<i class="fa fa-home" style="font-size: 1.3em;"></i>&ensp;</a></li>
+                <li><a href="{{ Request::url() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
+
                 <li><a href="#">&ensp;<i class="fa fa-envelope-o"></i> CITES <span class="caret"></span>&ensp;</a>
                     <ul class="sub-menu">
                         <li><a href="{{ '/cite' }}"><i class="fa fa-bars"></i> Ver todo </a></li>

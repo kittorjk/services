@@ -58,15 +58,16 @@
             <div class="row">
                 <div class="col-sm-9">
                     @if($user->priv_level==4)
-                        <a href="/" class="btn btn-primary" title="Menú raíz del sistema">{{ '/' }}</a>
+                        <a href="/" class="btn btn-primary" title="Menú raíz del sistema"><b>{{ '/' }}</b></a>
                     @endif
     
                     @include('app.menu_app_popup', array('user' => $user, 'mode' => 'a'))
     
-                    <a href="{{ '/assignment' }}" class="btn btn-primary"><i class="fa fa-home"></i> Inicio</a>
-                    <a href="#" onclick="history.back();" class="btn btn-primary">
-                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    <a href="{{ '/assignment' }}" class="btn btn-primary" title="Inicio"><i class="fa fa-home" style="font-size: 1.4em;"></i></a>
+                    <a href="#" onclick="history.back();" class="btn btn-primary" title="Volver">
+                        <i class="fa fa-arrow-circle-left" style="font-size: 1.4em;"></i>
                     </a>
+                    <a href="{{ Request::url() }}" class="btn btn-primary" title="Recargar página"><i class="fa fa-refresh" style="font-size: 1.4em;"></i></a>
     
                     @yield('menu_options')
     

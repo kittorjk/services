@@ -57,13 +57,14 @@
         <nav>
             <ul class="menu navred">
                 @if($user->priv_level==4)
-                    <li><a href="/" title="Menú raíz del sistema">&ensp;{{ '/' }}&ensp;</a></li>
+                    <li><a href="/" title="Menú raíz del sistema">&ensp;<b>{{ '/' }}</b>&ensp;</a></li>
                 @endif
 
                 @include('app.menu_app_popup', array('user' => $user, 'mode' => 'li'))
 
-                <li><a href="{{ route('admin_menu') }}">&ensp;<i class="fa fa-home"></i> INICIO&ensp;</a></li>
-                <li><a href="#" onclick="history.back();">&ensp;<i class="fa fa-arrow-circle-left"></i> VOLVER&ensp;</a></li>
+                <li><a href="{{ route('admin_menu') }}" title="Inicio">&ensp;<i class="fa fa-home" style="font-size: 1.3em;"></i>&ensp;</a></li>
+                <li><a href="#" onclick="history.back();" title="Volver">&ensp;<i class="fa fa-arrow-circle-left" style="font-size: 1.3em;"></i>&ensp;</a></li>
+                <li><a href="{{ Request::url() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
 
                 @yield('menu_options')
 
