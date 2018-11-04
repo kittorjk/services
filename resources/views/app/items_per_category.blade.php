@@ -113,8 +113,15 @@
 
 @section('javascript')
     <script src="{{ asset('app/js/fix_table_header.js') }}"></script> {{-- For fixed header --}}
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
     <script>
         $('#alert').delay(2000).fadeOut('slow');
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
         $(function(){
             $('#fixable_table').tablesorter({
@@ -122,12 +129,6 @@
                 cssDesc: 'headerSortDown',
                 cssNone: ''
             });
-        });
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
         });
 
         function replace(element,id, val){
@@ -143,15 +144,13 @@
             $(element).off();
         }
 
-        $(document).ready(function(){
-            $.post('/set_current_url', { url: window.location.href }, function(){});
-
-            $(document).on("focusout","td.edit input",function(){
+        $(document).ready(function() {
+            $(document).on("focusout","td.edit input",function() {
                 var c = $(this); //$('#editable'+item_id);
 
                 if(c.val()>0 && c.val().length >0){
 
-                    $.post('/set_item_unit_cost', { amount: c.val(), id: c.data('id') }, function(result){
+                    $.post('/set_item_unit_cost', { amount: c.val(), id: c.data('id') }, function(result) {
                         c.parent().html(result.unit_cost);
                         //$('td.update').html(result.balance);
                     });

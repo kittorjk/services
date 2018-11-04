@@ -133,6 +133,7 @@
 @endsection
 
 @section('javascript')
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
     <script>
         $('#alert').delay(2000).fadeOut('slow');
 
@@ -147,7 +148,7 @@
 
             var r = confirm(text);
             if (r === true) {
-                $.post('/status_update/charge', { flag: flag, master_id: master_id, id: id }, function(data){
+                $.post('/status_update/charge', { flag: flag, master_id: master_id, id: id }, function(data) {
                     element.style.color = "green";
                     $(element).toggleClass("fa-square-o fa-check-square-o");
                 });

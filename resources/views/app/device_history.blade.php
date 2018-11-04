@@ -11,13 +11,13 @@
 
 @section('header')
     @parent
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
     <style>
         .dropdown-menu-prim > li > a {
             width: 200px;
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('menu_options')
@@ -115,17 +115,14 @@
 
 @section('javascript')
     <script src="{{ asset('app/js/fix_table_header.js') }}"></script> {{-- For fixed header --}}
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
     <script>
+        $('#alert').delay(2000).fadeOut('slow');
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
-        $(document).ready(function(){
-            $.post('/set_current_url', { url: window.location.href }, function(){});
-        });
-
-        $('#alert').delay(2000).fadeOut('slow');
     </script>
 @endsection

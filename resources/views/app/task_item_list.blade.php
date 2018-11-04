@@ -89,33 +89,33 @@
         </div>
     </div>
 
-                            {{-- Code to present list of items, moved to AjaxController
-                            $i=0
-                            @foreach($categories as $category)
-                                @foreach($items as $item)
-                                    @if($item->category == $category->category)
-                                        <tr>
-                                            <td align="center">
-                                                <input type="checkbox" name="{{ 'item_'.$i }}" value="{{ $item->id }}"
-                                                    class="checkbox" onclick="enable_field(this,i='{{ $i }}')">
-                                            </td>
-                                            <td>{{ $item->number }}</td>
-                                            <td>{{ $item->description }}</td>
-                                            <td>{{ $item->units }}</td>
-                                            <td>{{ $item->cost_unit_central }}</td>
-                                            <td>{{ $item->cost_unit_remote }}</td>
-                                            <td>
-                                                <input required="required" type="number" class="form-control quantity"
-                                                    name="{{ 'quantity_'.$i }}" id="{{ 'quantity_'.$i }}" step="1" min="1"
-                                                    placeholder="Cantidad contratada" disabled="disabled">
-                                            </td>
-                                        </tr>
-                                        $i++
-                                    @endif
-                                @endforeach
-                            @endforeach
-                            <input type="hidden" name="listed_items" value="{{ $i }}">
-                            --}}
+    {{-- Code to present list of items, moved to AjaxController
+    $i=0
+    @foreach($categories as $category)
+        @foreach($items as $item)
+            @if($item->category == $category->category)
+                <tr>
+                    <td align="center">
+                        <input type="checkbox" name="{{ 'item_'.$i }}" value="{{ $item->id }}"
+                            class="checkbox" onclick="enable_field(this,i='{{ $i }}')">
+                    </td>
+                    <td>{{ $item->number }}</td>
+                    <td>{{ $item->description }}</td>
+                    <td>{{ $item->units }}</td>
+                    <td>{{ $item->cost_unit_central }}</td>
+                    <td>{{ $item->cost_unit_remote }}</td>
+                    <td>
+                        <input required="required" type="number" class="form-control quantity"
+                            name="{{ 'quantity_'.$i }}" id="{{ 'quantity_'.$i }}" step="1" min="1"
+                            placeholder="Cantidad contratada" disabled="disabled">
+                    </td>
+                </tr>
+                $i++
+            @endif
+        @endforeach
+    @endforeach
+    <input type="hidden" name="listed_items" value="{{ $i }}">
+    --}}
 
 @endsection
 

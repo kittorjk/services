@@ -12,6 +12,7 @@
 @section('header')
     @parent
     <link rel="stylesheet" href="{{ asset("app/css/info_tabs.css") }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('menu_options')
@@ -222,4 +223,17 @@
 @endsection
 
 @section('footer')
+@endsection
+
+@section('javascript')
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
+    <script>
+        $('#alert').delay(2000).fadeOut('slow');
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
 @endsection

@@ -504,7 +504,9 @@
 @endsection
 
 @section('javascript')
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
     <script>
+        $('#alert').delay(2000).fadeOut('slow');
 
         $.ajaxSetup({
             headers: {
@@ -523,7 +525,7 @@
             $(element).off();
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             //var c = $('td.edit').html();
             /*
             $('td.edit').on("click",function(){
@@ -532,23 +534,19 @@
                 $(this).off();
             });
             */
-            $(document).on("focusout","td.edit input",function(){
+            $(document).on("focusout","td.edit input",function() {
                 var c = $("#editable").val();
 
-                if(c.length >0){
-
-                    $.post('/set_oc_executed_amount', { amount: c, id: oc_id }, function(result){
+                if (c.length >0) {
+                    $.post('/set_oc_executed_amount', { amount: c, id: oc_id }, function(result) {
                         $('td.edit').html(result.executed_amount);
                         $('td.update').html(result.balance);
                     });
-
-                }
-                else{
+                } else {
                     $('td.edit').html(data);
                     //$('td.edit').html(c+' Bs');
                     //$('td.update').html('hola');
                 }
-
             });
         });
 

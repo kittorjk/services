@@ -137,15 +137,12 @@
 
 @section('javascript')
     <script src="{{ asset('app/js/fix_table_header.js') }}"></script> {{-- For fixed header --}}
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
     <script>
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
-        });
-
-        $(document).ready(function(){
-            $.post('/set_current_url', { url: window.location.href }, function(){});
         });
 
         $('#alert').delay(2000).fadeOut('slow');

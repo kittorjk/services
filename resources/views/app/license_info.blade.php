@@ -11,6 +11,7 @@
 
 @section('header')
     @parent
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('content')
@@ -68,7 +69,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if($license&&$user->action->acv_vhc_lic_mod)
+                @if($license && $user->action->acv_vhc_lic_mod)
                     {{--@if($user->priv_level>=2||$user->work_type=='Transporte')--}}
                         <div class="col-sm-12 mg10" align="center">
                             <a href="/license/{{ $license->id }}/edit" class="btn btn-primary">
@@ -84,4 +85,17 @@
 @endsection
 
 @section('footer')
+@endsection
+
+@section('javascript')
+    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
+    <script>
+        $('#alert').delay(2000).fadeOut('slow');
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
 @endsection
