@@ -219,6 +219,7 @@ Route::resource('/maintenance', 'MaintenanceController');
 
 Route::get('/oc_certificate/print_ack/{code}', 'OcCertificationController@print_ack')->name('oc_certificate_print_ack');
 Route::resource('/oc_certificate', 'OcCertificationController');
+Route::resource('/oc_row', 'OcRowController');
 Route::get('/oc/cancel/{id}', 'OCController@cancel_form');
 Route::put('/oc/cancel/{id}', 'OCController@cancel_oc');
 Route::get('/oc/reject', 'OCController@reject_form');

@@ -172,7 +172,77 @@
                                 @if($oc->proy_description)
                                 <tr>
                                     <td>Descripción:</td>
-                                    <td colspan="3">{{ $oc->proy_description }}</td>
+                                    <td colspan="3">
+                                      {{ $oc->proy_description }}
+                                      <button type="button" 
+                                              class="btn btn-success pull-right open-rowBox" 
+                                              title="Agregar item"
+                                              data-toggle="modal" 
+                                              data-target="#rowBox"
+                                              data-id="0"
+                                              data-numorder=""
+                                              data-description=""
+                                              data-qty=""
+                                              data-units=""
+                                              data-unitcost="">
+                                          <i class="fa fa-plus"></i>
+                                      </button>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if ($oc->rows->count() > 0)
+                                <tr>
+                                  <td colspan="4">Items</td>
+                                </tr>
+                                <tr>
+                                  <th colspan="4">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <td width="10%">Item</td>
+                                            <td width="20%">Descripción</td>
+                                            <td width="18%">Cantidad</td>
+                                            <td width="20%">Unidades</td>
+                                            <td width="20%" title="[Bs]">Precio unit.</td>
+                                            <td width="12%"></td>
+                                        </tr>
+                                        @foreach($oc->rows as $row)
+                                            <tr>
+                                                <td>{{ $row->num_order }}</td>
+                                                <td>{{ $row->description }}</td>
+                                                <td align="right">{{ number_format($row->qty, 2) }}</td>
+                                                <td>{{ $row->units }}</td>
+                                                <td align="right">{{ number_format($row->unit_cost, 2) }}</td>
+                                                <td>
+                                                  <a data-toggle="modal" 
+                                                    data-id="{{ $row->id }}"
+                                                    data-numorder="{{ $row->num_order }}"
+                                                    data-description="{{ $row->description }}"
+                                                    data-qty="{{ $row->qty }}"
+                                                    data-units="{{ $row->units }}"
+                                                    data-unitcost="{{ $row->unit_cost }}"
+                                                    title="Modificar item"
+                                                    class="open-rowBox"
+                                                    href="#rowBox">
+                                                    <i class="fa fa-pencil-square"></i>
+                                                  </a>
+                                                  &ensp;
+                                                  <a href="javascript:;" class="removeRow" data-id="{{ $row->id }}" title="Eliminar item">
+                                                    <i class="fa fa-trash"></i>
+                                                  </a>
+                                                  {{--
+                                                  <form action="{{ '/oc_row/'.$row->id }}" method="post">
+                                                      <input type="hidden" name="_method" value="delete">
+                                                      <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                      <a href="javascript:;" onclick="parentNode.submit();" title="Eliminar item">
+                                                        <i class="fa fa-trash"></i>
+                                                      </a>
+                                                  </form>
+                                                  --}}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                  </th>
                                 </tr>
                                 @endif
                                 <tr><td colspan="4"></td></tr>
@@ -498,6 +568,16 @@
     </div>
 @endif
 
+<!-- Row Modal -->
+<div id="rowBox" class="modal fade" role="dialog">
+    @include('app.oc_row_modal', array('user'=>$user,'service'=>$service,'oc'=>$oc))
+</div>
+
+<form id="removeRow" action="{{ '/oc_row' }}" method="post">
+  <input type="hidden" name="_method" value="delete">
+  <input type="hidden" name="_token" value="{{ csrf_token() }}">
+</form>
+
 @endsection
 
 @section('footer')
@@ -550,5 +630,29 @@
             });
         });
 
+        $(document).on("click", ".open-rowBox", function () {
+            var rowId = $(this).data('id');
+            var rowNumOrder = $(this).data('numorder');
+            var rowDescription = $(this).data('description');
+            var rowQty = $(this).data('qty');
+            var rowUnits = $(this).data('units');
+            var rowUnitCost = $(this).data('unitcost');
+
+            $('#rowBox .modal-body #rowForm').attr('action', rowId > 0 ? '/oc_row/'+rowId : '/oc_row');
+            $("#rowBox .modal-body #_method").val( rowId > 0 ? 'put' : 'post' );
+            $("#rowBox .modal-body #num_order").val( rowNumOrder );
+            $("#rowBox .modal-body #description").val( rowDescription );
+            $("#rowBox .modal-body #qty").val( rowQty );
+            $("#rowBox .modal-body #units").val( rowUnits );
+            $("#rowBox .modal-body #unit_cost").val( rowUnitCost );
+        });
+
+        $(document).on("click", ".removeRow", function () {
+            var rowId = $(this).data('id');
+            if (rowId > 0) {
+              $('#removeRow').attr('action', '/oc_row/'+rowId);
+              $('#removeRow').submit();
+            }
+        });
     </script>
 @endsection

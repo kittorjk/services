@@ -1577,45 +1577,42 @@ class ExcelController extends Controller
             $provider = $oc->provider_record; // Provider::find($oc->provider_id);
                                               // Provider::where('prov_name', $oc->provider)->first();
 
-            if(empty($oc->pm_id)){
+            if (empty($oc->pm_id)) {
                 $pm_name = '';
                 $pm_phone = '';
                 $pm_email = '';
-            }
-            else{
+            } else {
                 $pm = User::find($oc->pm_id);
                 $pm_name = $pm->name;
-                $pm_phone = $pm->phone!=0 ? $pm->phone : '';
+                $pm_phone = $pm->phone != 0 ? $pm->phone : '';
                 $pm_email = $pm->email;
             }
 
             $payment_terms = '';
 
-            if($oc->percentages!=''){
-                $percentages_exploded = explode('-',$oc->percentages);
+            if ($oc->percentages != '') {
+                $percentages_exploded = explode('-', $oc->percentages);
 
-                if($percentages_exploded[0]!=0){
+                if ($percentages_exploded[0] != 0) {
                     $payment_terms .= $percentages_exploded[0].'% a la firma de la presente orden contra presentación '.
                         'de la factura, ';
                 }
-                if($percentages_exploded[1]!=0){
+                if ($percentages_exploded[1] != 0) {
                     $payment_terms .= $percentages_exploded[1].'% contra entrega de avance certificado y factura, ';
                 }
-                if($percentages_exploded[2]!=0){
+                if ($percentages_exploded[2] != 0) {
                     $payment_terms .= $percentages_exploded[2].'% a 30 días de recibido el certificado de aceptación '.
                         'definitiva y la factura correspondiente.';
                 }
             }
 
-            if($oc->flags[1]==1&&$oc->flags[2]==1){
+            if ($oc->flags[1] == 1 && $oc->flags[2] == 1) {
                 $data = $oc->code.' aprobada por Gerencia General el '.Carbon::parse($oc->auth_ceo_date)->format('d-m-Y').
                     ' autorización '.$oc->auth_ceo_code;
-            }
-            elseif($oc->flags[1]==0&&$oc->flags[2]==1){
+            } elseif($oc->flags[1] == 0 && $oc->flags[2] == 1) {
                 $data = $oc->code.' aprobada por Gerencia Tecnica el '.Carbon::parse($oc->auth_tec_date)->format('d-m-Y').
                     ' autorización '.$oc->auth_tec_code;
-            }
-            else
+            } else
                 $data = $oc->code.' pendiente de aprobación';
             
             $view = View::make('app.qr_code_export', ['data' => $data, 'size' => 90, 'margin' => 0]);
@@ -1630,7 +1627,7 @@ class ExcelController extends Controller
                     $sheetTitle = $sheet->getTitle();
                     $sheetToChange = $reader->setActiveSheetIndex($key);
 
-                    if($sheetTitle === 'OC') {
+                    if ($sheetTitle === 'OC') {
 
                         $delivery_term = $sheetToChange->getCell('H66');
                         $oc->delivery_term = $oc->delivery_term.' '.$delivery_term;
@@ -1664,8 +1661,21 @@ class ExcelController extends Controller
                             ->setCellValue('C63', ucfirst($this->convert_number_to_words($oc->oc_amount)).' Bolivianos')
                             ->setCellValue('I68', $payment_terms);
 
-                        if($oc->linked){
+                        if ($oc->linked) {
                             $sheetToChange->setCellValue('C21', 'OC complementaria a '.$oc->linked->code);
+                        }
+
+                        $i = 20; // Number of row for starting items
+
+                        foreach ($oc->rows as $row) {
+                          $sheetToChange->setCellValue('A'.$i, $i-19)
+                              ->setCellValue('C'.$i, $row->description)
+                              ->setCellValue('AF'.$i, $row->qty)
+                              ->setCellValue('AJ'.$i, $row->units)
+                              ->setCellValue('AN'.$i, $row->unit_cost)
+                              ->setCellValue('AR'.$i, number_format(($row->qty * $row->unit_cost), 2));
+
+                          $i++;
                         }
 
                         // Insert qr code to excel
