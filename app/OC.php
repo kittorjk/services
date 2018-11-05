@@ -35,6 +35,11 @@ class OC extends Model
         return $this->hasMany('App\OcCertification', 'oc_id', 'id');
     }
 
+    public function rows() {
+      // A OC can have one or more rows (items)
+      return $this->hasMany('App\OcRow', 'oc_id', 'id');
+    }
+
     public function complements(){
         //A OC can be linked to another if the amount of the first exceeds the total available
         return $this->hasMany('App\OC', 'link_id', 'id');
