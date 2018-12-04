@@ -78,7 +78,7 @@ class ProviderController extends Controller
 
         $v = \Validator::make(Request::all(), [
             'prov_name'         => 'required',
-            'nit'               => 'required|unique:providers|numeric|digits_between:8,10',
+            'nit'               => 'required|unique:providers|numeric|digits_between:8,15',
             'specialty'         => 'required',
             'bnk_account'       => 'required',
             'address'           => 'required',
@@ -200,7 +200,7 @@ class ProviderController extends Controller
 
         if (Request::input('nit') != $modify_provider->nit) {
             $v = \Validator::make(Request::all(), [
-                'nit'               => 'required|unique:providers|numeric|digits_between:8,10',
+                'nit'               => 'required|unique:providers|numeric|digits_between:8,15',
             ],
                 [
                     'nit.required'                    => 'Debe especificar un número de NIT!',
