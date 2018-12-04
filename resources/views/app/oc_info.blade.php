@@ -122,6 +122,10 @@
                                 <td colspan="3">{{ $oc->proy_concept }}</td>
                             </tr>
                             <tr>
+                                <th>Tipo de OC:</th>
+                                <td colspan="3">{{ $oc->type }}</td>
+                            </tr>
+                            <tr>
                                 <th>Proveedor:</th>
                                 <td colspan="3">
                                     @if($oc->provider_record)

@@ -136,6 +136,19 @@
                                         </div>
 
                                         <div class="input-group" style="width: 100%">
+                                          <label for="type" class="input-group-addon" style="width: 23%;text-align: left">
+                                              Tipo de OC <span class="pull-right">*</span>
+                                          </label>
+
+                                          <select required="required" class="form-control" name="type" id="type"
+                                                  {{$oc && $oc->status === 'Anulada' ? 'disabled' : ''}}>
+                                              <option value="" hidden>Seleccione el tipo de OC</option>
+                                              <option value="Servicio" {{ ($oc && $oc->type == 'Servicio') || old('type') == 'Servicio' ? 'selected="selected"' : '' }}>Servicio</option>
+                                              <option value="Compra de material" {{ ($oc && $oc->type == 'Compra de material') || old('type') == 'Compra de material' ? 'selected="selected"' : '' }}>Compra de material</option>
+                                          </select>
+                                        </div>
+
+                                        <div class="input-group" style="width: 100%">
                                             <label for="delivery_place" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Entregar en
                                             </label>

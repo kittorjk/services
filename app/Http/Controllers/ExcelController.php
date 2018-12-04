@@ -781,6 +781,7 @@ class ExcelController extends Controller
                         'Fecha'                         => date_format($oc->created_at,'d/m/Y'),
                         'Mes'                           => date_format($oc->created_at,'m'),
                         'Proveedor'                     => $oc->provider,
+                        'Tipo de OC'                    => $oc->type,
                         'Concepto'                      => wordwrap($oc->proy_concept, 70, "\n", false),
                         'Monto OC'                      => $oc->oc_amount + 0, // number_format($oc->oc_amount,2),
                         'Monto ejecutado'               => $oc->executed_amount + 0, // number_format($oc->executed_amount,2),

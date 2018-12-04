@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OC extends Model
 {
-    protected $fillable = ['id', 'code', 'user_id', 'pm_id', 'link_id', 'provider_id', 'provider', 'assignment_id',
+    protected $fillable = ['id', 'code', 'user_id', 'pm_id', 'link_id', 'provider_id', 'provider', 'type', 'assignment_id',
         'proy_name', 'proy_concept', 'proy_description', 'oc_amount', 'executed_amount', 'payed_amount', 'percentages',
         'client', 'client_oc', 'client_ad', 'delivery_place', 'delivery_term', 'observations', 'status', 'flags',
         'auth_tec_date', 'auth_tec_code', 'auth_ceo_date', 'auth_ceo_code', 'created_at'];

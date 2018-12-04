@@ -119,6 +119,7 @@
                                             <option value="id">Número de OC</option>
                                             <option value="code">Código de OC</option>
                                             <option value="provider">Proveedor</option>
+                                            <option value="type">Tipo de OC</option>
                                             <option value="proy_name">Proyecto</option>
                                             <option value="client">Cliente</option>
                                             <option value="client_oc">OC de Cliente</option>
