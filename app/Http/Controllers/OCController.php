@@ -535,37 +535,36 @@ class OCController extends Controller
 
         //$service = Session::get('service');
 
-        if (!Hash::check(Request::input('password'), $user->password)){
-            Session::flash('message', "Contraseña incorrecta, intente de nuevo por favor");
-            return redirect()->back();
+        if (!Hash::check(Request::input('password'), $user->password)) {
+          Session::flash('message', "Contraseña incorrecta, intente de nuevo por favor");
+          return redirect()->back();
         }
         
         $results = Request::all();
         $count = $results['count']; //Request::input('count');
-        $comments = Request::input('add_comments')==1 ? Request::input('comments') : '';
+        $comments = Request::input('add_comments') == 1 ? Request::input('comments') : '';
 
         $num_approved = 0;
         $approved = "";
 
-        for($i=0;$i<$count;$i++){
-            if(!empty($results[$i])){
+        for ($i=0; $i < $count; $i++) {
+            if (!empty($results[$i])) {
                 $oc = OC::find($results[$i]);
 
-                if($user->priv_level==4||$user->action->oc_apv_gg /*($user->priv_level==3&&$user->area=='Gerencia General')*/){
-                    if($oc->flags[1]==0&&$oc->flags[2]==0)
+                if ($user->priv_level==4 || $user->action->oc_apv_gg /*($user->priv_level==3&&$user->area=='Gerencia General')*/){
+                    if ($oc->flags[1] == 0 && $oc->flags[2] == 0)
                         $oc->flags = str_pad($oc->flags+1100000, 8, "0", STR_PAD_LEFT);
-                    elseif($oc->flags[1]==0&&$oc->flags[2]==1)
+                    elseif ($oc->flags[1] == 0 && $oc->flags[2] == 1)
                         $oc->flags = str_pad($oc->flags+1000000, 8, "0", STR_PAD_LEFT);
 
-                    foreach($oc->files as $file){
+                    foreach ($oc->files as $file) {
                         $file->status = 1;
                         $file->save();
                     }
 
                     $oc->auth_ceo_date = Carbon::now();
                     $oc->auth_ceo_code = $this->generateCode();
-                }
-                elseif($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/){
+                } elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
                     $oc->flags = str_pad($oc->flags+100000, 8, "0", STR_PAD_LEFT);
 
                     $oc->auth_tec_date = Carbon::now();
@@ -573,30 +572,30 @@ class OCController extends Controller
                 }
 
                 $oc->save();
-                $approved .= ($approved=="" ? '' : ', ').$oc->code;
+                $approved .= ($approved == "" ? '' : ', ').$oc->code;
                 $num_approved++;
 
                 /* A new event is recorded to register the approval of the OC */
-                $this->add_event('approve',$oc,$comments);
+                $this->add_event('approve', $oc, $comments);
             }
         }
 
         /* Send notification to inform on the approval of one or more OCs */
-        if($num_approved>0){
-            if($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/){
-                $this->send_email_notification($approved, 'approved');
-            }
+        if ($num_approved > 0) {
+          if($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/){
+            $this->send_email_notification($approved, 'approved');
+          }
         }
 
-        if($num_approved==0)
+        if ($num_approved == 0)
             $message = "No seleccionó ninguna Orden";
-        elseif($num_approved==1)
+        elseif ($num_approved == 1)
             $message = "La orden $approved ha sido aprobada";
         else
             $message = "Las ordenes $approved han sido aprobadas";
 
         Session::flash('message', $message);
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('oc.index');
@@ -663,65 +662,59 @@ class OCController extends Controller
         //return redirect()->action('OCController@show', ['id' => $id]);
     }
 
-    public function reject_form()
-    {
-        $user = Session::get('user');
-        if ((is_null($user)) || (!$user->id))
-            return redirect()->route('root');
+    public function reject_form() {
+      $user = Session::get('user');
+      if ((is_null($user)) || (!$user->id))
+          return redirect()->route('root');
 
-        $id = Input::get('id');
+      $id = Input::get('id');
 
-        $service = Session::get('service');
+      $service = Session::get('service');
 
-        $oc = OC::find($id);
+      $oc = OC::find($id);
 
-        $action = 'reject';
+      $action = 'reject';
 
-        return View::make('app.oc_form', ['oc' => $oc, 'proyectos' => 0, 'clients' => 0, 'providers' => 0,
-            'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user]);
+      return View::make('app.oc_form', ['oc' => $oc, 'proyectos' => 0, 'clients' => 0, 'providers' => 0,
+          'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user]);
     }
 
-    public function reject_oc(Request $request)
-    {
-        $user = Session::get('user');
-        if ((is_null($user)) || (!$user->id))
-            return redirect()->route('root');
+    public function reject_oc(Request $request) {
+      $user = Session::get('user');
+      if ((is_null($user)) || (!$user->id))
+          return redirect()->route('root');
 
-        $id = Request::input('id');
+      $v = \Validator::make(Request::all(), [
+          'observations'       => 'required',
+      ],
+        [ 'observations.required'      => 'Debe especificar el motivo para rechazar la OC!' ]
+      );
 
-        $oc = OC::find($id);
+      if ($v->fails()) {
+        Session::flash('message', $v->messages()->first());
+        return redirect()->back()->withInput();
+      }
 
-        $v = \Validator::make(Request::all(), [
-            'observations'       => 'required',
-        ],
-            [
-                'observations.required'      => 'Debe especificar el motivo para rechazar la OC!',
-            ]
-        );
+      $id = Request::input('id');
 
-        if ($v->fails())
-        {
-            Session::flash('message', $v->messages()->first());
-            return redirect()->back()->withInput();
-        }
+      $oc = OC::find($id);
 
-        $oc->observations = Request::input('observations');
+      $oc->observations = Request::input('observations');
+      $oc->status = 'Rechazada';
 
-        $oc->status = 'Rechazada';
+      $oc->save();
 
-        $oc->save();
+      /* Send a notification to the OC's creator */
+      $this->send_email_notification($oc, 'rejected');
 
-        /* Send a notification to the OCs creator */
-        $this->send_email_notification($oc, 'rejected');
+      /* An event is recorded to register the rejection of the OC */
+      $this->add_event('reject',$oc,'');
 
-        /* A new event is recorded to register the rejection of the OC */
-        $this->add_event('reject',$oc,'');
-
-        Session::flash('message', "La Orden de Compra $oc->code ha sido rechazada");
-        if(Session::has('url'))
-            return redirect(Session::get('url'));
-        else
-            return redirect()->route('oc.index');
+      Session::flash('message', "La Orden de Compra $oc->code ha sido rechazada");
+      if (Session::has('url'))
+        return redirect(Session::get('url'));
+      else
+        return redirect()->route('oc.index');
     }
 
     public function rejected_ocs_list()

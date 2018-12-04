@@ -380,9 +380,63 @@
                             </tbody>
                         </table>
                     </div>
-                    @if(($oc->status<>'Anulada'&&$oc->flags[1]==0&&($user->id==$oc->user_id||$user->action->oc_edt
-                        /*$user->priv_level==3*/))||$user->priv_level==4)
-                        <div class="col-sm-12 mg10" align="center">
+                    
+                    @if((substr($oc->flags,0,4)=='0001' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
+                        (substr($oc->flags,0,4)=='0011' && $user->area == 'Gerencia General' && $user->priv_level == 3) ||
+                        ((substr($oc->flags,0,4)=='0011' || substr($oc->flags,0,4)=='0001') && $user->priv_level == 4))
+                        
+                      <div class="col-sm-12 mg10">
+                        <form method="post" action="{{ '/approve_oc' }}" id="approve_oc"
+                              accept-charset="UTF-8" enctype="multipart/form-data">
+                          <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                          <div class="checkbox" style="margin-left: 20px">
+                            <input type="checkbox" name="0" id="0" value="{{ $oc->id }}" class="checkbox">
+                            <label for="0">Aprobar OC</label>
+                          </div>
+
+                          <input type="hidden" name="count" value="1">
+
+                          <div class="col-sm-8 col-sm-offset-2" id="container" align="center">
+                            <label>Introduzca su contraseña por favor</label>
+
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="glyphicon glyphicon-lock fa-fw"></i></span>
+                              <input required="required" type="password" class="form-control" name="password"
+                                      id="password" placeholder="Password" disabled="disabled">
+                            </div>
+                            
+                            <div class="checkbox col-sm-offset-1" align="left">
+                              <label>
+                                <input type="checkbox" name="add_comments" id="add_comments" value="1"
+                                        checked=""> Agregar un comentario sobre la aprobación
+                              </label>
+                            </div>
+                
+                            <div class="input-group" id="comments_container">
+                              <span class="input-group-addon">
+                                <textarea rows="3" class="form-control" name="comments" id="comments"
+                                            placeholder="Agregar comentarios" disabled="disabled"></textarea>
+                              </span>
+                            </div>
+                            <br>
+
+                            @include('app.loader_gif')
+
+                            <div class="form-group" align="center">
+                              <button type="submit" id="submit_button" class="btn btn-primary"
+                                onclick="this.disabled=true; $('#wait').show(); this.form.submit()" disabled="disabled">
+                                <i class="fa fa-check-circle"></i> Aprobar
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    @endif
+
+                    @if(($oc->status <> 'Anulada' && $oc->flags[1] == 0 && ($user->id == $oc->user_id || $user->action->oc_edt
+                        /*$user->priv_level==3*/)) || $user->priv_level == 4)
+                        <div class="col-sm-12 mg20" align="center">
                             <a href="/oc/{{ $oc->id }}/edit" class="btn btn-success">
                                 <i class="fa fa-pencil-square-o"></i> Modificar OC
                             </a>
@@ -593,75 +647,102 @@
 @endsection
 
 @section('javascript')
-    <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
-    <script>
-        $('#alert').delay(2000).fadeOut('slow');
+  <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
+  <script>
+    $('#alert').delay(2000).fadeOut('slow');
 
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        var data = '', oc_id = '';
-        function replace(element,id){
-            data = $.trim($(element).text());
-            oc_id = id;
-            var arr = data.split(' ');
-            arr[0] = arr[0].replace(/,/g, '');
-            $(element).html("<input type=\"text\" value=\"" + arr[0] + "\" id=\"editable\" />");
-            $(element).find('input').focus();
-            $(element).off();
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
+    });
 
-        $(document).ready(function() {
-            //var c = $('td.edit').html();
-            /*
-            $('td.edit').on("click",function(){
-                $(this).html("<input type=\"text\" value=\"" + $.trim($(this).text()) + "\" id=\"editable\" />");
-                $(this).find('input').focus();
-                $(this).off();
-            });
-            */
-            $(document).on("focusout","td.edit input",function() {
-                var c = $("#editable").val();
+    var data = '', oc_id = '';
+    function replace(element,id){
+        data = $.trim($(element).text());
+        oc_id = id;
+        var arr = data.split(' ');
+        arr[0] = arr[0].replace(/,/g, '');
+        $(element).html("<input type=\"text\" value=\"" + arr[0] + "\" id=\"editable\" />");
+        $(element).find('input').focus();
+        $(element).off();
+    }
 
-                if (c.length >0) {
-                    $.post('/set_oc_executed_amount', { amount: c, id: oc_id }, function(result) {
-                        $('td.edit').html(result.executed_amount);
-                        $('td.update').html(result.balance);
-                    });
-                } else {
-                    $('td.edit').html(data);
-                    //$('td.edit').html(c+' Bs');
-                    //$('td.update').html('hola');
-                }
-            });
+    $(document).ready(function() {
+        //var c = $('td.edit').html();
+        /*
+        $('td.edit').on("click",function(){
+            $(this).html("<input type=\"text\" value=\"" + $.trim($(this).text()) + "\" id=\"editable\" />");
+            $(this).find('input').focus();
+            $(this).off();
         });
+        */
+        $(document).on("focusout","td.edit input",function() {
+            var c = $("#editable").val();
 
-        $(document).on("click", ".open-rowBox", function () {
-            var rowId = $(this).data('id');
-            var rowNumOrder = $(this).data('numorder');
-            var rowDescription = $(this).data('description');
-            var rowQty = $(this).data('qty');
-            var rowUnits = $(this).data('units');
-            var rowUnitCost = $(this).data('unitcost');
-
-            $('#rowBox .modal-body #rowForm').attr('action', rowId > 0 ? '/oc_row/'+rowId : '/oc_row');
-            $("#rowBox .modal-body #_method").val( rowId > 0 ? 'put' : 'post' );
-            $("#rowBox .modal-body #num_order").val( rowNumOrder );
-            $("#rowBox .modal-body #description").val( rowDescription );
-            $("#rowBox .modal-body #qty").val( rowQty );
-            $("#rowBox .modal-body #units").val( rowUnits );
-            $("#rowBox .modal-body #unit_cost").val( rowUnitCost );
-        });
-
-        $(document).on("click", ".removeRow", function () {
-            var rowId = $(this).data('id');
-            if (rowId > 0) {
-              $('#removeRow').attr('action', '/oc_row/'+rowId);
-              $('#removeRow').submit();
+            if (c.length >0) {
+                $.post('/set_oc_executed_amount', { amount: c, id: oc_id }, function(result) {
+                    $('td.edit').html(result.executed_amount);
+                    $('td.update').html(result.balance);
+                });
+            } else {
+                $('td.edit').html(data);
+                //$('td.edit').html(c+' Bs');
+                //$('td.update').html('hola');
             }
         });
-    </script>
+    });
+
+    $(document).on("click", ".open-rowBox", function () {
+        var rowId = $(this).data('id');
+        var rowNumOrder = $(this).data('numorder');
+        var rowDescription = $(this).data('description');
+        var rowQty = $(this).data('qty');
+        var rowUnits = $(this).data('units');
+        var rowUnitCost = $(this).data('unitcost');
+
+        $('#rowBox .modal-body #rowForm').attr('action', rowId > 0 ? '/oc_row/'+rowId : '/oc_row');
+        $("#rowBox .modal-body #_method").val( rowId > 0 ? 'put' : 'post' );
+        $("#rowBox .modal-body #num_order").val( rowNumOrder );
+        $("#rowBox .modal-body #description").val( rowDescription );
+        $("#rowBox .modal-body #qty").val( rowQty );
+        $("#rowBox .modal-body #units").val( rowUnits );
+        $("#rowBox .modal-body #unit_cost").val( rowUnitCost );
+    });
+
+    $(document).on("click", ".removeRow", function () {
+        var rowId = $(this).data('id');
+        if (rowId > 0) {
+          $('#removeRow').attr('action', '/oc_row/'+rowId);
+          $('#removeRow').submit();
+        }
+    });
+
+    $("#wait").hide();
+
+    var $password = $('#password'), $submit_button = $('#submit_button'), $container = $('#container');
+    $("#approve_oc").change(function() {
+      var checked = $("#approve_oc input:checked").length > 0;
+      if (checked) {
+        $container.show();
+        $password.removeAttr('disabled').show();
+        $submit_button.removeAttr('disabled').show();
+      } else {
+        $container.hide();
+        $password.attr('disabled', 'disabled').hide();
+        $submit_button.attr('disabled', 'disabled').hide();
+      }
+    }).trigger('change');
+
+    var $add_comments = $('#add_comments'), $comments = $('#comments'), $comments_container = $('#comments_container');
+    $add_comments.click(function () {
+      if ($add_comments.prop('checked')) {
+        $comments_container.show();
+        $comments.removeAttr('disabled').show();
+      } else {
+        $comments_container.hide();
+        $comments.attr('disabled', 'disabled').hide();
+      }
+    }).trigger('click');
+  </script>
 @endsection
