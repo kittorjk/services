@@ -420,7 +420,7 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td colspan="2" rowspan="4"></td>
+                                <td colspan="2" rowspan="5"></td>
                                 <th>Asignado:</th>
                                 <td>{{ number_format($oc->oc_amount,2).' Bs' }}</td>
                             </tr>
@@ -444,14 +444,19 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Cancelado:</th>
+                                <th>Pagado:</th>
                                 <td>{{ number_format($oc->payed_amount,2).' Bs' }}</td>
                             </tr>
                             <tr>
-                                <th>Saldo:</th>
+                                <th>Pendiente de pago:</th>
                                 <td class="update">
-                                    {{ number_format(($oc->executed_amount!=0 ? $oc->executed_amount : $oc->oc_amount)
-                                        -$oc->payed_amount,2).' Bs' }}
+                                    {{ $oc->executed_amount!=0 ? number_format(($oc->executed_amount - $oc->payed_amount), 2).' Bs' : '0.00 Bs' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Pendiente de certificación:</th>
+                                <td>
+                                    {{ number_format(($oc->oc_amount - $oc->executed_amount),2).' Bs' }}
                                 </td>
                             </tr>
                             <tr><th colspan="4"></th></tr>
