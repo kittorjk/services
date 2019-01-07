@@ -2565,7 +2565,8 @@ class ExcelController extends Controller
                         //    $reason = 'Pago contra entrega';
 
                         //$reason .= $invoice->flags[0]==1 ? '' : ' (pendiente)';
-
+                        
+                    if ($invoice->created_at <= $certificate->created_at) {
                         $sheetToChange->setCellValue('A'.$i, $i-31)
                             ->setCellValue('E'.$i, $reason)
                             ->setCellValue('Z'.$i, $invoice->number)
@@ -2577,6 +2578,7 @@ class ExcelController extends Controller
 
                         $i++;
                         $listed_amount += $invoice->amount;
+                    }
                     //}
                     //}
                 }
