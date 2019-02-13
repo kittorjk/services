@@ -142,7 +142,8 @@ class OcCertificationController extends Controller
         $oc = OC::find($certificate->oc_id);
         $oc->executed_amount += $certificate->amount;
         
-        if(number_format($oc->oc_amount,2)-number_format($oc->executed_amount,2)<0){
+        // if(number_format($oc->oc_amount,2)-number_format($oc->executed_amount,2)<0){
+        if ($oc->executed_amount > $oc->oc_amount) {
             Session::flash('message', 'El monto total certificado excede el monto asignado a la OC!
                 Cree una OC complementaria para el excedente.');
             return redirect()->back()->withInput();
