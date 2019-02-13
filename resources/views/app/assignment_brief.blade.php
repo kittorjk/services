@@ -82,17 +82,18 @@
         <table class="formal_table table_blue tablesorter" id="fixable_table">
             <thead>
                 <tr>
-                    <th width="9%">Código cliente</th>
+                    <th width="8%" title="Código interno de proyecto">Código INT</th>
+                    <th width="8%">Código cliente</th>
                     <th width="10%" title="Identificador rápido de asignación según ABROS">Identificador</th>
                     <th title="Centro de costos">C.C.</th>
                     <th width="16%">Asignación</th>
                     <th>Cliente</th>
                     <th>Tipo de trabajo</th>
                     <th>Regional</th>
-                    <th width="12%">Estado</th>
+                    <th width="10%">Estado</th>
                     {{--@if(($user->area=='Gerencia Tecnica'&&$user->priv_level==2)||$user->priv_level>=3)--}}
                         <th width="8%">Avance</th>
-                        <th width="11%" class="{sorter: 'digit'}">Tiempo restante</th>
+                        <th width="8%" class="{sorter: 'digit'}">Tiempo restante</th>
                         <th width="8%">Acciones</th>
                     {{--@endif--}}
                     <th width="8%">Sitios</th>
@@ -136,6 +137,9 @@
             @foreach ($assignments as $assignment)
                 <tr class="accordion-toggle">
                     <td>
+                        {{ $assignment->code }}
+                    </td>
+                    <td>
                         @if($user->priv_level>=1)
                             <a href="/assignment/{{ $assignment->id }}">
                                 {{ $assignment->client_code ? $assignment->client_code : $assignment->code }}
@@ -146,7 +150,7 @@
                     </td>
                     <td>
                       <span title="{{ $assignment->literal_code }}">
-                        {{ str_limit($assignment->literal_code, 30) }}
+                        {{ str_limit($assignment->literal_code, 20) }}
                       </span>
                     </td>
                     <td>{{ $assignment->cost_center > 0 ? $assignment->cost_center : '' }}</td>
