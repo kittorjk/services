@@ -68,7 +68,7 @@
             @foreach ($devices as $device)
                 <tr>
                     <td align="center">
-                        @if($device->main_pic_id!=0)
+                        @if($device->main_pic_id!=0 && $device->main_pic)
                             <img class="myImg" src="/files/thumbnails/{{ 'thumb_'.$device->main_pic->name }}" height="50"
                                  border="0" alt="{{ $device->main_pic->description }}" onclick="show_modal(this)">
                         @endif
