@@ -1,8 +1,38 @@
-@extends('layouts.master')
+@extends('layouts.ocs_structure')
 
 @section('header')
   @parent
   <meta name="csrf-token" content="{{ csrf_token() }}" />
+@endsection
+
+@section('menu_options')
+  <li><a href="#">&ensp;<i class="fa fa-list-alt"></i> O.C.s <span class="caret"></span>&ensp;</a>
+    <ul class="sub-menu">
+      <li><a href="{{ '/oc' }}"><i class="fa fa-bars fa-fw"></i> Ver OCs</a></li>
+      @if($user->action->oc_add)
+        <li><a href="{{ '/oc/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar O.C.</a></li>
+        <li>
+          <a href="{{ '/oc/create?action=cmp' }}">
+            <i class="fa fa-plus fa-fw"></i> Agregar O.C. complementaria
+          </a>
+        </li>
+      @endif
+      <li><a href="{{ '/invoice/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar factura</a></li>
+      @if($user->action->oc_exp /*$user->priv_level>=3*/)
+        <li><a href="{{ '/excel/ocs' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel</a></li>
+      @endif
+    </ul>
+  </li>
+  @if($user->priv_level >= 1)
+    <li><a href="{{ '/provider' }}">&ensp;<i class="fa fa-truck"></i> PROVEEDORES&ensp;</a></li>
+  @endif
+  @if($user->priv_level >= 2)
+    <li><a href="{{ '/oc_certificate' }}">&ensp;<i class="fa fa-file-text-o"></i> CERTIFICADOS&ensp;</a></li>
+  @endif
+  <li><a href="{{ '/invoice' }}">&ensp;<i class="fa fa-money"></i> PAGOS&ensp;</a></li>
+  <!--<li>
+    <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+  </li>-->
 @endsection
 
 @section('content')
@@ -116,6 +146,7 @@
 @endsection
 
 @section('javascript')
+  <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
   <script>
     $.ajaxSetup({
         headers: {
