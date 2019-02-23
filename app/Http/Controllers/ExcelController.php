@@ -58,6 +58,8 @@ use App\Branch;
 use App\Employee;
 use App\StipendRequest;
 use App\Tender;
+use App\RendicionViatico;
+use App\RendicionRespaldo;
 use Maatwebsite\Excel\Facades\Excel;
 use PHPExcel_Worksheet_Drawing;
 use Carbon\Carbon;
@@ -3373,33 +3375,33 @@ class ExcelController extends Controller
         })->export('xls');
     }
 
-    public function import_form($type, $id)
+    public function import_form ($type, $id)
     {
-        $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
-            return redirect()->route('root');
+      $user = Session::get('user');
+      if ((is_null($user))||(!$user->id))
+        return redirect()->route('root');
 
-        $service = Session::get('service');
-        $place = 0;
-        $options = collect();
-        $complements = 0;
-        
-        if($type == 'tasks'||$type=='tasks-from-oc')
-            $place = Site::find($id);
-        if($type=='sites'||$type=='stipend_requests')
-            $place = Assignment::find($id);
-        if($type=='items'||$type=='tasks')
-            $options = ItemCategory::select('name')->where('status', 1)->get();
-            //Item::select('category')->where('category', '<>', '')->groupBy('category')->get();
-        if($type=='items'){
-            $complements = Project::select('id','name')->where('status', 'Activo')->get();
-        }
+      $service = Session::get('service');
+      $place = 0;
+      $options = collect();
+      $complements = 0;
+      
+      if ($type == 'tasks' || $type == 'tasks-from-oc')
+        $place = Site::find($id);
+      if ($type == 'sites' || $type == 'stipend_requests')
+        $place = Assignment::find($id);
+      if ($type == 'items' || $type == 'tasks')
+        $options = ItemCategory::select('name')->where('status', 1)->get();
+        //Item::select('category')->where('category', '<>', '')->groupBy('category')->get();
+      if ($type == 'items') {
+        $complements = Project::select('id','name')->where('status', 'Activo')->get();
+      }
 
-        if($type == 'client_listed_materials')
-            $options = ClientListedMaterial::select('client')->where('client', '<>', '')->groupBy('client')->get();
+      if ($type == 'client_listed_materials')
+        $options = ClientListedMaterial::select('client')->where('client', '<>', '')->groupBy('client')->get();
 
-        return View::make('app.import_form', ['id' => $id, 'type' => $type, 'place' => $place, 'service' => $service,
-            'options' => $options, 'complements' => $complements ]);
+      return View::make('app.import_form', ['id' => $id, 'type' => $type, 'place' => $place,
+        'service' => $service, 'options' => $options, 'complements' => $complements ]);
     }
 
     public function import_items(Request $request, $type, $id)
@@ -4000,6 +4002,90 @@ class ExcelController extends Controller
                         return redirect(Session::get('url'));
                     else
                         return redirect('/stipend_request?asg='.$assignment->id);
+                }
+            }
+            
+            if ($type == 'rendicion_respaldos') {
+                // $category = $request->input('category');
+                // $area = $request->input('area');
+                // $project_id = $request->input('project_id');
+                $rendicion_viatico_id = $id;
+
+                if (!RendicionViatico::where('id', $rendicion_viatico_id)->exists()) {
+                  Session::flash('message', "No se han podido cargar los respaldos porque hacen referencia a una rendición inexistente!");
+                  return redirect()->back()->withInput();
+                }
+
+                $path = $file_to_import->getRealPath();
+                $data = Excel::load($path, function($reader) {
+                    })->get(); // ->skip(1)
+
+                $excelIsValid = false;
+
+                foreach ($data as $ex) {
+                    if(isset($ex["fecha"]) && isset($ex["tipo"]) && isset($ex["nit"]) && isset($ex["numero"]) &&
+                        isset($ex["autorizacion"]) && isset($ex["codigo_control"]) && isset($ex["razon_social"]) &&
+                        isset($ex["detalle"]) && isset($ex["corresponde_a"]) && isset($ex["monto"]))
+                        $excelIsValid = true;
+                }
+                
+                if ($excelIsValid == false) {
+                    Session::flash('message', "El archivo seleccionado no cuenta con la estructura requerida!
+                        Por favor utilice el formato modelo");
+                    return redirect()->back()->withInput();
+                }
+
+                if (!empty($data) && $data->count()) {
+                    foreach ($data as $key => $value) {
+                      if (!empty($value->fecha) && !empty($value->tipo) && !empty($value->numero) &&
+                          !empty($value->razon_social) && !empty($value->detalle) &&
+                          !empty($value->corresponde_a) && !empty($value->monto) &&
+                          is_numeric($value->monto)) {
+                        if ($value->tipo == 'Recibo' || ($value->tipo == 'Factura' &&
+                          !empty($value->nit) && !empty($value->autorizacion) &&
+                          !empty($value->codigo_control))) {
+                        
+                          $respaldo_exists = RendicionRespaldo::where('nro_respaldo', $value->numero)
+                            ->where('razon_social', $value->razon_social)
+                            ->where('rendicion_id', $rendicion_viatico_id)
+                            ->exists();
+
+                          if (!$respaldo_exists) {
+                            $insert[] = [
+                              'rendicion_id' => $rendicion_viatico_id,
+                              'fecha_respaldo' => $value->fecha,
+                              'tipo_respaldo' => $value->tipo,
+                              'nit' => $value->nit ? $value->nit : '',
+                              'nro_respaldo' => $value->numero,
+                              'codigo_autorizacion' => $value->autorizacion ? $value->autorizacion : '',
+                              'codigo_control' => $value->codigo_control ? $value->codigo_control : '',
+                              'razon_social' => $value->razon_social,
+                              'detalle' => $value->detalle,
+                              'corresponde_a' => $value->corresponde_a,
+                              'monto' => $value->monto,
+                              'estado' => 'Pendiente',
+                              'usuario_creacion' => $user->id,
+                              'created_at' => date('Y-m-d H:i:s'),
+                              'updated_at' => date('Y-m-d H:i:s')
+                            ];
+                          }
+                        }
+                      }
+                    }
+                    if (!empty($insert)) {
+                      RendicionRespaldo::insert($insert);
+                      $message = "Los respaldos fueron cargados al sistema correctamente";
+                    } else {
+                      $message = 'No se cargó ningún respaldo!';
+                    }
+
+                    Session::flash('message', $message);
+                    // if (Session::has('url'))
+                        // return redirect(Session::get('url'));
+                    // elseif ($id!=0)
+                        // return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
+                    // else
+                    return redirect()->action('RendicionViaticoController@show', ['id' => $rendicion_viatico_id]);
                 }
             }
         }
