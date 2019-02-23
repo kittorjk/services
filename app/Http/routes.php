@@ -254,6 +254,22 @@ Route::resource('/project', 'ProjectsController');
 Route::get('/provider/incomplete', 'ProviderController@incomplete_registers');
 Route::resource('/provider', 'ProviderController');
 
+Route::get('/rendicion_respaldo/estado', 'RendicionRespaldoController@cambiar_estado');
+Route::post('/rendicion_respaldo/estado', 'RendicionRespaldoController@cambiar_estado_obs');
+// Route::get('/rendicion_respaldo/observar', 'RendicionRespaldoController@observar_form');
+// Route::post('/rendicion_respaldo/observar', 'RendicionRespaldoController@observar');
+Route::get('/rendicion_respaldo/refrescar_totales/{id}', 'RendicionRespaldoController@refrescar_totales');
+Route::resource('/rendicion_respaldo', 'RendicionRespaldoController');
+
+Route::get('/rendicion_viatico/estado', 'RendicionViaticoController@cambiar_estado');
+Route::post('/rendicion_viatico/estado', 'RendicionViaticoController@cambiar_estado_obs');
+Route::get('/rendicion_viatico/pendientes', 'RendicionViaticoController@listar_pendientes');
+Route::get('/rendicion_viatico/observados', 'RendicionViaticoController@listar_observados');
+// Route::get('/rendicion_viatico/observar', 'RendicionViaticoController@observar_form');
+// Route::post('/rendicion_viatico/observar', 'RendicionViaticoController@observar');
+Route::get('/rendicion_viatico/rendir/{id_solicitud}', 'RendicionViaticoController@rendir_desde_solicitud');
+Route::resource('/rendicion_viatico', 'RendicionViaticoController');
+
 Route::get('search/{table}/{id}', 'SearchController@search_form');
 Route::get('search_results/{table}/{id}', 'SearchController@search_results');
 //Route::post('search/{table}/{id}', 'SearchController@search_results'); Changed to get to work with pagination

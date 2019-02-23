@@ -46,26 +46,42 @@ class StipendRequestController extends Controller
 
         $stipend_requests = StipendRequest::where('id','>',0);
 
-        if($user->priv_level<=1){
-            $stipend_requests = $stipend_requests->where(function ($query) use($user){
-                $query->where('employee_id', $user->id)->orwhere('user_id', $user->id);
+        $employee_record = Employee::where('access_id', $user->id)->first();
+
+        if ($user->priv_level <= 1) {
+          if ($employee_record) {
+            $stipend_requests = $stipend_requests->where(function ($query) use($user, $employee_record) {
+              $query->where('employee_id', $employee_record->id)->orwhere('user_id', $user->id);
             });
+          } else {
+            Session::flash('message', 'Usted no tiene registros disponibles');
+            return redirect()->back();
+          }
         }
 
         $stipend_requests = $stipend_requests->orderBy('created_at', 'desc')->paginate(20);
 
-        $waiting_payment = StipendRequest::where('status', 'Sent')->count();
-        $waiting_approval = StipendRequest::where('status', 'Pending')->count();
-        $observed = StipendRequest::where('status', 'Observed')->count();
+        if ($user->priv_level > 1) {
+          $waiting_payment = StipendRequest::where('status', 'Sent')->count();
+          $waiting_approval = StipendRequest::where('status', 'Pending')->count();
+          $esperando_rendicion = StipendRequest::where('status', 'Completed')->count();
+          $observed = StipendRequest::where('status', 'Observed')->count();
+        } else {
+          $waiting_payment = 0;
+          $waiting_approval = 0;
+          $esperando_rendicion = 0;
+          $observed = 0;
+        }
         
         foreach($stipend_requests as $request){
             $request->date_from = Carbon::parse($request->date_from);
             $request->date_to = Carbon::parse($request->date_to);
         }
 
-        return View::make('app.stipend_request_brief', ['stipend_requests' => $stipend_requests, 'service' => $service,
-            'user' => $user, 'waiting_payment' => $waiting_payment, 'waiting_approval' => $waiting_approval,
-            'observed' => $observed, 'asg' => $asg]);
+        return View::make('app.stipend_request_brief', ['stipend_requests' => $stipend_requests,
+          'service' => $service, 'user' => $user, 'waiting_payment' => $waiting_payment,
+          'waiting_approval' => $waiting_approval, 'esperando_rendicion' => $esperando_rendicion,
+          'observed' => $observed, 'asg' => $asg, 'employee_record' => $employee_record]);
     }
 
     public function pending_approval_list()

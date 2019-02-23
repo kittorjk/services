@@ -34,6 +34,10 @@ class StipendRequest extends Model
             ->withTimestamps();
     }
 
+    public function rendicion_viatico () {
+      return $this->hasOne('App\RendicionViatico');
+    }
+
     public static $stats = array(
         'Pending'       => 'Pendiente',
         'Observed'      => 'Observada',

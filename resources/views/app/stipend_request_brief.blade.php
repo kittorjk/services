@@ -21,14 +21,18 @@
 @endsection
 
 @section('menu_options')
-    @include('app.project_navigation_button', array('user'=>$user))
+    @if ($user->priv_level > 1)
+      @include('app.project_navigation_button', array('user'=>$user))
+    @endif
     <div class="btn-group">
         <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
             <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li><a href="{{ '/stipend_request?asg='.$asg }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
-            <li><a href="{{ '/stipend_request/create?asg='.$asg }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+            @if ($user->priv_level > 0)
+              <li><a href="{{ '/stipend_request/create?asg='.$asg }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+            @endif
             @if($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
                 <li>
                     <a href="{{ '/stipend_request/approve_list' }}">
@@ -48,11 +52,13 @@
                     </a>
                 </li>
             @endif
-            <li>
-                <a href="/import/stipend_requests/{{ $asg }}">
-                    <i class="fa fa-upload"></i> Importar solicitudes
-                </a>
-            </li>
+            @if ($user->priv_level > 0)
+              <li>
+                  <a href="/import/stipend_requests/{{ $asg }}">
+                      <i class="fa fa-upload"></i> Importar solicitudes
+                  </a>
+              </li>
+            @endif
             @if($user->action->prj_vtc_exp /*$user->priv_level==4*/)
                 <li class="divider"></li>
                 <li class="dropdown-submenu">
@@ -73,10 +79,13 @@
             @endif
         </ul>
     </div>
+    <a href="{{ '/rendicion_viatico' }}" class="btn btn-primary" title="Ver rendiciones de viáticos">
+      <i class="fa fa-file"></i> Rendiciones
+    </a>
     @if($user->priv_level>=2)
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
-            <i class="fa fa-search"></i> Buscar
-        </button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+        <i class="fa fa-search"></i> Buscar
+      </button>
     @endif
 @endsection
 
@@ -119,6 +128,19 @@
                 </a>
             </div>
         </div>
+    @endif
+
+    @if($esperando_rendicion > 0 && $user->priv_level >= 3)
+      <div class="col-sm-12 mg10">
+        <div class="alert alert-info" align="center">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <i class="fa fa-info-circle fa-2x pull-left"></i>
+            <a href="{{ '/rendicion_viatico' }}" style="color: inherit;">
+                {{ $esperando_rendicion == 1 ? '1 solicitud de viáticos pendiete de rendición!' :
+                  $esperando_rendicion.' solicitudes de viáticos pendientes de rendición!' }}
+            </a>
+        </div>
+      </div>
     @endif
 
     <div class="col-sm-12 mg10">
@@ -181,8 +203,7 @@
                         @endif
                     </td>
                     <td align="center">
-                        @if($stipend->status!='Rejected'&&$stipend->status!='Completed')
-
+                        @if($stipend->status != 'Rejected' && $stipend->status != 'Documented')
                             @if(($stipend->status=='Sent')&&$user->action->prj_vtc_pmt /*$user->priv_level>=2*/)
                                 <a href="{{ '/stipend_request/close?mode=complete&id='.$stipend->id }}"
                                    title="Confirmar pago y dar por concluída esta solicitud" class="confirm_close">
@@ -222,6 +243,21 @@
                                    title="Rechazar solicitud de viáticos">
                                     <i class="fa fa-times"></i>
                                 </a>
+                            @endif
+
+                            @if ($stipend->status == 'Completed' &&
+                              (($employee_record && $employee_record->access_id == $user->id) || $user->priv_level == 4))
+                                @if ($stipend->rendicion_viatico)
+                                  <a href="/rendicion_viatico/{{ $stipend->rendicion_viatico->id }}"
+                                    title="Complete la rendición de esta solicitud">
+                                    <i class="fa fa-file-o"></i>
+                                  </a>
+                                @else
+                                  <a href="/rendicion_viatico/rendir/{{ $stipend->id }}"
+                                    title="Iniciar rendición de viáticos">
+                                    <i class="fa fa-file"></i>
+                                  </a>
+                                @endif
                             @endif
                         @endif
                     </td>

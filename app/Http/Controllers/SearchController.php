@@ -1272,9 +1272,11 @@ class SearchController extends Controller
                 $request->date_to = Carbon::parse($request->date_to);
             }
 
+            $employee_record = Employee::where('access_id', $user->id)->first();
+
             return View::make('app.stipend_request_brief', ['stipend_requests' => $stipend_requests, 'service' => $service,
-                'user' => $user, 'waiting_payment' => 0, 'waiting_approval' => 0,
-                'observed' => 0, 'asg' => $id]);
+                'user' => $user, 'waiting_payment' => 0, 'waiting_approval' => 0, 'esperando_rendicion' => 0,
+                'observed' => 0, 'asg' => $id, 'employee_record' => $employee_record]);
         }
 
         elseif ($table == 'tasks') {

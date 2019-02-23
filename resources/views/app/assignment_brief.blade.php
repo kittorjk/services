@@ -14,7 +14,9 @@
 @endsection
 
 @section('menu_options')
-  @include('app.project_navigation_button', array('user'=>$user))
+  @if ($user->priv_level > 0)
+    @include('app.project_navigation_button', array('user'=>$user))
+  @endif
   <div class="btn-group">
     <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
       <i class="fa fa-cogs"></i> Asignaciones <span class="caret"></span>
@@ -157,9 +159,9 @@
                     <td>
                         {{ $assignment->name }}
                         @if((/*(($user->area=='Gerencia Tecnica'&&$user->priv_level>=1)||$user->priv_level>=3)*/
-                            $user->action->prj_asg_edt&&
-                            ($assignment->status!=$assignment->last_stat()/*'Concluído'*/&&
-                            $assignment->status!=0/*'No asignado'*/))||$user->priv_level==4)
+                            $user->action->prj_asg_edt &&
+                            ($assignment->status != $assignment->last_stat()/*'Concluído'*/ &&
+                            $assignment->status != 0/*'No asignado'*/)) || $user->priv_level == 4)
                             <a href="/assignment/{{ $assignment->id }}/edit" title="Editar">
                                 <i class="fa fa-pencil-square-o"></i>
                             </a>
@@ -170,15 +172,16 @@
                     <td>{{ $assignment->branch_record ? $acronimoCiudad[$assignment->branch_record->name] : 'N/E' }}</td>
                     <td>
                         {{ $assignment->statuses($assignment->status) }}
-                        @if($assignment->statuses($assignment->status)=='Cotización')
+                        @if($assignment->statuses($assignment->status)=='Cotización' && $user->action->prj_asg_edt)
                             <a href="/assignment/stat/{{ $assignment->id.'?action=close' }}" class="confirm_close"
                                title="Marcar trabajo como: No asignado">
                                 <i class="fa fa-times pull-right"></i>
                             </a>
                         @endif
 
-                        @if($assignment->status!=$assignment->last_stat()/*'Concluído'*/&&
-                            $assignment->status!=0/*'No asignado'*/)
+                        @if(($user->action->prj_asg_edt &&
+                          ($assignment->status != $assignment->last_stat()/*'Concluído'*/ &&
+                          $assignment->status != 0/*'No asignado'*/)))
                             <a href="/assignment/stat/{{ $assignment->id.'?action=upgrade' }}"
                                class="confirm_status_change"
                                title="{{ 'Cambiar estado a: '.$assignment->statuses($assignment->status+1)
@@ -415,6 +418,7 @@
                             @endif
                         </td>
                         <td align="center">
+                          @if ($user->priv_level > 0)
                             @if($assignment->status!=$assignment->last_stat()/*'Concluído'*/&&
                                 $assignment->status!=0/*'No asignado'*/)
                                 <a href="/files/assignment/{{ $assignment->id }}"
@@ -428,6 +432,7 @@
                                title="Ver avance general de esta asignación">
                                 <i class="indicator glyphicon glyphicon-chevron-down"></i>
                             </a>
+                          @endif
                         </td>
                     {{--@endif--}}
                     <td>

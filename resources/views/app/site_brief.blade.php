@@ -17,7 +17,9 @@
     <a href="{{ '/assignment' }}" class="btn btn-primary" title="Ir a resumen de asignaciones">
         <i class="fa fa-arrow-up"></i> Asig.
     </a>
-    @include('app.project_navigation_button', array('user'=>$user))
+    @if ($user->priv_level > 0)
+      @include('app.project_navigation_button', array('user'=>$user))
+    @endif
     <div class="btn-group">
         <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
             <i class="fa fa-map-marker"></i> Sitios <span class="caret"></span>
@@ -42,28 +44,32 @@
             @endif
             --}}
             {{--@if($assignment_info&&$sites->total()==0)--}}
+            @if ($user->priv_level > 0)
                 <li>
                     <a href="/import/sites/{{ $assignment_info->id }}">
                         <i class="fa fa-upload fa-fw"></i> Importar sitios
                     </a>
                 </li>
+            @endif
             {{--@endif--}}
 
-            <li class="dropdown-submenu">
-                <a href="#" data-toggle="dropdown"><i class="fa fa-list fa-fw"></i> Lista de materiales de cliente</a>
-                <ul class="dropdown-menu dropdown-menu-prim">
-                    <li>
-                        <a href="{{ '/client_listed_material?client='.($assignment_info ? $assignment_info->client : 'all') }}">
-                            <i class="fa fa-list fa-fw"></i> Ver materiales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/import/client_listed_materials/{{ $assignment_info ? $assignment_info->id : 0 }}">
-                            <i class="fa fa-upload fa-fw"></i> Importar lista de materiales
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            @if ($user->priv_level > 0)
+              <li class="dropdown-submenu">
+                  <a href="#" data-toggle="dropdown"><i class="fa fa-list fa-fw"></i> Lista de materiales de cliente</a>
+                  <ul class="dropdown-menu dropdown-menu-prim">
+                      <li>
+                          <a href="{{ '/client_listed_material?client='.($assignment_info ? $assignment_info->client : 'all') }}">
+                              <i class="fa fa-list fa-fw"></i> Ver materiales
+                          </a>
+                      </li>
+                      <li>
+                          <a href="/import/client_listed_materials/{{ $assignment_info ? $assignment_info->id : 0 }}">
+                              <i class="fa fa-upload fa-fw"></i> Importar lista de materiales
+                          </a>
+                      </li>
+                  </ul>
+              </li>
+            @endif
 
             @if($assignment_info)
                 @if($user->action->prj_asg_edt)
@@ -111,16 +117,18 @@
                     </a>
                 </li>
                 --}}
-                <li>
-                    <a href="/excel/report/per-assignment-progress/{{ $assignment_info->id }}">
-                        <i class="fa fa-file-excel-o fa-fw"></i> Reporte de avance general
-                    </a>
-                </li>
-                <li>
-                    <a href="/excel/load_format/tracking-report/{{ $assignment_info->id }}">
-                        <i class=" fa fa-file-excel-o fa-fw"></i> Tracking report
-                    </a>
-                </li>
+                @if ($user->priv_level > 0)
+                  <li>
+                      <a href="/excel/report/per-assignment-progress/{{ $assignment_info->id }}">
+                          <i class="fa fa-file-excel-o fa-fw"></i> Reporte de avance general
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/excel/load_format/tracking-report/{{ $assignment_info->id }}">
+                          <i class=" fa fa-file-excel-o fa-fw"></i> Tracking report
+                      </a>
+                  </li>
+                @endif
                 @if($user->action->prj_vtc_rep /*$user->priv_level>=3*/)
                     <li>
                         <a href="{{ '/site/expense_report/stipend/'.$assignment_info->id }}">
@@ -167,7 +175,7 @@
     @endif
     --}}
 
-    @if($assignment_info)
+    @if($assignment_info && $user->priv_level > 0)
         <a href="/site/refresh_data/{{ $assignment_info->id }}" class="btn btn-primary">
             <i class="fa fa-refresh"></i> Actualizar
         </a>
@@ -267,13 +275,17 @@
                         </td>
                     @endif
                     <td>
+                      @if ($user->priv_level > 0)
                         <a href="/site/{{ $site->id }}/show">{{ $site->name }}</a>
+                      @else
+                        {{ $site->name }}
+                      @endif
 
-                        @if(((($user->area=='Gerencia Tecnica'&&$user->priv_level>=1)||$user->priv_level>=3)&&
-                            ($site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/))||
-                            $user->priv_level==4)
-                            <a href="/site/{{ $site->id }}/edit" title="Editar"><i class="fa fa-pencil-square-o"></i></a>
-                        @endif
+                      @if(((($user->area=='Gerencia Tecnica' && $user->priv_level >= 1) || $user->priv_level >= 3) &&
+                          ($site->status != $site->last_stat()/*'Concluído'*/ && $site->status != 0/*'No asignado'*/)) ||
+                          $user->priv_level == 4)
+                          <a href="/site/{{ $site->id }}/edit" title="Editar"><i class="fa fa-pencil-square-o"></i></a>
+                      @endif
                     </td>
                     @if(empty($assignment_info))
                         <td>
@@ -297,7 +309,8 @@
                             </a>
                         @endif
 
-                        @if($site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/)
+                        @if($user->priv_level > 0 && 
+                          $site->status != $site->last_stat()/*'Concluído'*/ && $site->status != 0/*'No asignado'*/)
                             <a href="/site/stat/{{ $site->id.'?action=upgrade' }}" class="confirm_status_change"
                                title="{{ 'Cambiar estado a: '.$site->statuses($site->status+1)
                                /*$options_upgrade[$site->status]*/ }}"

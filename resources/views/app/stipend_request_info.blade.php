@@ -16,14 +16,18 @@
 @endsection
 
 @section('menu_options')
-    @include('app.project_navigation_button', array('user'=>$user))
+    @if ($user->priv_level > 0)
+      @include('app.project_navigation_button', array('user'=>$user))
+    @endif
     <div class="btn-group">
         <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
             <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li><a href="{{ '/stipend_request?asg='.$stipend->assignment_id }}"><i class="fa fa-refresh fa-fw"></i> Ver solicitudes </a></li>
-            <li><a href="{{ '/stipend_request/create?asg='.$stipend->assignment_id }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+            @if ($user->priv_level > 0)
+              <li><a href="{{ '/stipend_request/create?asg='.$stipend->assignment_id }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+            @endif
             @if($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
                 <li>
                     <a href="{{ '/stipend_request/approve_list' }}">
@@ -243,7 +247,7 @@
                             </table>
                         </div>
 
-                        @if($user->id==$stipend->user_id||$user->action->prj_vtc_edt /*$user->priv_level==4*/)
+                        @if($user->id == $stipend->user_id || $user->action->prj_vtc_edt /*$user->priv_level==4*/)
                             <div class="col-sm-12 mg10" align="center">
                                 <a href="/stipend_request/{{ $stipend->id }}/edit" class="btn btn-primary">
                                     <i class="fa fa-pencil-square-o"></i> Modificar solicitud
