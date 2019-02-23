@@ -15,13 +15,14 @@
                     @elseif($type=='items'){{ 'Importar nuevos items' }}
                     @elseif($type=='client_listed_materials'){{ 'Importar lista de materiales' }}
                     @elseif($type=='stipend_requests'){{ 'Importar solicitudes de viáticos >>> '.$place->name }}
+                    @elseif($type=='rendicion_respaldos'){{ 'Importar respaldos para esta rendición' }}
                     @endif
                 </div>
             </div>
             <div class="panel-body" >
                 <div class="col-lg-4 mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                 </div>
                 <div class="col-lg-8" align="right">
@@ -43,19 +44,23 @@
                     @elseif($type=='items')
                         <a href="{{ '/file_layouts/load_items_format.xlsx' }}" class="btn btn-success"
                             title="Descargar formato de referencia para importar items">
-                            <i class="fa fa-download"></i> Formato de importación
+                          <i class="fa fa-download"></i> Formato de importación
                         </a>
                     @elseif($type=='sites')
                         <a href="{{ '/file_layouts/site_import_model.xlsx' }}" class="btn btn-success">
-                            <i class="fa fa-file-excel-o"></i> Descargar modelo
+                          <i class="fa fa-file-excel-o"></i> Descargar modelo
                         </a>
                     @elseif($type=='client_listed_materials')
                         <a href="{{ '/file_layouts/client_listed_material_model.xlsx' }}" class="btn btn-success">
-                            <i class="fa fa-file-excel-o"></i> Descargar modelo
+                          <i class="fa fa-file-excel-o"></i> Descargar modelo
                         </a>
                     @elseif($type=='stipend_requests')
                         <a href="{{ '/file_layouts/stipend_request_import_model.xlsx' }}" class="btn btn-success">
-                            <i class="fa fa-file-excel-o"></i> Descargar modelo
+                          <i class="fa fa-file-excel-o"></i> Descargar modelo
+                        </a>
+                    @elseif($type == 'rendicion_respaldos')
+                        <a href="{{ '/file_layouts/load_viatico_respaldos_format.xlsx' }}" class="btn btn-success">
+                          <i class="fa fa-file-excel-o"></i> Descargar modelo
                         </a>
                     @endif
                 </div>
