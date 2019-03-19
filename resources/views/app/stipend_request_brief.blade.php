@@ -29,9 +29,13 @@
             <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/stipend_request?asg='.$asg }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            <li><a href="{{ '/stipend_request'.($asg ? '?asg='.$asg : '') }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             @if ($user->priv_level > 0)
-              <li><a href="{{ '/stipend_request/create?asg='.$asg }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
+              <li>
+                  <a href="{{ $asg ? '/stipend_request/create?asg='.$asg : '/stipend_request/seleccionar_proyecto' }}">
+                      <i class="fa fa-plus fa-fw"></i> Nueva solicitud 
+                  </a>
+              </li>
             @endif
             @if($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
                 <li>
@@ -52,7 +56,7 @@
                     </a>
                 </li>
             @endif
-            @if ($user->priv_level > 0)
+            @if ($user->priv_level > 0 && $asg)
               <li>
                   <a href="/import/stipend_requests/{{ $asg }}">
                       <i class="fa fa-upload"></i> Importar solicitudes
@@ -69,11 +73,13 @@
                                 <i class="fa fa-file-excel-o fa-fw"></i> Tabla de solicitudes
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ '/excel/stipend_requests/'.$asg }}">
-                                <i class="fa fa-file-excel-o fa-fw"></i> Solicitudes por asignación
-                            </a>
-                        </li>
+                        @if ($asg)
+                            <li>
+                                <a href="{{ '/excel/stipend_requests/'.$asg }}">
+                                    <i class="fa fa-file-excel-o fa-fw"></i> Solicitudes por asignación
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </li>
             @endif
@@ -278,7 +284,7 @@
 
     <!-- Search Modal -->
     <div id="searchBox" class="modal fade" role="dialog">
-        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'stipend_requests','id'=>$asg))
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'stipend_requests','id'=>($asg ?: 0)))
     </div>
 
 @endsection

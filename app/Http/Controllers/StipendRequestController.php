@@ -146,6 +146,28 @@ class StipendRequestController extends Controller
     }
 
     /**
+     * Show a pre-form for selecting a project for use in the real form.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function preCreate() {
+        $user = Session::get('user');
+        if ((is_null($user)) || (!$user->id))
+            return redirect()->route('root');
+            
+        $service = Session::get('service');
+        
+        $last_stat = count(Assignment::$status_names) - 1;
+        
+        $assignments = Assignment::whereNotIn('status', [$last_stat, 0])
+            ->where('start_date', '<>', '0000-00-00 00:00:00')->where('end_date', '<>', '0000-00-00 00:00:00')
+            ->orderBy('name')->get();
+            
+        // return $assignments->count();
+        return View::make('app.stipend_request_pre_form', ['user' => $user, 'service' => $service, 'assignments' => $assignments]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -175,8 +197,8 @@ class StipendRequestController extends Controller
             $assignment->quote_to = Carbon::parse($assignment->quote_to);
         }
         else{
-            Session::flash('message', 'Debe especificar las fechas de ejecución o relevamiento de la asignación
-                para poder solicitar viáticos!');
+            Session::flash('message', 'Debe especificar las fechas de ejecución o relevamiento del proyecto
+                para poder solicitar viáticos para el mismo!');
             return redirect()->back();
         }
         
@@ -261,7 +283,7 @@ class StipendRequestController extends Controller
         $assignment = $stipend->assignment;
 
         if (!$assignment) {
-            Session::flash('message', 'Error al cargar la información de la asignación, intente reenviar el formulario por favor');
+            Session::flash('message', 'Error al cargar la información del proyecto, intente reenviar el formulario por favor');
             return redirect()->back()->withInput();
         }
 
@@ -278,7 +300,7 @@ class StipendRequestController extends Controller
             ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to) &&
             $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))) {
             Session::flash('message', 'Las fechas desde y hasta de la solicitud deben estar dentro del intervalo de
-                tiempo de relevamiento o de ejecución de la asignación!');
+                tiempo de relevamiento o de ejecución del proyecto!');
             return redirect()->back()->withInput();
         }
 
@@ -364,8 +386,8 @@ class StipendRequestController extends Controller
             $assignment->end_date = Carbon::parse($assignment->end_date);
         }
         else{
-            Session::flash('message', 'Debe especificar las fechas de ejecución de la asignación antes de modificar
-                solicitudes de viáticos!');
+            Session::flash('message', 'Debe especificar las fechas de ejecución del proyecto antes de modificar
+                solicitudes de viáticos del mismo!');
             return redirect()->back();
         }
 
@@ -460,7 +482,7 @@ class StipendRequestController extends Controller
         $assignment = $stipend->assignment;
 
         if (!$assignment) {
-            Session::flash('message', 'Error al cargar la información de la asignación, intente reenviar el formulario por favor');
+            Session::flash('message', 'Error al cargar la información del proyecto, intente reenviar el formulario por favor');
             return redirect()->back()->withInput();
         }
 
@@ -477,7 +499,7 @@ class StipendRequestController extends Controller
             ($stipend->date_from->between($assignment->quote_from, $assignment->quote_to) &&
                 $stipend->date_to->between($assignment->quote_from, $assignment->quote_to)))) {
             Session::flash('message', 'Las fechas desde y hasta de la solicitud deben estar dentro del intervalo de
-                tiempo de relevamiento o de ejecución de la asignación!');
+                tiempo de relevamiento o de ejecución del proyeto!');
             return redirect()->back()->withInput();
         }
 

@@ -305,6 +305,7 @@ Route::get('/stipend_request/observed_list', 'StipendRequestController@observed_
 Route::get('/stipend_request/payment_list', 'StipendRequestController@pending_payment_list');
 //Route::get('/stipend_request/approve', 'StipendRequestController@approve_request');
 Route::get('/stipend_request/request_adm', 'StipendRequestController@request_adm');
+Route::get('/stipend_request/seleccionar_proyecto', 'StipendRequestController@preCreate');
 Route::get('/stipend_request/stat', 'StipendRequestController@change_status_form');
 Route::post('/stipend_request/stat', 'StipendRequestController@change_status');
 Route::resource('/stipend_request', 'StipendRequestController');
