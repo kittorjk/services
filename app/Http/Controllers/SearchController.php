@@ -1240,34 +1240,36 @@ class SearchController extends Controller
                 'service' => $service, 'current_date' => $current_date, 'user' => $user]);
         }
 
-        elseif($table=='stipend_requests'){
-            $assignment = Assignment::find($id);
+        elseif ($table == 'stipend_requests') {
+            if ($id && $id != 0) {
+                $assignment = Assignment::find($id);
 
-            if(!$assignment){
-                Session::flash('message', 'Sucedió un error al recuperar la información del servidor, revise la dirección
-                    e intente de nuevo por favor');
-                return redirect()->back();
+                if (!$assignment) {
+                    Session::flash('message', 'Sucedió un error al recuperar la información del servidor, revise la dirección
+                        e intente de nuevo por favor');
+                    return redirect()->back();
+                }
             }
-
-            if($has_date){
+            
+            if ($has_date) {
                 $stipend_requests = StipendRequest::whereBetween('created_at', [$from, $to])
                     //->where('assignment_id', $id)
                     ->orderBy('created_at', 'desc')->paginate(20);
             }
-            elseif($parameter=='employee_name'){
+            elseif ($parameter == 'employee_name') {
                 $stipend_requests = StipendRequest::join('employees', 'stipend_requests.employee_id', '=', 'employees.id')
                     ->select('stipend_requests.*')
-                    ->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$search_term%")
+                    ->where(DB::raw("CONCAT(TRIM(`first_name`), ' ', TRIM(`last_name`))"), 'like', "%$search_term%")
                     //->where('stipend_requests.assignment_id', $id)
                     ->orderBy('stipend_requests.created_at', 'desc')->paginate(20);
             }
-            else{
+            else {
                 $stipend_requests = StipendRequest::where("$parameter", 'like', "%$search_term%")
                     //->where('assignment_id', $id)
                     ->orderBy('created_at', 'desc')->paginate(20);
             }
 
-            foreach($stipend_requests as $request){
+            foreach ($stipend_requests as $request) {
                 $request->date_from = Carbon::parse($request->date_from);
                 $request->date_to = Carbon::parse($request->date_to);
             }
@@ -1276,7 +1278,7 @@ class SearchController extends Controller
 
             return View::make('app.stipend_request_brief', ['stipend_requests' => $stipend_requests, 'service' => $service,
                 'user' => $user, 'waiting_payment' => 0, 'waiting_approval' => 0, 'esperando_rendicion' => 0,
-                'observed' => 0, 'asg' => $id, 'employee_record' => $employee_record]);
+                'observed' => 0, 'asg' => ($id ?: ''), 'employee_record' => $employee_record]);
         }
 
         elseif ($table == 'tasks') {
