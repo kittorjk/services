@@ -33,6 +33,7 @@
             <li><a href="{{ '/order' }}"><i class="fa fa-arrow-right"></i> Ordenes </a></li>
             <li><a href="{{ '/bill' }}"><i class="fa fa-arrow-right"></i> Facturas </a></li>
         @endif
+        <li><a href="{{ '/stipend_request' }}"><i class="fa fa-arrow-right"></i> Solicitudes de viáticos </a></li>
         {{--@endif--}}
     </ul>
 </div>
