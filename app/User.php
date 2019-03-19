@@ -59,4 +59,8 @@ class User extends Model implements AuthenticatableContract,
     public function action(){
         return $this->hasOne('App\UserAction');
     }
+
+    public function employee() {
+      return $this->belongsTo('App\Employee', 'id', 'access_id');
+    }
 }

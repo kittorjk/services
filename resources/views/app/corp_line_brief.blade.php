@@ -65,6 +65,7 @@
         <tr>
           <th>Número de línea</th>
           <th>Área de servicio</th>
+          <th>Código responsable</th>
           <th>Responsable actual</th>
           <th>Estado</th>
           <th>Fecha de registro</th>
@@ -83,6 +84,7 @@
               @endif
             </td>
             <td>{{ $line->service_area }}</td>
+            <td>{{ $line->responsible && $line->responsible->employee ? $line->responsible->employee->code : 'N/E' }}</td>
             <td>{{ $line->responsible ? $line->responsible->name : 'N/E' }}</td>
             <td>
               {{ $line->status }}
