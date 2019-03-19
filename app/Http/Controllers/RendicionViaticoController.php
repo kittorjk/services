@@ -166,6 +166,7 @@ class RendicionViaticoController extends Controller
       $rendicion->fecha_estado = Carbon::now();
       $rendicion->estado = 'Pendiente';
       $rendicion->usuario_creacion = $user->priv_level === 4 ? $stipend_request->user_id : $user->id;
+      $rendicion->saldo_favor_empresa = $stipend_request->total_amount + $stipend_request->additional;
       
       $rendicion->save();
 
@@ -205,7 +206,10 @@ class RendicionViaticoController extends Controller
       foreach($rendicion->respaldos as $respaldo) {
         $respaldo->fecha_respaldo = Carbon::parse($respaldo->fecha_respaldo)->hour(0)->minute(0)->second(0);
       }
-
+      
+      $cant_facturas = $rendicion->respaldos->where('tipo_respaldo', 'Factura')->count();
+      $cant_recibos = $rendicion->respaldos->where('tipo_respaldo', 'Recibo')->count();
+      
       $usuario_creacion_nombre = empty($rendicion->usuario_creacion) ? '' : User::find($rendicion->usuario_creacion)->name;
       $usuario_modificacion_nombre = empty($rendicion->usuario_modificacion) ? '' : User::find($rendicion->usuario_modificacion)->name;
 
@@ -214,7 +218,8 @@ class RendicionViaticoController extends Controller
 
       return View::make('app.rendicion_viatico_info', ['rendicion' => $rendicion, 'service' => $service,
         'user' => $user, 'usuario_creacion_nombre' => $usuario_creacion_nombre,
-        'usuario_modificacion_nombre' => $usuario_modificacion_nombre, 'tipos_gasto' => $tipos_gasto]);
+        'usuario_modificacion_nombre' => $usuario_modificacion_nombre, 'tipos_gasto' => $tipos_gasto, 
+        'cant_facturas' => $cant_facturas, 'cant_recibos' => $cant_recibos]);
     }
 
     /**

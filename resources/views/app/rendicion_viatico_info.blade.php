@@ -157,7 +157,7 @@
                   <tr>
                     <th colspan="4">
                       Comparativa solicitud / rendición [Bs]:
-                      @if ($rendicion->estado == 'Pendiente')
+                      @if ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado')
                         <div class="pull-right">
                           <a href="/rendicion_respaldo/refrescar_totales/{{ $rendicion->id }}" class="btn btn-success" title="Actualizar totales">
                             <i class="fa fa-refresh"></i>
@@ -193,55 +193,70 @@
                     <td colspan="2">Solicitud</td>
                     <td colspan="2">Rendición</td>
                   </tr>
-                  <tr>
-                    <td>Alimentación</td>
-                    <td>{{ $rendicion->solicitud->per_day_amount }}</td>
-                    <td>Alimentación</td>
-                    <td>{{ $rendicion->subtotal_alimentacion }}</td>
-                  </tr>
-                  <tr>
-                    <td>Transporte</td>
-                    <td>{{ $rendicion->solicitud->transport_amount }}</td>
-                    <td>Transporte</td>
-                    <td>{{ $rendicion->subtotal_transporte }}</td>
-                  </tr>
-                  <tr>
-                    <td>Alojamiento</td>
-                    <td>{{ $rendicion->solicitud->hotel_amount }}</td>
-                    <td>Alojamiento</td>
-                    <td>{{ $rendicion->subtotal_hotel }}</td>
-                  </tr>
-                  <tr>
-                    <td>Combustible</td>
-                    <td>{{ $rendicion->solicitud->gas_amount }}</td>
-                    <td>Combustible</td>
-                    <td>{{ $rendicion->subtotal_combustible }}</td>
-                  </tr>
-                  <tr>
-                    <td>Taxi</td>
-                    <td>{{ $rendicion->solicitud->taxi_amount }}</td>
-                    <td>Taxi</td>
-                    <td>{{ $rendicion->subtotal_taxi }}</td>
-                  </tr>
-                  <tr>
-                    <td>Comunicaciones</td>
-                    <td>{{ $rendicion->solicitud->comm_amount }}</td>
-                    <td>Comunicaciones</td>
-                    <td>{{ $rendicion->subtotal_comunicaciones }}</td>
-                  </tr>
-                  <tr>
-                    <td>Materiales</td>
-                    <td>{{ $rendicion->solicitud->materials_amount }}</td>
-                    <td>Materiales</td>
-                    <td>{{ $rendicion->subtotal_materiales }}</td>
-                  </tr>
-                  <tr>
-                    <td>Extras</td>
-                    <td>{{ $rendicion->solicitud->extras_amount }}</td>
-                    <td>Extras</td>
-                    <td>{{ $rendicion->subtotal_extras }}</td>
-                  </tr>
-
+                  @if ($rendicion->solicitud->per_day_amount > 0 || $rendicion->subtotal_alimentacion > 0)
+                    <tr>
+                      <td>Alimentación</td>
+                      <td>{{ $rendicion->solicitud->per_day_amount }}</td>
+                      <td>Alimentación</td>
+                      <td>{{ $rendicion->subtotal_alimentacion }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->transport_amount > 0 || $rendicion->subtotal_transporte > 0)
+                    <tr>
+                      <td>Transporte</td>
+                      <td>{{ $rendicion->solicitud->transport_amount }}</td>
+                      <td>Transporte</td>
+                      <td>{{ $rendicion->subtotal_transporte }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->hotel_amount > 0 || $rendicion->subtotal_hotel > 0)
+                    <tr>
+                      <td>Alojamiento</td>
+                      <td>{{ $rendicion->solicitud->hotel_amount }}</td>
+                      <td>Alojamiento</td>
+                      <td>{{ $rendicion->subtotal_hotel }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->gas_amount > 0 || $rendicion->subtotal_combustible > 0)
+                    <tr>
+                      <td>Combustible</td>
+                      <td>{{ $rendicion->solicitud->gas_amount }}</td>
+                      <td>Combustible</td>
+                      <td>{{ $rendicion->subtotal_combustible }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->taxi_amount > 0 || $rendicion->subtotal_taxi > 0)
+                    <tr>
+                      <td>Taxi</td>
+                      <td>{{ $rendicion->solicitud->taxi_amount }}</td>
+                      <td>Taxi</td>
+                      <td>{{ $rendicion->subtotal_taxi }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->comm_amount > 0 || $rendicion->subtotal_comunicaciones > 0)
+                    <tr>
+                      <td>Comunicaciones</td>
+                      <td>{{ $rendicion->solicitud->comm_amount }}</td>
+                      <td>Comunicaciones</td>
+                      <td>{{ $rendicion->subtotal_comunicaciones }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->materials_amount > 0 || $rendicion->subtotal_materiales > 0)
+                    <tr>
+                      <td>Materiales</td>
+                      <td>{{ $rendicion->solicitud->materials_amount }}</td>
+                      <td>Materiales</td>
+                      <td>{{ $rendicion->subtotal_materiales }}</td>
+                    </tr>
+                  @endif
+                  @if ($rendicion->solicitud->extras_amount > 0 || $rendicion->subtotal_extras > 0)
+                    <tr>
+                      <td>Extras</td>
+                      <td>{{ $rendicion->solicitud->extras_amount }}</td>
+                      <td>Extras</td>
+                      <td>{{ $rendicion->subtotal_extras }}</td>
+                    </tr>
+                  @endif
                   <tr><td colspan="4"></td></tr>
                   <tr>
                     <td colspan="2">Total en facturas válidas [Bs]</td>
@@ -302,7 +317,7 @@
                   <i class="fa fa-check"></i> Aprobar
                 </a>
                 &ensp;
-                <a href="#" id="boton_observar" title="Observar rendición" class="btn btn-warning">
+                <a href="#" id="boton_observar" title="Observar rendición" class="btn btn-warning botonObservar">
                   <i class="fa fa-eye"></i> Observar
                 </a>
               @elseif(($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado') && ($rendicion->usuario_creacion == $user->id || $user->priv_level == 4))
@@ -370,6 +385,7 @@
                     <th colspan="4">Facturas:</th>
                   </tr>
                   <tr>
+                    @if ($cant_facturas > 0)
                     <th colspan="4">
                       <table class="table table-bordered">
                         <tr>
@@ -423,11 +439,13 @@
                                       data-monto="{{ $respaldo->monto }}"
                                       title="Modificar item"
                                       class="open-rowBox"
-                                      href="#rowBox">
+                                      href="#rowBox"
+                                      style="text-decoration: none">
                                       <i class="fa fa-pencil-square"></i>
                                     </a>
                                     &ensp;
-                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" title="Eliminar item">
+                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" 
+                                      title="Eliminar item" style="text-decoration: none">
                                       <i class="fa fa-trash"></i>
                                     </a>
                                     &ensp;
@@ -436,12 +454,12 @@
                                 @if ($respaldo->estado == 'Pendiente')
                                   @if(($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4)
                                     <a href="{{ '/rendicion_respaldo/estado?mode=observar&id='.$respaldo->id }}"
-                                      title="Observar">
+                                      title="Observar" style="text-decoration: none">
                                       <i class="fa fa-eye"></i>
                                     </a>
                                     &ensp;
                                     <a href="{{ '/rendicion_respaldo/estado?mode=aprobar&id='.$respaldo->id }}"
-                                      title="Aprobar">
+                                      title="Aprobar" style="text-decoration: none">
                                       <i class="fa fa-check"></i>
                                     </a>
                                   @endif
@@ -460,6 +478,9 @@
                         @endif
                       </table>
                     </th>
+                    @else
+                    <td colspan="4" align="center">No se ha registrado ninguna factura para esta rendición</td>
+                    @endif
                   </tr>
 
                   {{-- Recibos --}}
@@ -468,6 +489,7 @@
                     <th colspan="4">Recibos:</th>
                   </tr>
                   <tr>
+                    @if ($cant_recibos > 0)
                     <th colspan="4">
                       <table class="table table-bordered">
                         <tr>
@@ -515,11 +537,13 @@
                                       data-monto="{{ $respaldo->monto }}"
                                       title="Modificar item"
                                       class="open-rowBox"
-                                      href="#rowBox">
+                                      href="#rowBox"
+                                      style="text-decoration: none">
                                       <i class="fa fa-pencil-square"></i>
                                     </a>
                                     &ensp;
-                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" title="Eliminar item">
+                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" 
+                                      title="Eliminar item" style="text-decoration: none">
                                       <i class="fa fa-trash"></i>
                                     </a>
                                     &ensp;
@@ -528,12 +552,12 @@
                                 @if ($respaldo->estado == 'Pendiente')
                                   @if(($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4)
                                     <a href="{{ '/rendicion_respaldo/estado?mode=observar&id='.$respaldo->id }}"
-                                      title="Observar">
+                                      title="Observar" style="text-decoration: none">
                                       <i class="fa fa-eye"></i>
                                     </a>
                                     &ensp;
                                     <a href="{{ '/rendicion_respaldo/estado?mode=aprobar&id='.$respaldo->id }}"
-                                      title="Aprobar">
+                                      title="Aprobar" style="text-decoration: none">
                                       <i class="fa fa-check"></i>
                                     </a>
                                   @endif
@@ -551,6 +575,13 @@
                         @endif
                       </table>
                     </th>
+                    @else
+                    <td colspan="4" align="center">No se ha registrado ningún recibo para esta rendición</td>
+                    @endif
+                  </tr>
+                @else
+                  <tr>
+                    <td colspan="4" align="center">No se han cargado respaldos a esta rendición</td>
                   </tr>
                 @endif
               </tbody>
@@ -607,7 +638,8 @@
 
     $(document).on("click", ".open-rowBox", function () {
       var respaldoId = $(this).data('id');
-      var respaldoFecha = $(this).data('fecha');
+      var respaldoFecha = new Date($(this).data('fecha')).toJSON().substring(0,10);
+      console.log(respaldoFecha);
       var respaldoTipo = $(this).data('tipo');
       var respaldoNit = $(this).data('nit');
       var respaldoNroRespaldo = $(this).data('nrorespaldo');
@@ -618,7 +650,7 @@
       var respaldoCorrespondeA = $(this).data('correspondea');
       var respaldoMonto = $(this).data('monto');
 
-      $('#rowBox .modal-body #rowForm').attr('action', respaldoId > 0 ? '/rendicion_respaldo/'+respaldoId : '/rendicion_respaldo');
+      $('#rowBox .modal-body #respaldoForm').attr('action', respaldoId > 0 ? '/rendicion_respaldo/'+respaldoId : '/rendicion_respaldo');
       $("#rowBox .modal-body #_method").val( respaldoId > 0 ? 'put' : 'post' );
       $("#rowBox .modal-body #fecha_respaldo").val( respaldoFecha );
       $("#rowBox .modal-body #tipo_respaldo").val( respaldoTipo );
@@ -641,9 +673,11 @@
     });
 
     $("#wait").hide();
+    $("#container").hide();
 
-    var $submit_button = $('#submit_button'), $container = $('#container') $observaciones = $('#observaciones');
-    $(document).on("click", "#boton_observar", function () {
+    var $submit_button = $('#submit_button'), $container = $('#container'), $observaciones = $('#observaciones');
+    $(document).on("click", ".botonObservar", function () {
+        console.log('called');
       $container.show();
       $observaciones.removeAttr('disabled').show();
       $submit_button.removeAttr('disabled').show();

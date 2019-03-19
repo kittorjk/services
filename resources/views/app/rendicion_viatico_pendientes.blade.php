@@ -110,7 +110,7 @@
                   <td>{{ $pendiente->solicitud ? $pendiente->solicitud->code : 'N/E' }}</td>
                   <td>{{ $pendiente->creadoPor ? $pendiente->CreadoPor->name : 'N/E' }}</td>
                   <td align="center">
-                    @if($user->id === $pendiente->usuario_creacion)
+                    @if($user->id === $pendiente->usuario_creacion || $user->priv_level == 4)
                       <a href="/rendicion_viatico/{{ $pendiente->id }}/edit" title="Modificar rendición">
                         <i class="fa fa-pencil-square-o"></i>
                       </a>
@@ -119,8 +119,14 @@
                         title="Cancelar registro de rendición de viáticos">
                         <i class="fa fa-times"></i>
                       </a>
+                      @if($pendiente->estado === 'Pendiente')
+                        <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$pendiente->id }}"
+                          title="Presentar rendición para su aprobación">
+                          <i class="fa fa-send"></i>
+                        </a>
+                      @endif
                     @endif
-                    @if(($pendiente->estado === 'Presentado'))
+                    @if($pendiente->estado === 'Presentado' && ($user->action->aprobar_rendicion || ($user->priv_level >= 2 && $user->area === 'Gerencia Administrativa') || $user->priv_level == 4))
                       <a href="{{ '/rendicion_viatico/estado?mode=aprobar&id='.$pendiente->id }}"
                         title="Aprobar rendición" class="confirm_close">
                         <i class="fa fa-check"></i>
@@ -129,11 +135,6 @@
                       <a href="{{ '/rendicion_viatico/estado?mode=observar&id='.$pendiente->id }}"
                         title="Observar rendición">
                         <i class="fa fa-eye"></i>
-                      </a>
-                    @elseif($pendiente->estado === 'Pendiente')
-                      <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$pendiente->id }}"
-                        title="Presentar rendición para su aprobación">
-                        <i class="fa fa-send"></i>
                       </a>
                     @endif
                   </td>

@@ -138,17 +138,23 @@
             <td>{{ $rendicion->estado }}</td>
             <td align="center">
               @if($rendicion->estado != 'Cancelado' && $rendicion->estado != 'Aprobado')
-                @if($user->id === $rendicion->usuario_creacion && $rendicion->editable /*$user->priv_level==4*/)
-                  <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición">
-                    <i class="fa fa-pencil-square-o"></i>
-                  </a>
-                  &ensp;
-                  <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
-                    title="Cancelar registro de rendición de viáticos">
-                    <i class="fa fa-times"></i>
-                  </a>
+                @if($user->id === $rendicion->usuario_creacion || $user->priv_level == 4)
+                  @if ($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado')
+                    <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición">
+                      <i class="fa fa-pencil-square-o"></i>
+                    </a>
+                    &ensp;
+                    <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
+                      title="Cancelar registro de rendición de viáticos">
+                      <i class="fa fa-times"></i>
+                    </a>
+                    <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
+                      title="Presentar rendición para su aprobación">
+                      <i class="fa fa-send"></i>
+                    </a>
+                  @endif
                 @endif
-                @if(($rendicion->estado === 'Presentado') /* && $user->action->aprobar_rendicion /*$user->priv_level>=2*/)
+                @if($rendicion->estado === 'Presentado' && ($user->action->aprobar_rendicion || ($user->priv_level >= 2 && $user->area === 'Gerencia Administrativa') || $user->priv_level == 4))
                   <a href="{{ '/rendicion_viatico/estado?mode=aprobar&id='.$rendicion->id }}"
                     title="Aprobar rendición" class="confirm_close">
                     <i class="fa fa-check"></i>
@@ -157,11 +163,6 @@
                   <a href="{{ '/rendicion_viatico/estado?mode=observar&id='.$rendicion->id }}"
                     title="Observar rendición">
                     <i class="fa fa-eye"></i>
-                  </a>
-                @elseif($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado' /*$user->priv_level>=2*/)
-                  <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
-                    title="Presentar rendición para su aprobación">
-                    <i class="fa fa-send"></i>
                   </a>
                 @endif
               @endif

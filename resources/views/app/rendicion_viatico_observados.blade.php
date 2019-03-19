@@ -112,7 +112,7 @@
                   <td>{{ $observado->creadoPor ? $observado->creadoPor->name : 'N/E' }}</td>
                   <td>{{ $observado->observaciones }}</td>
                   <td align="center">
-                    @if($user->id === $observado->usuario_creacion)
+                    @if($user->id === $observado->usuario_creacion || $user->priv_level == 4)
                       <a href="/rendicion_viatico/{{ $observado->id }}/edit" title="Modificar rendición">
                         <i class="fa fa-pencil-square-o"></i>
                       </a>
@@ -121,11 +121,11 @@
                         title="Cancelar registro de rendición de gastos">
                         <i class="fa fa-times"></i>
                       </a>
+                      <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$observado->id }}"
+                        title="Presentar rendición para su aprobación">
+                        <i class="fa fa-send"></i>
+                      </a>
                     @endif
-                    <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$observado->id }}"
-                      title="Presentar rendición para su aprobación">
-                      <i class="fa fa-send"></i>
-                    </a>
                   </td>
                 </tr>
                 <?php $i++ ?>
