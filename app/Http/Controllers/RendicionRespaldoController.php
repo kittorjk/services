@@ -60,7 +60,7 @@ class RendicionRespaldoController extends Controller
           'nit'                     => 'required_if:tipo_respaldo,Factura',
           'nro_respaldo'            => 'required',
           'codigo_autorizacion'     => 'required_if:tipo_respaldo,Factura',
-          'codigo_control'          => 'required_if:tipo_respaldo,Factura',
+          // 'codigo_control'          => 'required_if:tipo_respaldo,Factura',
           'razon_social'            => 'required',
           'detalle'                 => 'required',
           'corresponde_a'           => 'required',
@@ -75,7 +75,7 @@ class RendicionRespaldoController extends Controller
           'nit.required_if'            => 'Debe especificar el número de NIT si el documento es una factura!',
           'nro_respaldo.required'      => 'Debe especificar el número del documento!',
           'codigo_autorizacion.required_if' => 'Debe especificar el código de autorización si el documento es una factura!',
-          'codigo_control.required_if' => 'Debe especificar el código de control si el documento es una factura!',
+          // 'codigo_control.required_if' => 'Debe especificar el código de control si el documento es una factura!',
           'razon_social.required'      => 'Debe especificar la razón social del emisor del documento!',
           'detalle.required'           => 'Debe proporcionar un breve detalle del documento!',
           'corresponde_a.required'     => 'Debe indicar a qué tipo de gasto corresponde el documento!',
@@ -148,13 +148,13 @@ class RendicionRespaldoController extends Controller
       // $monto_previo = $respaldo->monto;
 
       $v = \Validator::make(Request::all(), [
-        'rendicion_id'            => 'required|exists:rendicion_viatico,id',
+        'rendicion_id'            => 'required|exists:rendicion_viaticos,id',
         'fecha_respaldo'          => 'required|date',
         'tipo_respaldo'           => 'required',
         'nit'                     => 'required_if:tipo_respaldo,Factura',
         'nro_respaldo'            => 'required',
         'codigo_autorizacion'     => 'required_if:tipo_respaldo,Factura',
-        'codigo_control'          => 'required_if:tipo_respaldo,Factura',
+        // 'codigo_control'          => 'required_if:tipo_respaldo,Factura',
         'razon_social'            => 'required',
         'detalle'                 => 'required',
         'corresponde_a'           => 'required',
@@ -169,7 +169,7 @@ class RendicionRespaldoController extends Controller
           'nit.required_if'            => 'Debe especificar el número de NIT si el documento es una factura!',
           'nro_respaldo.required'      => 'Debe especificar el número del documento!',
           'codigo_autorizacion.required_if' => 'Debe especificar el código de autorización si el documento es una factura!',
-          'codigo_control.required_if' => 'Debe especificar el código de control si el documento es una factura!',
+          // 'codigo_control.required_if' => 'Debe especificar el código de control si el documento es una factura!',
           'razon_social.required'      => 'Debe especificar la razón social del emisor del documento!',
           'detalle.required'           => 'Debe proporcionar un breve detalle del documento!',
           'corresponde_a.required'     => 'Debe indicar a qué tipo de gasto corresponde el documento!',
@@ -186,6 +186,7 @@ class RendicionRespaldoController extends Controller
       $respaldo->fill(Request::all());
 
       $respaldo->usuario_modificacion = $user->id;
+      $respaldo->estado = 'Pendiente';
 
       $respaldo->save();
 
