@@ -509,14 +509,17 @@ class OCController extends Controller
         }
 
         $service = Session::get('service');
+        
+        // To stress an OC of origin
+        $oc_code = Input::get('code');
 
-        if($user->priv_level==4){
+        if ($user->priv_level == 4) {
             $ocs = OC::where('flags', 'like', '00%')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
         }
-        elseif($user->action->oc_apv_gg /*$user->priv_level==3&&$user->area=='Gerencia General'*/) {
+        elseif ($user->action->oc_apv_gg /*$user->priv_level==3&&$user->area=='Gerencia General'*/) {
             $ocs = OC::where('flags', 'like', '0011%')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
         }
-        elseif($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/){
+        elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
             $ocs = OC::where('flags', 'like', '0001%')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
         }
         else {
@@ -524,7 +527,7 @@ class OCController extends Controller
             return redirect()->back();
         }
 
-        return View::make('app.oc_approve_form', ['ocs' => $ocs, 'service' => $service, 'user' => $user]);
+        return View::make('app.oc_approve_form', ['ocs' => $ocs, 'service' => $service, 'user' => $user, 'oc_code' => $oc_code]);
     }
     
     public function approve_action(Request $request)

@@ -158,14 +158,14 @@
                         @elseif($oc->flags[1]==0&&$oc->flags[2]==1)
                             @if($user->action->oc_apv_gg /*($user->priv_level==3&&$user->area=='Gerencia General')*/||
                                 $user->priv_level==4)
-                                <a href="{{ '/approve_oc' }}">{{ 'Pendiente aprobación de G. General' }}</a>
+                                <a href="{{ '/approve_oc?code='.$oc->code }}">{{ 'Pendiente aprobación de G. General' }}</a>
                             @else
                                 {{ 'Pendiente aprobación de G. General' }}
                             @endif
                         @elseif($oc->flags[1]==0&&$oc->flags[2]==0)
                             @if($user->action->oc_apv_tech /*($user->priv_level==3&&$user->area=='Gerencia Tecnica')*/||
                                 $user->priv_level==4)
-                                <a href="{{ '/approve_oc' }}">{{ 'Pendiente aprobación de G. Tecnica' }}</a>
+                                <a href="{{ '/approve_oc?code='.$oc->code }}">{{ 'Pendiente aprobación de G. Tecnica' }}</a>
                             @else
                                 {{ 'Pendiente aprobación de G. Tecnica' }}
                             @endif
