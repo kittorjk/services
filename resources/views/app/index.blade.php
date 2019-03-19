@@ -169,7 +169,7 @@
                             </div>
                         </div>
                         <div class="col-sm-12 form-group">
-                            <a href="{{ '/login/pw_recovery?return='.$service }}" class="pull-right"> Forgot password?</a>
+                            <a href="{{ '/login/pw_recovery?return='.($service ? $service : 'project') }}" class="pull-right"> Forgot password?</a>
                         </div>
                         <div class="form-group" align="center">
                             <button type="submit" class="btn btn-success" onclick="this.disabled=true; this.form.submit()">

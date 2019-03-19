@@ -41,7 +41,7 @@
                         <p><em>Se enviará un email a la dirección de correo electrónico registrada para este usuario.</em></p>
 
                         <div class="form-group" align="center">
-                            <button type="submit" class="btn btn-warning" onclick="history.back();">
+                            <button class="btn btn-warning" onclick="history.back();">
                                 <i class="fa fa-arrow-circle-left"></i> Atrás
                             </button>
                             <button type="submit" class="btn btn-primary" onclick="this.disabled=true; this.form.submit()">
