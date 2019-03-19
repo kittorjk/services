@@ -25,9 +25,9 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
-                    <a href="{{ '/employee' }}" class="btn btn-warning" title="Volver a la tabla de empleados">
+                    <a href="{{ '/employee' }}" class="btn btn-warning" title="Ir a la tabla de empleados">
                         <i class="fa fa-arrow-up"></i>
                     </a>
                 </div>
@@ -174,6 +174,16 @@
                                             </div>
 
                                             <div class="input-group" style="width: 100%">
+                                              <label for="category" class="input-group-addon" style="width: 23%;text-align: left">
+                                                  Categoría:
+                                              </label>
+
+                                              <input required="required" type="text" class="form-control" name="category"
+                                                     id="category" value="{{ $employee ? $employee->category : old('category') }}"
+                                                     placeholder="Categoría">
+                                            </div>
+
+                                            <div class="input-group" style="width: 100%">
                                                 <label for="area" class="input-group-addon" style="width: 23%;text-align: left">
                                                     Área: <span class="pull-right">*</span>
                                                 </label>
@@ -229,7 +239,7 @@
                                                 </select>
                                             </div>
 
-                                            <div class="input-group" style="width: 75%">
+                                            {{--<div class="input-group" style="width: 75%">
                                                 <span class="input-group-addon" style="width: 31%;text-align: left">
                                                     Ingresos:
                                                 </span>
@@ -241,6 +251,48 @@
                                                        placeholder="Ingreso mensual">
 
                                                 <span class="input-group-addon">Bs.</span>
+                                            </div>--}}
+
+                                            <div class="input-group" style="width: 75%">
+                                              <span class="input-group-addon" style="width: 31%;text-align: left">
+                                                  Sueldo básico:
+                                              </span>
+
+                                              <input required="required" type="number" class="form-control" name="basic_income"
+                                                     id="basic_income" step="any" min="0"
+                                                     value="{{ $employee && $employee->basic_income != 0 ?
+                                                          $employee->basic_income : old('basic_income') }}"
+                                                     placeholder="0.00">
+
+                                              <span class="input-group-addon">Bs.</span>
+                                            </div>
+
+                                            <div class="input-group" style="width: 75%">
+                                              <span class="input-group-addon" style="width: 31%;text-align: left">
+                                                  Bono producción:
+                                              </span>
+
+                                              <input required="required" type="number" class="form-control" name="production_bonus"
+                                                     id="production_bonus" step="any" min="0"
+                                                     value="{{ $employee && $employee->production_bonus != 0 ?
+                                                          $employee->production_bonus : old('production_bonus') }}"
+                                                     placeholder="0.00">
+
+                                              <span class="input-group-addon">Bs.</span>
+                                            </div>
+
+                                            <div class="input-group" style="width: 75%">
+                                              <span class="input-group-addon" style="width: 31%;text-align: left">
+                                                  Líquido pagable:
+                                              </span>
+
+                                              <input required="required" type="number" class="form-control" name="payable_amount"
+                                                     id="payable_amount" step="any" min="0"
+                                                     value="{{ $employee && $employee->payable_amount != 0 ?
+                                                          $employee->payable_amount : old('payable_amount') }}"
+                                                     placeholder="0.00">
+
+                                              <span class="input-group-addon">Bs.</span>
                                             </div>
 
                                             <div class="input-group" style="width: 100%">
@@ -275,6 +327,28 @@
                                                        value="{{ $employee&&$employee->phone!=0 ? $employee->phone :
                                                             old('phone') }}"
                                                        placeholder="Número de teléfono fijo o celular">
+                                            </div>
+
+                                            <div class="input-group" style="width: 75%;text-align: center">
+                                              <label for="date_in" class="input-group-addon" style="width: 31%; text-align: left">
+                                                  Fecha ingreso:
+                                              </label>
+
+                                              <span class="input-group-addon">
+                                                  <input type="date" name="date_in" id="date_in" step="1" min="2014-01-01"
+                                                     value="{{ $employee ? $employee->date_in : old('date_in') }}">
+                                              </span>
+                                            </div>
+
+                                            <div class="input-group" style="width: 75%;text-align: center">
+                                              <label for="date_in_employee" class="input-group-addon" style="width: 31%; text-align: left">
+                                                  Fecha ingreso planilla:
+                                              </label>
+
+                                              <span class="input-group-addon">
+                                                  <input type="date" name="date_in_employee" id="date_in_employee" step="1" min="2014-01-01"
+                                                     value="{{ $employee ? $employee->date_in_employee : old('date_in_employee') }}">
+                                              </span>
                                             </div>
 
                                         </div>

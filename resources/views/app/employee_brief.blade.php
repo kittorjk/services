@@ -11,6 +11,11 @@
 
 @section('header')
     @parent
+    <style>
+      .sub-menu > li > a {
+          width: 180px;
+      }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
@@ -47,6 +52,7 @@
                 <th>Nombres</th>
                 <th>C.I.</th>
                 <th>Cargo</th>
+                <th>Categoría</th>
                 <th>Área</th>
                 <th>Email corporativo</th>
                 <th>Teléfono</th>
@@ -66,21 +72,22 @@
                 <tr @if($employee->active==0)style="background-color: #ba5e5e" title="Empleado retirado"@endif>
                     <td>
                         {{--@if($user->priv_level==4)--}}
-                            <a href="/employee/{{ $employee->id }}" title="Ver información de empleado"
-                               @if($employee->active==0)style="color: inherit"@endif>
-                                {{ $employee->code }}
-                            </a>
-                            <a href="/employee/{{ $employee->id }}/edit" title="Modificar registro de empleado"
-                               @if($employee->active==0)style="color: inherit"@endif>
-                                <i class="fa fa-pencil-square"></i>
-                            </a>
+                        <a href="/employee/{{ $employee->id }}" title="Ver información de empleado"
+                            @if($employee->active==0)style="color: inherit"@endif>
+                            {{ $employee->code }}
+                        </a>
+                        <a href="/employee/{{ $employee->id }}/edit" title="Modificar registro de empleado"
+                            @if($employee->active==0)style="color: inherit"@endif>
+                            <i class="fa fa-pencil-square"></i>
+                        </a>
                         {{--@endif--}}
                     </td>
                     <td>{{ $employee->last_name }}</td>
                     <td>{{ $employee->first_name }}</td>
                     <td>{{ $employee->id_card.' '.$employee->id_extension }}</td>
                     <td>{{ $employee->role }}</td>
-                    <td>{{ $employee->area }}</td>
+                    <td>{{ $employee->category }}</td>
+                    <td>{{ $areas[$employee->area] }}</td>
                     <td>{{ $employee->corp_email }}</td>
                     <td>{{ $employee->phone!=0 ? $employee->phone : '' }}</td>
                 </tr>

@@ -36,7 +36,7 @@
             <div class="panel-body">
                 <div class="col-sm-12 mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/employee' }}" class="btn btn-warning" title="Volver a la tabla de empleados">
                         <i class="fa fa-arrow-up"></i>
@@ -85,10 +85,28 @@
                         @endif
                         <tr><td colspan="2"></td></tr>
 
-                        @if($employee->income>0)
+                        {{--@if($employee->income > 0)
                             <tr>
                                 <th>Ingreso mensual</th>
                                 <td>{{ number_format($employee->income,2).' Bs' }}</td>
+                            </tr>
+                        @endif--}}
+                        @if($employee->basic_income > 0)
+                            <tr>
+                                <th>Sueldo básico</th>
+                                <td>{{ number_format($employee->basic_income,2).' Bs' }}</td>
+                            </tr>
+                        @endif
+                        @if($employee->production_bonus > 0)
+                            <tr>
+                                <th>Bonus de producción</th>
+                                <td>{{ number_format($employee->production_bonus,2).' Bs' }}</td>
+                            </tr>
+                        @endif
+                        @if($employee->payable_amount > 0)
+                            <tr>
+                                <th>Líquido pagable</th>
+                                <td>{{ number_format($employee->payable_amount,2).' Bs' }}</td>
                             </tr>
                         @endif
                         @if($employee->bnk!='')
@@ -107,6 +125,12 @@
                             <tr>
                                 <th>Cargo</th>
                                 <td>{{ $employee->role }}</td>
+                            </tr>
+                        @endif
+                        @if($employee->category)
+                            <tr>
+                                <th>Categoría</th>
+                                <td>{{ $employee->category }}</td>
                             </tr>
                         @endif
                         @if($employee->area)
@@ -142,15 +166,21 @@
                             @endif
                         @endif
 
-                        @if($employee->date_in->year>-1||$employee->date_out->year>-1)
+                        @if ($employee->date_in->year > -1 || $employee->date_in_employee->year > -1 || $employee->date_out->year > -1)
                             <tr><td colspan="2"></td></tr>
-                            @if($employee->date_in->year>-1)
+                            @if ($employee->date_in->year > -1)
                                 <tr>
                                     <th>Fecha de ingreso</th>
                                     <td>{{ date_format($employee->date_in, 'd-m-Y') }}</td>
                                 </tr>
                             @endif
-                            @if($employee->date_out->year>-1)
+                            @if ($employee->date_in_employee->year > -1)
+                                <tr>
+                                    <th>Fecha de ingreso en planilla</th>
+                                    <td>{{ date_format($employee->date_in_employee, 'd-m-Y') }}</td>
+                                </tr>
+                            @endif
+                            @if ($employee->date_out->year > -1)
                                 <tr>
                                     <th>Fecha de retiro</th>
                                     <td>{{ date_format($employee->date_out, 'd-m-Y') }}</td>
