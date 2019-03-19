@@ -202,11 +202,11 @@
                                   <th colspan="4">
                                     <table class="table table-bordered">
                                         <tr>
-                                            <td width="10%">Item</td>
-                                            <td width="20%">Descripción</td>
-                                            <td width="18%">Cantidad</td>
-                                            <td width="20%">Unidades</td>
-                                            <td width="20%" title="[Bs]">Precio unit.</td>
+                                            <td width="8%"></td>
+                                            <td width="35%">Descripción</td>
+                                            <td width="15%">Cantidad</td>
+                                            <td width="15%">Unidades</td>
+                                            <td width="15%" title="Precio unitario [Bs]">P. Unit. [Bs]</td>
                                             <td width="12%"></td>
                                         </tr>
                                         @foreach($oc->rows as $row)
@@ -214,9 +214,9 @@
                                                 <td>{{ $row->num_order }}</td>
                                                 <td>{{ $row->description }}</td>
                                                 <td align="right">{{ number_format($row->qty, 2) }}</td>
-                                                <td>{{ $row->units }}</td>
+                                                <td align="center">{{ $row->units }}</td>
                                                 <td align="right">{{ number_format($row->unit_cost, 2) }}</td>
-                                                <td>
+                                                <td align="center">
                                                   <a data-toggle="modal" 
                                                     data-id="{{ $row->id }}"
                                                     data-numorder="{{ $row->num_order }}"
@@ -226,11 +226,12 @@
                                                     data-unitcost="{{ $row->unit_cost }}"
                                                     title="Modificar item"
                                                     class="open-rowBox"
-                                                    href="#rowBox">
+                                                    href="#rowBox"
+                                                    style="text-decoration: none">
                                                     <i class="fa fa-pencil-square"></i>
                                                   </a>
                                                   &ensp;
-                                                  <a href="javascript:;" class="removeRow" data-id="{{ $row->id }}" title="Eliminar item">
+                                                  <a href="javascript:;" class="removeRow" data-id="{{ $row->id }}" title="Eliminar item" style="text-decoration: none">
                                                     <i class="fa fa-trash"></i>
                                                   </a>
                                                   {{--
