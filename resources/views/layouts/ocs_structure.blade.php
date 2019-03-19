@@ -69,7 +69,7 @@
 
                 <li><a href="{{ '/oc' }}" title="Inicio">&ensp;<i class="fa fa-home" style="font-size: 1.3em;"></i>&ensp;</a></li>
                 <li><a href="#" onclick="history.back();" title="Volver">&ensp;<i class="fa fa-arrow-circle-left" style="font-size: 1.3em;"></i>&ensp;</a></li>
-                <li><a href="{{ Request::url() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
+                <li><a href="{{ Request::fullUrl() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
 
                 @yield('menu_options')
 
