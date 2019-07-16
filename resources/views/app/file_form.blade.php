@@ -159,7 +159,7 @@
                                 $type=='material_img'||$type=='wh_entry_receipt'||$type=='wh_entry_img'||
                                 $type=='wh_outlet_receipt'||$type=='wh_outlet_img'||$type=='dead_interval'||
                                 $type=='corp_line'||$type=='line_assignation'||$type=='vhc_gas_inspection'||
-                                $type=='vhc_failure_report'||$type=='dvc_failure_report')
+                                $type=='vhc_failure_report'||$type=='dvc_failure_report'||$type=='employee_img')
                                 <input type="text" class="form-control" name="description" value="{{ old('description') }}"
                                        placeholder="Título o descripción">
                             @else

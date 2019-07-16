@@ -119,7 +119,7 @@
       </thead>
       <tbody>
         @foreach($rendiciones as $rendicion)
-          <tr style="{{ $rendicion->estado === 'Observado' ? 'background-color: lightgrey' : '' }}">
+          <tr style="{{ $rendicion->estado === 'Observado' ? 'background-color: #ffd966' : ($rendicion->estado === 'Cancelado' ? 'background-color: lightgrey' : '') }}">
             <td>
               <a href="/rendicion_viatico/{{ $rendicion->id }}" title="Ver información de rendición">
                 {{ $rendicion->codigo }}
@@ -144,10 +144,13 @@
                       <i class="fa fa-pencil-square-o"></i>
                     </a>
                     &ensp;
-                    <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
-                      title="Cancelar registro de rendición de viáticos">
-                      <i class="fa fa-times"></i>
-                    </a>
+                    @if ($user->priv_level === 4)
+                      <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
+                        title="Cancelar registro de rendición de viáticos">
+                        <i class="fa fa-times"></i>
+                      </a>
+                      &ensp;
+                    @endif
                     <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
                       title="Presentar rendición para su aprobación">
                       <i class="fa fa-send"></i>

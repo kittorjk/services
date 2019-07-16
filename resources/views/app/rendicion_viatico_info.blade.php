@@ -111,7 +111,14 @@
                   <th width="25%">Código:</th>
                   <td width="25%">{{ $rendicion->codigo }}</td>
                   <th width="25%">Estado:</th>
-                  <td>{{ $rendicion->estado }}</td>
+                  <td>
+                      {{ $rendicion->estado }}
+                      @if ($rendicion->estado === 'Cancelado' && ($user->priv_level === 4 || $user->id === $rendicion->usuario_creacion))
+                        <a href="/rendicion_viatico/estado/?mode=reabrir&id={{ $rendicion->id }}" class="btn btn-primary pull-right">
+                          Reabrir rendición
+                        </a>
+                      @endif
+                  </td>
                 </tr>
               </thead>
               <tbody>
@@ -145,7 +152,7 @@
                     @endif
                   </td>
                 </tr>
-                @if ($rendicion->observaciones)
+                @if ($rendicion->observaciones && $rendicion->estado !== 'Cancelado')
                   <tr>
                     <th>Observaciones:</th>
                     <td colspan="3">{{ $rendicion->observaciones }}</td>
@@ -303,22 +310,21 @@
           @if($rendicion->estado != 'Cancelado' && $rendicion->estado != 'Aprobado')
             <div class="col-sm-12 mg20" align="center">
               @if(($user->id === $rendicion->usuario_creacion || $user->priv_level == 4) && ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado'))
-                <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición" class="btn btn-primary">
-                  <i class="fa fa-pencil-square-o"></i> Modificar
-                </a>
                 <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
                   title="Cancelar registro de rendición de viáticos" class="btn btn-danger">
                   <i class="fa fa-times"></i> Anular
                 </a>
+                <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición" class="btn btn-primary">
+                  <i class="fa fa-pencil-square-o"></i> Modificar
+                </a>
               @endif
               @if($rendicion->estado === 'Presentado' && (($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4))
+                <a href="#" id="boton_observar" title="Observar rendición" class="btn btn-warning botonObservar">
+                  <i class="fa fa-eye"></i> Observar
+                </a>
                 <a href="{{ '/rendicion_viatico/estado?mode=aprobar&id='.$rendicion->id }}"
                   title="Aprobar rendición" class="confirm_close btn btn-success">
                   <i class="fa fa-check"></i> Aprobar
-                </a>
-                &ensp;
-                <a href="#" id="boton_observar" title="Observar rendición" class="btn btn-warning botonObservar">
-                  <i class="fa fa-eye"></i> Observar
                 </a>
               @elseif(($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado') && ($rendicion->usuario_creacion == $user->id || $user->priv_level == 4))
                 <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
@@ -462,8 +468,20 @@
                                       title="Aprobar" style="text-decoration: none">
                                       <i class="fa fa-check"></i>
                                     </a>
+                                    &ensp;
                                   @endif
-                                  {{-- TODO accion para cargar un archivo --}}
+                                  @if ($respaldo->files->count() === 0)
+                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
+                                      <i class="fa fa-upload"></i>
+                                    </a>
+                                    &ensp;
+                                  @else
+                                    @foreach ($respaldo->files as $file)
+                                      <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
+                                        <i class="fa fa-download"></i>
+                                      </a>
+                                    @endforeach
+                                  @endif
                                 @endif
                               </td>
                             </tr>
@@ -494,10 +512,10 @@
                       <table class="table table-bordered">
                         <tr>
                           <td>#</td>
-                          <td width="18%">Fecha</td>
-                          <td width="18%"># Factura</td>
+                          <td width="10%">Fecha</td>
+                          <td width="10%"># Factura</td>
                           <td>Razón Social</td>
-                          <td>Detalle</td>
+                          <td width="20%">Detalle</td>
                           <td>Corresponde a</td>
                           <td>Monto [Bs]</td>
                           <td>Estado</td>
@@ -560,6 +578,19 @@
                                       title="Aprobar" style="text-decoration: none">
                                       <i class="fa fa-check"></i>
                                     </a>
+                                    &ensp;
+                                  @endif
+                                  @if ($respaldo->files->count() === 0)
+                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
+                                      <i class="fa fa-upload"></i>
+                                    </a>
+                                    &ensp;
+                                  @else
+                                    @foreach ($respaldo->files as $file)
+                                      <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
+                                        <i class="fa fa-download"></i>
+                                      </a>
+                                    @endforeach
                                   @endif
                                 @endif
                               </td>
