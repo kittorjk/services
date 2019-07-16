@@ -71,7 +71,8 @@
                             value="{{ $stipend&&$stipend->employee ?
                                 $stipend->employee->first_name.' '.$stipend->employee->last_name :
                                 old('employee_name') }}" required
-                            onkeydown="autocomplete_employee(this)">
+                            onkeydown="autocomplete_employee(this)"
+                            @if($stipend) {{ 'readonly="readonly"' }} @endif>
 
                       @if ($errors->has('employee_name'))
                         <span class="help-block">

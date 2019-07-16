@@ -46,7 +46,7 @@ class StipendRequestController extends Controller
 
         $stipend_requests = StipendRequest::where('id','>',0);
 
-        $employee_record = Employee::where('access_id', $user->id)->first();
+        $employee_record = Employee::where('access_id', $user->id)->where('active', 1)->first();
 
         if ($user->priv_level <= 1) {
           if ($employee_record) {
@@ -255,11 +255,11 @@ class StipendRequestController extends Controller
         $employee_name = Request::input('employee_name');
 
         $employee = Employee::where(function ($query) use($employee_name){
-            $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$employee_name%");
+            $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$employee_name%")->where('active', 1);
         })->first();
 
         if (!$employee) {
-            Session::flash('message', 'El nombre de empleado especificado no fue encontrado en la lista de empleados!');
+            Session::flash('message', 'El nombre de empleado especificado no fue encontrado en la lista de empleados o no se encuentra activo en la empresa!');
             return redirect()->back()->withInput();
         }
 
@@ -450,12 +450,13 @@ class StipendRequestController extends Controller
         }
 
         $stipend = StipendRequest::find($id);
-        $old_employee = $stipend->employee_id;
+        // $old_employee = $stipend->employee_id;
 
         $site_ids = Request::input('site_ids') ?: array();
 
-        $employee_name = Request::input('employee_name');
+        // $employee_name = Request::input('employee_name');
 
+        /*
         $employee = Employee::where(function ($query) use($employee_name){
             $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$employee_name%");
         })->first();
@@ -465,11 +466,13 @@ class StipendRequestController extends Controller
                 Asegúrese de que el nombre ingresado corresponda a personal registrado en el sistema.');
             return redirect()->back()->withInput();
         }
+        */
 
         $stipend->fill(Request::all());
-
+        
+        /*
         if ($old_employee != $employee->id) {
-            //The name of the employee has changed
+            // The name of the employee has changed
             if ($stipend->per_day_amount != 0 && $stipend->per_day_amount != '') {
                 if (StipendRequest::where('employee_id', $employee->id)->where('total_amount', '>', 0)->where('date_to', '>=', $stipend->date_from)->exists()) {
                     Session::flash('message', 'La persona indicada en el formulario ya tiene una solicitud de viáticos dentro del
@@ -478,6 +481,7 @@ class StipendRequestController extends Controller
                 }
             }
         }
+        */
 
         $assignment = $stipend->assignment;
 
@@ -503,7 +507,7 @@ class StipendRequestController extends Controller
             return redirect()->back()->withInput();
         }
 
-        $stipend->employee_id = $employee->id;
+        // $stipend->employee_id = $employee->id;
         $stipend->in_days = Carbon::parse($stipend->date_to)->diffInDays(Carbon::parse($stipend->date_from)) + 1; //Extremes count
 
         $hotel_cost = $stipend->hotel_amount ? $stipend->hotel_amount : 0;
@@ -514,7 +518,7 @@ class StipendRequestController extends Controller
 
         $stipend->sites()->sync($site_ids);
 
-        // Send an email notification to Project Manager
+        // Send an email notification according to status
         $this->notify_request($stipend, 0);
 
         /* Register an event for the modification

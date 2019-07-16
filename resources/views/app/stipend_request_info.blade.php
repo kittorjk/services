@@ -247,7 +247,7 @@
                             </table>
                         </div>
 
-                        @if($user->id == $stipend->user_id || $user->action->prj_vtc_edt /*$user->priv_level==4*/)
+                        @if((($user->id == $stipend->user_id || $user->action->prj_vtc_edt) && ($stipend->status === 'Pending' || $stipend->status === 'Observed')) || $user->priv_level == 4)
                             <div class="col-sm-12 mg10" align="center">
                                 <a href="/stipend_request/{{ $stipend->id }}/edit" class="btn btn-primary">
                                     <i class="fa fa-pencil-square-o"></i> Modificar solicitud
