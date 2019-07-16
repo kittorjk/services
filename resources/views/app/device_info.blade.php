@@ -242,7 +242,7 @@
                             <i class="fa fa-pencil-square-o"></i> Modificar registro
                         </a>
 
-                        @if($user->work_type=='Almacén'||$user->priv_level==4)
+                        @if($user->work_type=='Almacén' || $user->work_type=='Director Regional' || $user->priv_level==4)
                             <a href="{{ '/device/disable?dvc_id='.$device->id }}" class="btn btn-danger"
                                onclick="return confirm('Está seguro de que desea dar de baja este equipo? ' +
                                  'Una vez dado de baja el equipo ya no podrá modificarlo')"

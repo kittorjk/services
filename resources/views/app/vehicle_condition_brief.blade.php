@@ -33,8 +33,8 @@
                     <i class="fa fa-refresh"></i> Recargar página
                 </a>
             </li>
-            @if($vehicle_info&&(($vehicle_info->flags[2]==1&&
-                ($user->id==$vehicle_info->responsible||$user->priv_level==4))||$vehicle_info->flags[3]==1&&($user->id==$vehicle_info->responsible||$user->priv_level==4)&&$user->work_type=='Transporte'))
+            @if($vehicle_info && (($vehicle_info->flags[2]==1 && ($user->id==$vehicle_info->responsible || $user->priv_level==4)) ||
+                $vehicle_info->flags[3]==1 && ($user->id==$vehicle_info->responsible||$user->priv_level==4) && ($user->work_type=='Transporte' || $user->work_type=='Director Regional')))
                 <li>
                     <a href="{{ '/vehicle_condition/'.$vehicle_info->id.'/create?mode=travel' }}">
                         <i class="fa fa-plus"></i> Registrar recorrido

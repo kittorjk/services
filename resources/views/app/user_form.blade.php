@@ -191,6 +191,10 @@
                                                             {{ ($current_user&&$current_user->work_type=='Almacén')||
                                                                 old('work_type')=='Almacén' ?
                                                                 'selected="selected"' : '' }}>Almacén</option>
+                                                    <option value="Director Regional"
+                                                            {{ ($current_user&&$current_user->work_type=='Director Regional')||
+                                                                old('work_type')=='Director Regional' ?
+                                                                'selected="selected"' : '' }}>Director Regional</option>
                                                     <option value="Fibra óptica"
                                                             {{ ($current_user&&$current_user->work_type=='Fibra óptica')||
                                                                 old('work_type')=='Fibra óptica' ?

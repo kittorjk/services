@@ -45,7 +45,7 @@ class VehicleController extends Controller
 
         $service = Session::get('service');
 
-        if(($user->priv_level>=1&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Transporte'){
+        if(($user->priv_level>=1 && $user->area=='Gerencia Tecnica') || $user->priv_level>=3 || $user->work_type=='Transporte' || $user->work_type=='Director Regional'){
             $vehicles = Vehicle::where('id', '>', 0)->where('status','<>','Baja')->orderBy('updated_at','desc');
         }
         else{
@@ -125,7 +125,7 @@ class VehicleController extends Controller
 
         $branch = Branch::find($vehicle->branch_id);
 
-        $responsible = User::where('work_type', 'Transporte')->where('branch_id', $vehicle->branch_id)->where('status', 'Activo')->first();
+        $responsible = User::whereIn('work_type', ['Transporte', 'Director Regional'])->where('branch_id', $vehicle->branch_id)->where('status', 'Activo')->first();
 
         $vehicle->responsible = $responsible ? $responsible->id : $user->id;
         $vehicle->destination = $branch->city;
@@ -620,7 +620,7 @@ class VehicleController extends Controller
 
     function send_mail($vehicle, $user)
     {
-        $recipient = User::where('work_type', 'Transporte')->where('branch_id', $vehicle->branch_id)->first();
+        $recipient = User::whereIn('work_type', ['Transporte', 'Director Regional'])->where('branch_id', $vehicle->branch_id)->first();
 
         if($recipient){
             $data = array('recipient' => $recipient, 'responsible' => $user, 'vehicle' => $vehicle);

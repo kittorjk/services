@@ -29,7 +29,7 @@
             @if($condition_record->vehicle && (($condition_record->vehicle->flags[2] == 1 &&
                 ($user->id == $condition_record->vehicle->responsible || $user->priv_level == 4)) ||
                 $condition_record->vehicle->flags[3] == 1 && ($user->id == $condition_record->vehicle->responsible ||
-                $user->priv_level == 4) && $user->work_type == 'Transporte'))
+                $user->priv_level == 4) && ($user->work_type == 'Transporte' || $user->work_type == 'Director Regional')))
                 <li>
                     <a href="{{ '/vehicle_condition/'.$condition_record->vehicle->id.'/create?mode=travel' }}">
                         <i class="fa fa-plus"></i> Registrar recorrido

@@ -32,7 +32,7 @@
             @endif
         </ul>
     </div>
-    @if($user->work_type=='Transporte'||$user->priv_level>=2)
+    @if($user->work_type=='Transporte' || $user->work_type=='Director Regional' || $user->priv_level>=2)
         <div class="btn-group">
             <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle">
                 <i class="fa fa-drivers-license-o"></i> Licencias <span class="caret"></span>

@@ -96,9 +96,9 @@
                     <td>
                         {{ $requirement->person_from ? $requirement->person_from->name : ($requirement->vehicle->last_driver ?
                             $requirement->vehicle->last_driver->name : '') }}
-                        @if($requirement->status==1&&((($requirement->from_id==$user->id&&($requirement->type=='transfer_tech'||
+                        @if($requirement->status==1 && ((($requirement->from_id==$user->id&&($requirement->type=='transfer_tech'||
                             $requirement->type=='devolution'))||(($requirement->type=='borrow'||$requirement->type=='transfer_branch')&&
-                            $user->work_type=='Transporte'&&$requirement->branch_origin==$user->branch))||$user->priv_level==4))
+                            ($user->work_type=='Transporte' || $user->work_type=='Director Regional')&&$requirement->branch_origin==$user->branch))||$user->priv_level==4))
                             <div class="pull-right">
                                 <a href="/driver/create{{ '?req='.$requirement->id }}" style="text-decoration: none;"
                                    title="Registrar entrega de vehículo">

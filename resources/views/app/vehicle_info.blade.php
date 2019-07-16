@@ -220,7 +220,7 @@
                             @endif
                         @endif
 
-                        @if($vehicle->gas_type=='gnv'&&($user->priv_level>=2||$user->work_type=='Transporte'))
+                        @if($vehicle->gas_type=='gnv' && ($user->priv_level>=2 || $user->work_type=='Transporte' || $user->work_type=='Director Regional'))
                             @if($vehicle->vhc_gas_inspection)
                                 <tr>
                                     <td>{{ $vehicle->vhc_gas_inspection->description }}</td>
@@ -285,7 +285,7 @@
                             <i class="fa fa-pencil-square-o"></i> Modificar / Actualizar datos
                         </a>
 
-                        @if($user->work_type=='Transporte'||$user->priv_level==4)
+                        @if($user->work_type=='Transporte' || $user->work_type=='Director Regional' || $user->priv_level==4)
                             <a href="{{ '/vehicle/disable?vhc_id='.$vehicle->id }}" class="btn btn-danger"
                                 onclick="return confirm('Está seguro de que desea dar de baja este vehículo? ' +
                                  'Una vez dado de baja el vehículo ya no podrá modificarlo')"

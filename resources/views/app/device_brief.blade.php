@@ -35,7 +35,7 @@
     </div>
     <a href="{{ '/calibration' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Calibraciones</a>
     <a href="{{ '/maintenance?dvc=true' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Equipos en mantenimiento</a>
-    @if($user->priv_level>=2||$user->work_type=='Almacén')
+    @if($user->priv_level>=2 || $user->work_type=='Director Regional' || $user->work_type=='Almacén')
         <!--<a href="/search/devices/0" class="btn btn-primary"><i class="fa fa-search"></i> Buscar </a>-->
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
             <i class="fa fa-search"></i> Buscar

@@ -46,7 +46,7 @@ class DeviceRequirementController extends Controller
         if(!is_null($dvc))
             $requirements = $requirements->where('device_id', $dvc);
 
-        if(!(($user->priv_level>=2&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Almacén')){
+        if(!(($user->priv_level>=2 && $user->area=='Gerencia Tecnica') || $user->priv_level>=3 || $user->work_type=='Almacén' || $user->work_type=='Director Regional')){
             $requirements = $requirements->where(function ($query) use($user) {
                 $query->where('for_id', $user->id)
                     ->orwhere('from_id', '=', $user->id);
@@ -139,7 +139,7 @@ class DeviceRequirementController extends Controller
         $requirement->user_id = $user->id;
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_wh')
-            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
+            $person_for = User::whereIn('work_type',['Almacén', 'Director Regional'])->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
@@ -286,7 +286,7 @@ class DeviceRequirementController extends Controller
         }
 
         if($requirement->type=='devolution'||$requirement->type=='transfer_wh')
-            $person_for = User::where('work_type','Almacén')->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
+            $person_for = User::whereIn('work_type',['Almacén', 'Director Regional'])->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
         

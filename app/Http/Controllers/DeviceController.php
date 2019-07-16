@@ -43,7 +43,7 @@ class DeviceController extends Controller
 
         $devices = Device::where('id', '>', 0);
 
-        if(!(($user->priv_level>=1&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Almacén'))
+        if(!(($user->priv_level>=1 && $user->area=='Gerencia Tecnica') || $user->priv_level>=3 || $user->work_type=='Almacén' || $user->work_type=='Director Regional'))
             $devices = $devices->where('responsible', $user->id);
 
         $db_query = $devices->where('status','<>','Baja')->orderBy('updated_at','desc')->get();
@@ -136,7 +136,7 @@ class DeviceController extends Controller
         }
         */
 
-        $responsible = User::where('work_type', 'Almacén')->where('branch_id', $device->branch_id)->first();
+        $responsible = User::whereIn('work_type', ['Almacén', 'Director Regional'])->where('branch_id', $device->branch_id)->first();
 
         $device->responsible = $responsible ? $responsible->id : $user->id;
         $device->destination = 'Almacén'; //$device->branch;
@@ -567,7 +567,7 @@ class DeviceController extends Controller
 
     function send_mail($device, $user)
     {
-        $recipient = User::where('work_type', 'Almacén')->where('branch_id', $device->branch_id)->first();
+        $recipient = User::whereIn('work_type', ['Almacén', 'Director Regional'])->where('branch_id', $device->branch_id)->first();
 
         if($recipient){
             $data = array('recipient' => $recipient, 'responsible' => $user, 'device' => $device);

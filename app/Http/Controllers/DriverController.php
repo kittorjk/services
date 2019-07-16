@@ -54,7 +54,7 @@ class DriverController extends Controller
         if(!is_null($conf)&&$conf=='pending')
             $drivers = $drivers->where('confirmation_flags', 'like', '%0');
         
-        if(!(($user->priv_level>=1&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Transporte')){
+        if(!(($user->priv_level>=1 && $user->area=='Gerencia Tecnica') || $user->priv_level>=3 || $user->work_type=='Transporte' || $user->work_type=='Director Regional')){
             $drivers = $drivers->where(function ($query) use($user) {
                     $query->where('who_delivers',$user->id)
                         ->orwhere('who_receives','=',$user->id);
@@ -213,7 +213,7 @@ class DriverController extends Controller
             return redirect()->back()->withInput();
         }
         else{
-            if($receiver->work_type!='Transporte'){
+            if($receiver->work_type!='Transporte' && $receiver->work_type!='Director Regional'){
                 $vehicles_assigned = Vehicle::where('responsible', $receiver->id)->get();
                 if($vehicles_assigned->count()>0){
                     Session::flash('message', "El receptor del vehículo ya tiene asignado un vehículo!");

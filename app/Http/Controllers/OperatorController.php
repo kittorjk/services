@@ -51,7 +51,7 @@ class OperatorController extends Controller
         if(!is_null($conf)&&$conf=='pending')
             $operators = $operators->where('confirmation_flags', 'like', '%0');
 
-        if(!(($user->priv_level>=1&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Almacén')){
+        if(!(($user->priv_level>=1 && $user->area=='Gerencia Tecnica') || $user->priv_level>=3 || $user->work_type=='Almacén' || $user->work_type=='Director Regional')){
             $operators = $operators->where(function ($query) use($user) {
                 $query->where('who_delivers',$user->id)
                     ->orwhere('who_receives','=',$user->id);
