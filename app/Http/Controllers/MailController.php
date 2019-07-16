@@ -446,8 +446,8 @@ class MailController extends Controller
                         ->from('postmaster@gerteabros.com', 'Postmaster');
             });
         } catch (Exception $ex) {
-            // $message = $ex;
-            $message = 'Email couldn\'t be send, please check configuration';
+            $message = $ex;
+            // $message = 'Email couldn\'t be send, please check configuration';
         }
 
         echo $message;
