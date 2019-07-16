@@ -44,7 +44,9 @@ use App\DeadInterval;
 use App\OcCertification;
 use App\VhcFailureReport;
 use App\DvcFailureReport;
+use App\Employee;
 use App\Tender;
+use App\RendicionRespaldo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Response;
@@ -1006,6 +1008,58 @@ class FilesController extends Controller
                 return redirect()->back()->withInput();
             }
         }
+        
+        if ($type == 'employee_img') {
+            $employee = Employee::find($id);
+
+            $v = $this->check_extension('image', $request->file());
+
+            if ($v->fails()) {
+                Session::flash('message', "Tipo de archivo no aceptado!");
+                return redirect()->back()->withInput();
+            }
+
+            $FileType = $newFile->getClientOriginalExtension();
+            $FileSize = $newFile->getClientSize() / 1024;
+            $FilePath = public_path().'/files/';
+            $FileName = 'EMP-'.str_pad($employee->id, 3, "0", STR_PAD_LEFT).'-'.
+                $current_date.'.'.strtolower($FileType);
+            //$FileDescription = $request->input('description');
+            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+
+            if (file_exists($FilePath.$FileName)) {
+                Session::flash('message', "El archivo ya existe!");
+                return redirect()->back()->withInput();
+            }
+
+            /* Fix orientation of the picture */
+            $image = Image::make($newFile->getRealPath());
+            $image->orientate();
+
+            $upload = $image->save(public_path('files/' .$FileName));
+            //$upload = \Storage::disk('local')->put($FileName, \File::get($newfile));
+
+            if ($upload) {
+                /* Check if the file's size changed with orientation command */
+                $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
+
+                /* Create a record for the file storage on DB */
+                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$employee);
+
+                /* Create thumbnail of the image */
+                $this->create_thumbnail($newFile,$FileName);
+
+                Session::flash('message', "Archivo guardado con nombre $FileName");
+                if (Session::has('url'))
+                    return redirect(Session::get('url'));
+                else
+                    return redirect()->route('employee.index');
+            } else {
+                Session::flash('message', "Error al cargar archivo, intente de nuevo por favor");
+                return redirect()->back()->withInput();
+            }
+        }
 
         if ($type == 'event') {
             $event = Event::find($id);
@@ -1651,6 +1705,47 @@ class FilesController extends Controller
                     return redirect()->route('project.index');
             } else {
                 Session::flash('message', "Error al cargar el archivo, intente de nuevo por favor");
+                return redirect()->back()->withInput();
+            }
+        }
+        
+        if ($type == 'rendicion_respaldo') {
+            $respaldo = RendicionRespaldo::find($id);
+
+            $v = $this->check_extension('image-pdf', $request->file());
+
+            if ($v->fails()) {
+                Session::flash('message', "Tipo de archivo no soportado!");
+                return redirect()->back()->withInput();
+            }
+
+            $FileType = $newFile->getClientOriginalExtension();
+            $FileSize = $newFile->getClientSize() / 1024;
+            $FilePath = public_path().'/files/';
+            // Rendicion Respaldo FIle
+            $FileName = 'RRF-'.str_pad($respaldo->id, 5, "0", STR_PAD_LEFT).'-'.
+                $current_date.'.'.strtolower($FileType);
+            //$FileDescription = $request->input('description');
+            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+
+            if (file_exists($FilePath.$FileName)) {
+                Session::flash('message', "El archivo ya existe!");
+                return redirect()->back()->withInput();
+            }
+
+            $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
+
+            if ($upload) {
+                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
+
+                Session::flash('message', "Archivo guardado con nombre $FileName");
+                if(Session::has('url'))
+                    return redirect(Session::get('url'));
+                else
+                    return redirect()->action('RendicionRespaldoController@show', ['id' => $respaldo->rendicion->id]);
+            } else {
+                Session::flash('message', "Error al cargar archivo, intente de nuevo por favor");
                 return redirect()->back()->withInput();
             }
         }
@@ -2376,6 +2471,8 @@ class FilesController extends Controller
             $mime = 'xls,xlsx';
         if($extension=='doc')
             $mime = 'doc,docx';
+        if($extension=='image-pdf')
+            $mime = 'pdf,jpg,jpeg,png';
         if($extension=='all') //all formats accepted
             $mime = 'pdf,doc,docx,xls,xlsx,jpg,jpeg,png';
 
