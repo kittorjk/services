@@ -433,6 +433,9 @@ class RendicionViaticoController extends Controller
       } elseif ($mode == 'cancelar' || $mode == 'observar') {
         return View::make('app.rendicion_viatico_obs_form', ['rendicion' => $rendicion, 'user' => $user,
         'service' => $service, 'mode' => $mode]);
+      } elseif ($mode == 'reabrir') {
+          $rendicion->estado = 'Pendiente';
+          $rendicion->observaciones = '';
       }
 
       $rendicion->fecha_estado = $hoy;
