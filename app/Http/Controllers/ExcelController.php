@@ -88,32 +88,40 @@ class ExcelController extends Controller
 
             foreach($assignments as $assignment)
             {
-                $sheet_content->prepend(
-                    [   'Código'                => $assignment->code,
-                        'C.C.'                  => $assignment->cost_center,
-                        'Asignación'            => $assignment->name,
-                        'Proyecto'              => $assignment->project ? $assignment->project->name : '',
-                        'Cliente'               => $assignment->client,
-                        'Área de trabajo'       => $assignment->type,
-                        'Oficina'               => $assignment->branch,
-                        'Estado'                => $assignment->statuses($assignment->status),
-                        'porcentaje de avance'  => number_format($assignment->percentage_completed,2).' %',
-                        'Project Manager'       => $assignment->responsible ? $assignment->responsible->name : '',
-                        'Inicio cotización'     => $assignment->quote_from==0 ? '' :
-                            date_format(Carbon::parse($assignment->quote_from),'d-m-Y'),
-                        'Fin cotización'        => $assignment->quote_to==0 ? '' :
-                            date_format(Carbon::parse($assignment->quote_to),'d-m-Y'),
-                        'Inicio ejecución'      => $assignment->start_date==0 ? '' :
-                            date_format(Carbon::parse($assignment->start_date),'d-m-Y'),
-                        'Fin ejecución'         => $assignment->end_date==0 ? '' :
-                            date_format(Carbon::parse($assignment->end_date),'d-m-Y'),
-                        'Inicio cobro'          => $assignment->billing_from==0 ? '' :
-                            date_format(Carbon::parse($assignment->billing_from),'d-m-Y'),
-                        'Fin cobro'             => $assignment->billing_to==0 ? '' :
-                            date_format(Carbon::parse($assignment->billing_to),'d-m-Y'),
-                        'Creación'              => date_format($assignment->created_at,'d-m-Y'),
-                        'Última actualización'  => date_format($assignment->updated_at,'d-m-Y'),
-                    ]);
+                $sites = $assignment->sites;
+                
+                foreach($sites as $site) {
+                    $sheet_content->prepend(
+                        [   'Código'                => $assignment->code,
+                            'C.C.'                  => $assignment->cost_center,
+                            'Identificador'         => $assignment->literal_code,
+                            'Asignación'            => $assignment->name,
+                            'Sitio'                 => $site->name,
+                            'Proyecto'              => $assignment->project ? $assignment->project->name : '',
+                            'Cliente'               => $assignment->client,
+                            'Área de trabajo'       => $assignment->type,
+                            'Oficina'               => $assignment->branch,
+                            'Estado'                => $assignment->statuses($assignment->status),
+                            'porcentaje de avance'  => number_format($assignment->percentage_completed,2).' %',
+                            'Project Manager'       => $assignment->responsible ? $assignment->responsible->name : '',
+                            'Inicio cotización'     => $assignment->quote_from==0 ? '' :
+                                date_format(Carbon::parse($assignment->quote_from),'d-m-Y'),
+                            'Fin cotización'        => $assignment->quote_to==0 ? '' :
+                                date_format(Carbon::parse($assignment->quote_to),'d-m-Y'),
+                            'Plazo asignado de'     => $assignment->start_line==0 ? '' : date_format(Carbon::parse($assignment->start_line), 'd-m-Y'),
+                            'Plazo asignado a'      => $assignment->deadline==0 ? '' : date_format(Carbon::parse($assignment->deadline), 'd-m-Y'),
+                            'Inicio ejecución'      => $assignment->start_date==0 ? '' :
+                                date_format(Carbon::parse($assignment->start_date),'d-m-Y'),
+                            'Fin ejecución'         => $assignment->end_date==0 ? '' :
+                                date_format(Carbon::parse($assignment->end_date),'d-m-Y'),
+                            'Inicio cobro'          => $assignment->billing_from==0 ? '' :
+                                date_format(Carbon::parse($assignment->billing_from),'d-m-Y'),
+                            'Fin cobro'             => $assignment->billing_to==0 ? '' :
+                                date_format(Carbon::parse($assignment->billing_to),'d-m-Y'),
+                            'Creación'              => date_format($assignment->created_at,'d-m-Y'),
+                            'Última actualización'  => date_format($assignment->updated_at,'d-m-Y'),
+                        ]);    
+                }
             }
 
             $this->record_export('/assignment','Full table',0);
@@ -515,6 +523,14 @@ class ExcelController extends Controller
             $sheet_name = 'Personal';
 
             $employees = Employee::all();
+            
+            foreach($employees as $employee) {
+                $employee->branch = $employee->branch_record ? $employee->branch_record->name : '';
+                
+                $relations = $employee->getRelations();
+                unset($relations['branch_record']);
+                $employee->setRelations($relations);
+            }
 
             $this->record_export('/employee', 'Full table employees', 0);
 
