@@ -11,6 +11,7 @@
 
 @section('header')
     @parent
+    <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
     <style>
       .sub-menu > li > a {
           width: 180px;
@@ -47,6 +48,7 @@
         <table class="fancy_table table_gray" id="fixable_table">
             <thead>
             <tr>
+                <th>Foto</th>
                 <th>Código</th>
                 <th>Apellidos</th>
                 <th>Nombres</th>
@@ -70,24 +72,34 @@
 
             @foreach ($employees as $employee)
                 <tr @if($employee->active==0)style="background-color: #ba5e5e" title="Empleado retirado"@endif>
+                    <td align="center">
+                        @foreach($employee->files as $key => $file)
+                            <img class="myImg" src="/files/thumbnails/{{ 'thumb_'.$file->name }}" height="50"
+                                 border="0" alt="{{ $file->description }}" onclick="show_modal(this)">
+                        @endforeach
+                        
+                        @if($employee->files->count() === 0 && (($user->action->adm_emp_edt && $employee->active === 1) || $user->priv_level === 4))
+                            <a href="/files/employee_img/{{ $employee->id }}"><i class="fa fa-upload"></i> Subir foto</a>
+                        @endif
+                    </td>
                     <td>
-                        {{--@if($user->priv_level==4)--}}
                         <a href="/employee/{{ $employee->id }}" title="Ver información de empleado"
                             @if($employee->active==0)style="color: inherit"@endif>
                             {{ $employee->code }}
                         </a>
-                        <a href="/employee/{{ $employee->id }}/edit" title="Modificar registro de empleado"
-                            @if($employee->active==0)style="color: inherit"@endif>
-                            <i class="fa fa-pencil-square"></i>
-                        </a>
-                        {{--@endif--}}
+                        @if (($user->action->adm_emp_edt && $employee->active === 1) || $user->priv_level === 4)
+                            <a href="/employee/{{ $employee->id }}/edit" title="Modificar registro de empleado"
+                                @if($employee->active==0)style="color: inherit"@endif>
+                                <i class="fa fa-pencil-square"></i>
+                            </a>
+                        @endif
                     </td>
                     <td>{{ $employee->last_name }}</td>
                     <td>{{ $employee->first_name }}</td>
                     <td>{{ $employee->id_card.' '.$employee->id_extension }}</td>
                     <td>{{ $employee->role }}</td>
                     <td>{{ $employee->category }}</td>
-                    <td>{{ $areas[$employee->area] }}</td>
+                    <td>{{ $employee->area !== '' ? $areas[$employee->area] : 'N/E' }}</td>
                     <td>{{ $employee->corp_email }}</td>
                     <td>{{ $employee->phone!=0 ? $employee->phone : '' }}</td>
                 </tr>
@@ -108,6 +120,13 @@
     <div id="searchBox" class="modal fade" role="dialog">
         @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'employees','id'=>0))
     </div>
+    
+    <!-- Image preview Modal -->
+    <div id="picModal" class="pic_modal">
+        <span class="pic_close" id="pic_close">&times;</span>
+        <img class="pic_modal-content" id="pic_modal_content" src="">
+        <div id="pic_caption"></div>
+    </div>
 @endsection
 
 @section('footer')
@@ -125,5 +144,23 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+        
+        var modal = document.getElementById('picModal');
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        var modalImg = document.getElementById("pic_modal_content");
+        var captionText = document.getElementById("pic_caption");
+        function show_modal(element) {
+            var fullSizedSource = element.src.replace('thumbnails/thumb_', '');
+
+            modal.style.display = "block";
+            modalImg.src = fullSizedSource;
+            captionText.innerHTML = element.alt;
+        }
+        // Get the <span> element that closes the modal
+        var span = document.getElementById("pic_close");
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
     </script>
 @endsection

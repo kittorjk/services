@@ -73,6 +73,17 @@
                                                        value="{{ $employee ? $employee->last_name : old('last_name') }}"
                                                        placeholder="Apellidos">
                                             </div>
+                                            
+                                            <div class="input-group" style="width: 75%;text-align: center">
+                                              <label for="birthday" class="input-group-addon" style="width: 31%; text-align: left">
+                                                  Fecha nacimiento:
+                                              </label>
+
+                                              <span class="input-group-addon">
+                                                  <input type="date" name="birthday" id="birthday" step="1" min="1900-01-01"
+                                                     value="{{ $employee ? $employee->birthday : old('birthday') }}">
+                                              </span>
+                                            </div>
 
                                             <div class="input-group" style="width: 75%">
                                                 <label for="id_extension" class="input-group-addon" style="width: 31%;text-align: left">

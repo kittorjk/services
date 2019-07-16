@@ -87,6 +87,7 @@ class EmployeeController extends Controller
         $v = \Validator::make(Request::all(), [
           'first_name'    => 'required',
           'last_name'     => 'required',
+          'birthday'      => 'date',
           'id_card'       => 'required',
           'id_extension'  => 'required',
           'bnk_account'   => 'required_with:bnk',
@@ -105,6 +106,7 @@ class EmployeeController extends Controller
           [
             'first_name.required'   => 'Debe especificar el/los nombre(s) del empleado!',
             'last_name.required'    => 'Debe especificar el/los apellido(s) del empleado!',
+            'birthday.date'         => 'La fecha de nacimiento no tiene un formato válido!',
             'id_card.required'      => 'Debe especificar el número de carnet de identidad del empleado!',
             'id_extension.required' => 'Debe especificar el lugar de extensión del carnet de identidad del empleado!',
             'bnk_account.required_with' => 'Debe indicar un número de cuenta si especifica un banco!',
@@ -166,12 +168,19 @@ class EmployeeController extends Controller
 
         $employee = Employee::find($id);
 
+        $employee->birthday = Carbon::parse($employee->birthday);
         $employee->date_in = Carbon::parse($employee->date_in);
         $employee->date_in_employee = Carbon::parse($employee->date_in_employee);
         $employee->date_out = Carbon::parse($employee->date_out);
 
+        $exists_picture = false;
+        foreach($employee->files as $file) {
+            if ($file->type == 'jpg' || $file->type == 'jpeg' || $file->type == 'png')
+                $exists_picture = true;
+        }
+
         return View::make('app.employee_info', ['employee' => $employee, 'service' => $service,
-          'user' => $user]);
+          'exists_picture' => $exists_picture, 'user' => $user]);
     }
 
     /**
@@ -218,6 +227,7 @@ class EmployeeController extends Controller
         $v = \Validator::make(Request::all(), [
           'first_name'    => 'required',
           'last_name'     => 'required',
+          'birthday'      => 'date',
           'id_card'       => 'required',
           'id_extension'  => 'required',
           'bnk_account'   => 'required_with:bnk',
@@ -236,6 +246,7 @@ class EmployeeController extends Controller
           [
             'first_name.required'   => 'Debe especificar el/los nombre(s) del empleado!',
             'last_name.required'    => 'Debe especificar el/los apellido(s) del empleado!',
+            'birthday.date'         => 'La fecha de nacimiento no tiene un formato válido!',
             'id_card.required'      => 'Debe especificar el número de carnet de identidad del empleado!',
             'id_extension.required' => 'Debe especificar el lugar de extensión del carnet de identidad del empleado!',
             'bnk_account.required_with' => 'Debe indicar un número de cuenta si especifica un banco!',

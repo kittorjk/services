@@ -11,6 +11,7 @@
 
 @section('header')
     @parent
+    <link rel="stylesheet" href="{{ asset("app/css/image_modal.css") }}">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
@@ -50,22 +51,26 @@
                     <table class="table table-striped table-hover table-bordered">
                         <thead>
                         <tr>
-                            <th>Código</th>
+                            <th width="40%">Código</th>
                             <td>{{ $employee->code }}</td>
                         </tr>
                         <tr>
-                            <th width="40%">Nombres</th>
-                            <td>{{ $employee->first_name }}</td>
-                        </tr>
-                        <tr>
-                            <th width="40%">Apellidos</th>
-                            <td>{{ $employee->last_name }}</td>
+                            <th width="40%">Estado</th>
+                            <td>{{ $employee->active==1 ? 'Activo' : 'Retirado' }}</td>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <th>Estado</th>
-                            <td>{{ $employee->active==1 ? 'Activo' : 'Retirado' }}</td>
+                            <th>Nombres</th>
+                            <td>{{ $employee->first_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Apellidos</th>
+                            <td>{{ $employee->last_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Fecha de nacimiento</th>
+                            <td>{{ date_format($employee->birthday, 'd-m-Y') }}</td>
                         </tr>
                         <tr>
                             <th>Carnet de identidad</th>
@@ -187,6 +192,48 @@
                                 </tr>
                             @endif
                         @endif
+                        
+                        <tr><td colspan="2"></td></tr>
+                        <tr>
+                            <th colspan="2">
+                                Imágenes
+                                <div class="pull-right">
+                                    @if(!$exists_picture && ($user->action->adm_emp_edt || $user->priv_level == 4))
+                                        <a href="/files/employee_img/{{ $employee->id }}" title="Subir una imagen del empleado">
+                                            <i class="fa fa-upload"></i> Subir
+                                        </a>
+                                    @endif
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td colspan="2" align="center">
+                                @foreach ($employee->files as $file)
+                                    @if ($file->type == 'jpg' || $file->type == 'jpeg' || $file->type == 'png')
+                                        <img src="/files/thumbnails/{{ 'thumb_'.$file->name }}" style="height: 60px;" class="pop"
+                                             alt="{{ $file->description }}">
+                                    @endif
+                                @endforeach
+
+                                {{ !$exists_picture ? 'No se subió una imágen de este empleado' : '' }}
+
+                                <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-body">
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                                                </button>
+                                                <img src="" class="imagepreview" style="max-width: 100%">
+                                            </div>
+                                            <div class="modal-footer captioned">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -216,6 +263,16 @@
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
+        
+        $(function() {
+            $('.pop').on('click', function() {
+                var fullSizedSource = $(this).attr('src').replace('thumbnails/thumb_', '');
+
+                $('.imagepreview').attr('src', fullSizedSource /*$(this).find('img').attr('src')*/);
+                $('.captioned').html($(this).find('img').attr('alt'));
+                $('#imagemodal').modal('show');
+            });
         });
     </script>
 @endsection
