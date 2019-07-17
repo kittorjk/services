@@ -452,174 +452,173 @@
                 </div>
 
                 <div class="tab-pane fade" id="payments">
-                    <div class="col-lg-4 mg20">
-                        <a href="#" onclick="history.back();" class="btn btn-warning">
-                            <i class="fa fa-arrow-circle-left"></i> Volver
-                        </a>
+                  <div class="col-lg-4 mg20">
+                    <a href="#" onclick="history.back();" class="btn btn-warning">
+                      <i class="fa fa-arrow-left"></i> Volver
+                    </a>
+                  </div>
+
+                  <div class="col-sm-12 mg10 mg-tp-px-10">
+                    <table class="table table-striped table-hover table-bordered">
+                      <thead>
+                        <tr>
+                          <th width="25%">Código:</th>
+                          <td width="25%">{{ $oc->code }}</td>
+                          <th width="25%">Estado:</th>
+                          <td>
+                            {{ $oc->status }}
+                            @if ($oc->certification)
+                              <button type="button" class="btn btn-success pull-right" title="Certificado"
+                                      data-toggle="modal" data-target="#certificationBox">
+                                <i class="fa fa-check"></i>
+                              </button>
+                            @endif
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="2" rowspan="5"></td>
+                          <th>Asignado:</th>
+                          <td>{{ number_format($oc->oc_amount,2).' Bs' }}</td>
+                        </tr>
+                        <tr>
+                          <th>
+                            Ejecutado:
+                            @if(/*((($oc->user_id==$user->id||$oc->pm_id==$user->id||$user->priv_level==3)&&
+                                $oc->flags[0]==0&&$oc->flags[7]==0&&($oc->flags[1]==1||$oc->flags[2]==1))&&
+                                $oc->executed_amount==0)||*/$user->priv_level == 4)
+                              <i class="fa fa-pencil-square-o pull-right"></i>
+                            @endif
+                          </th>
+                          <td class='edit'
+                            @if(/*((($oc->user_id==$user->id||$oc->pm_id==$user->id||$user->priv_level==3)&&
+                                $oc->flags[0]==0&&$oc->flags[7]==0&&($oc->flags[1]==1||$oc->flags[2]==1))&&
+                                $oc->executed_amount==0)||*/$user->priv_level == 4)
+                                onclick="replace(this,id='{{ $oc->id }}')"
+                            @endif
+                          >
+                            {{ number_format($oc->executed_amount,2).' Bs' }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Pagado:</th>
+                          <td>{{ number_format($oc->payed_amount,2).' Bs' }}</td>
+                        </tr>
+                        <tr>
+                          <th>Pendiente de pago:</th>
+                          <td class="update">
+                            {{ $oc->executed_amount!=0 ? number_format(($oc->executed_amount - $oc->payed_amount), 2).' Bs' : '0.00 Bs' }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>Pendiente de certificación:</th>
+                          <td>
+                            {{ number_format(($oc->oc_amount - $oc->executed_amount),2).' Bs' }}
+                          </td>
+                        </tr>
+                        <tr><th colspan="4"></th></tr>
+
+                        <tr>
+                          <th colspan="2">Porcentajes de pago:</th>
+                          <td colspan="2">{{ $oc->percentages }}</td>
+                        </tr>
+                        <tr><th colspan="4"></th></tr>
+
+                        <tr>
+                          <th colspan="4">Pagos al proveedor:</th>
+                        </tr>
+                        <tr>
+                          <th colspan="4">
+                            <table class="table table-bordered">
+                              <tr>
+                                <td width="18%">Fecha</td>
+                                <td width="18%"># Factura</td>
+                                <td width="18%">Monto [Bs]</td>
+                                <td>Concepto</td>
+                                <td>Estado</td>
+                              </tr>
+                              @foreach ($oc->invoices as $invoice)
+                                <tr>
+                                  <td>
+                                    {{ ($invoice->transaction_date != '0000-00-00 00:00:00' ?
+                                      \Carbon\Carbon::parse($invoice->transaction_date)->format('d-m-Y') :
+                                      date_format($invoice->updated_at,'d-m-Y')) }}
+                                  </td>
+                                  <td>
+                                    <a href="/invoice/{{ $invoice->id }}">
+                                        {{ $invoice->number }}
+                                    </a>
+                                  </td>
+                                  <td align="right">{{ number_format($invoice->amount,2) }}</td>
+                                  <td>
+                                    {{ $invoice->concept == 'Adelanto' ? 'Adelanto' :
+                                      ($invoice->concept == 'Avance' ? 'Pago contra avance' :
+                                      ($invoice->concept == 'Entrega' ? 'Pago contra entrega' : '' )) }}
+                                    {{-- substr($invoice->flags,-3)=='100' ? 'Adelanto' :
+                                      (substr($invoice->flags,-3)=='010' ? 'Pago contra avance' :
+                                      (substr($invoice->flags,-3)=='001' ? 'Pago contra entrega' : '' )) --}}
+                                  </td>
+                                  <td>
+                                    @if ($invoice->status == 'Pagado')
+                                      {{ 'Pagado' }}
+                                      {{--
+                                      @elseif($invoice->flags[2]==0)
+                                          @if(($user->priv_level==3&&$user->area=='Gerencia Tecnica')||
+                                                  $user->priv_level==4)
+                                              <a href="{{ '/invoice/approve' }}">
+                                                  {{ 'Autorización de G. Tecnica pendiente' }}
+                                              </a>
+                                          @else
+                                              {{ 'Autorización de G. Tecnica pendiente' }}
+                                          @endif
+                                      @elseif($invoice->flags[1]==0)
+                                          @if(($user->priv_level==3&&$user->area=='Gerencia General')||
+                                                  $user->priv_level==4)
+                                              <a href="{{ '/invoice/approve' }}">
+                                                  {{ 'Autorización de G. General pendiente' }}
+                                              </a>
+                                          @else
+                                              {{ 'Autorización de G. General pendiente' }}
+                                          @endif
+                                      --}}
+                                    @else
+                                      @if ($user->action->oc_inv_pmt
+                                          /*$user->area=='Gerencia Administrativa'||$user->priv_level==4*/)
+                                        <a href="/invoice/payment/{{ $invoice->id }}">
+                                            {{ 'Pago pendiente' }}
+                                        </a>
+                                      @else
+                                        {{ 'Autorizado, pago pendiente' }}
+                                      @endif
+                                    @endif
+                                  </td>
+                                </tr>
+                              @endforeach
+                              @if ($oc->invoices->count() == 0)
+                                <tr>
+                                  <td colspan="5" align="center">
+                                    No se ha registrado ninguna factura para esta OC
+                                  </td>
+                                </tr>
+                              @endif
+                            </table>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  @if(($oc->status <> 'Anulada' && ($oc->executed_amount - $oc->payed_amount >= 0) &&
+                      $oc->flags[7] == 0 && $oc->flags[1] == 1 && $oc->flags[2] == 1) ||
+                      $user->priv_level == 4)
+                    <div class="col-sm-12 mg10" align="center">
+                      <a href="{{ '/invoice/create?oc='.$oc->id }}" class="btn btn-success">
+                        <i class="fa fa-plus"></i> Agregar factura
+                      </a>
                     </div>
-
-                    <div class="col-sm-12 mg10 mg-tp-px-10">
-
-                        <table class="table table-striped table-hover table-bordered">
-                            <thead>
-                            <tr>
-                                <th width="25%">Código:</th>
-                                <td width="25%">{{ $oc->code }}</td>
-                                <th width="25%">Estado:</th>
-                                <td>
-                                    {{ $oc->status }}
-                                    @if($oc->certification)
-                                        <button type="button" class="btn btn-success pull-right" title="Certificado"
-                                                data-toggle="modal" data-target="#certificationBox">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td colspan="2" rowspan="5"></td>
-                                <th>Asignado:</th>
-                                <td>{{ number_format($oc->oc_amount,2).' Bs' }}</td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    Ejecutado:
-                                    @if(/*((($oc->user_id==$user->id||$oc->pm_id==$user->id||$user->priv_level==3)&&
-                                        $oc->flags[0]==0&&$oc->flags[7]==0&&($oc->flags[1]==1||$oc->flags[2]==1))&&
-                                        $oc->executed_amount==0)||*/$user->priv_level==4)
-                                        <i class="fa fa-pencil-square-o pull-right"></i>
-                                    @endif
-                                </th>
-                                <td class='edit'
-                                    @if(/*((($oc->user_id==$user->id||$oc->pm_id==$user->id||$user->priv_level==3)&&
-                                        $oc->flags[0]==0&&$oc->flags[7]==0&&($oc->flags[1]==1||$oc->flags[2]==1))&&
-                                        $oc->executed_amount==0)||*/$user->priv_level==4)
-                                        onclick="replace(this,id='{{ $oc->id }}')"
-                                    @endif
-                                >
-                                    {{ number_format($oc->executed_amount,2).' Bs' }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Pagado:</th>
-                                <td>{{ number_format($oc->payed_amount,2).' Bs' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Pendiente de pago:</th>
-                                <td class="update">
-                                    {{ $oc->executed_amount!=0 ? number_format(($oc->executed_amount - $oc->payed_amount), 2).' Bs' : '0.00 Bs' }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Pendiente de certificación:</th>
-                                <td>
-                                    {{ number_format(($oc->oc_amount - $oc->executed_amount),2).' Bs' }}
-                                </td>
-                            </tr>
-                            <tr><th colspan="4"></th></tr>
-
-                            <tr>
-                                <th colspan="2">Porcentajes de pago:</th>
-                                <td colspan="2">{{ $oc->percentages }}</td>
-                            </tr>
-                            <tr><th colspan="4"></th></tr>
-
-                            <tr>
-                                <th colspan="4">Pagos al proveedor:</th>
-                            </tr>
-                            <tr>
-                                <th colspan="4">
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <td width="18%">Fecha</td>
-                                            <td width="18%"># Factura</td>
-                                            <td width="18%">Monto [Bs]</td>
-                                            <td>Concepto</td>
-                                            <td>Estado</td>
-                                        </tr>
-
-                                        @foreach($oc->invoices as $invoice)
-                                            <tr>
-                                                <td>
-                                                    {{ ($invoice->transaction_date!='0000-00-00 00:00:00' ?
-                                                     \Carbon\Carbon::parse($invoice->transaction_date)->format('d-m-Y') :
-                                                     date_format($invoice->updated_at,'d-m-Y')) }}
-                                                </td>
-                                                <td>
-                                                    <a href="/invoice/{{ $invoice->id }}">
-                                                        {{ $invoice->number }}
-                                                    </a>
-                                                </td>
-                                                <td align="right">{{ number_format($invoice->amount,2) }}</td>
-                                                <td>
-                                                    {{ substr($invoice->flags,-3)=='100' ? 'Adelanto' :
-                                                       (substr($invoice->flags,-3)=='010' ? 'Pago contra avance' :
-                                                       (substr($invoice->flags,-3)=='001' ? 'Pago contra entrega' : '' )) }}
-                                                </td>
-                                                <td>
-                                                    @if($invoice->flags[0]==1)
-                                                        {{ 'Pagado' }}
-                                                        {{--
-                                                    @elseif($invoice->flags[2]==0)
-                                                        @if(($user->priv_level==3&&$user->area=='Gerencia Tecnica')||
-                                                                $user->priv_level==4)
-                                                            <a href="{{ '/invoice/approve' }}">
-                                                                {{ 'Autorización de G. Tecnica pendiente' }}
-                                                            </a>
-                                                        @else
-                                                            {{ 'Autorización de G. Tecnica pendiente' }}
-                                                        @endif
-                                                    @elseif($invoice->flags[1]==0)
-                                                        @if(($user->priv_level==3&&$user->area=='Gerencia General')||
-                                                                $user->priv_level==4)
-                                                            <a href="{{ '/invoice/approve' }}">
-                                                                {{ 'Autorización de G. General pendiente' }}
-                                                            </a>
-                                                        @else
-                                                            {{ 'Autorización de G. General pendiente' }}
-                                                        @endif
-                                                        --}}
-                                                    @else
-                                                        @if($user->action->oc_inv_pmt
-                                                            /*$user->area=='Gerencia Administrativa'||$user->priv_level==4*/)
-                                                            <a href="/invoice/payment/{{ $invoice->id }}">
-                                                                {{ 'Pago pendiente' }}
-                                                            </a>
-                                                        @else
-                                                            {{ 'Autorizado, pago pendiente' }}
-                                                        @endif
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        @if($oc->invoices->count()==0)
-                                            <tr>
-                                                <td colspan="5" align="center">
-                                                    No se ha registrado ninguna factura para esta OC
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    </table>
-                                </th>
-                            </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if(($oc->status<>'Anulada'&&($oc->executed_amount-$oc->payed_amount>=0)&&$oc->flags[7]==0&&
-                        $oc->flags[1]==1&&$oc->flags[2]==1)||$user->priv_level==4)
-                        <div class="col-sm-12 mg10" align="center">
-                            <a href="{{ '/invoice/create?oc='.$oc->id }}" class="btn btn-success">
-                                <i class="fa fa-plus"></i> Agregar factura
-                            </a>
-                        </div>
-                    @endif
-
+                  @endif
                 </div>
-
             </div>
         </div>
     </div>

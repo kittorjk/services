@@ -598,60 +598,57 @@ class ExcelController extends Controller
         }
 
         if ($table == 'invoices') {
-            $excel_name = 'Base de Pagos a proveedores';
-            $sheet_name = 'Facturas de proveedores';
+          $excel_name = 'Base de Pagos a proveedores';
+          $sheet_name = 'Facturas de proveedores';
 
-            //if(Session::has('db_query'))
-            //  $invoices = Session::get('db_query');
-            //else
-            $invoices = Invoice::all();
+          //if(Session::has('db_query'))
+          //  $invoices = Session::get('db_query');
+          //else
+          $invoices = Invoice::all();
 
-            foreach($invoices as $invoice)
-            {
-                $concept_flags = substr($invoice->flags, -3);
+          foreach ($invoices as $invoice) {
+            if ($invoice->concept == 'Adelanto')
+              $concept = 'Adelanto';
+            elseif ($invoice->concept == 'Avance')
+              $concept = 'Pago contra avance';
+            elseif ($invoice->concept == 'Entrega')
+              $concept = 'Pago contra entrega';
+            else
+              $concept = '';
 
-                if($concept_flags=='100')
-                    $concept = 'Adelanto';
-                elseif($concept_flags=='010')
-                    $concept = 'Pago contra avance';
-                elseif($concept_flags=='001')
-                    $concept = 'Pago contra entrega';
-                else
-                    $concept = '';
+            if ($invoice->status == 'Pagado')
+              $status = 'Pagado';
+            elseif ($invoice->status == 'Creado')
+              $status = 'Autorización de G. Tecnica pendiente';
+            elseif ($invoice->status == 'Aprobado Gerencia Tecnica')
+              $status = 'Autorización de G. General pendiente';
+            else
+              $status = 'Autorizado, pago pendiente';
 
-                if($invoice->flags[0]==1)
-                    $status = 'Pagado';
-                elseif($invoice->flags[2]==0)
-                    $status = 'Autorización de G. Tecnica pendiente';
-                elseif($invoice->flags[1]==0)
-                    $status = 'Autorización de G. General pendiente';
-                else
-                    $status = 'Autorizado, pago pendiente';
+            if ($invoice->transaction_code)
+              $payment_date = Carbon::parse($invoice->transaction_date)->format('d/m/Y');
+            else
+              $payment_date = '';
 
-                if($invoice->transaction_code)
-                    $payment_date = Carbon::parse($invoice->transaction_date)->format('d/m/Y');
-                else
-                    $payment_date = '';
+            $sheet_content->prepend(
+              [ 'Fecha de registro' => date_format($invoice->created_at,'d/m/Y'),
+                'Código de OC'      => 'OC-'.str_pad($invoice->oc_id, 5, "0", STR_PAD_LEFT),
+                'Centro de costos'  => $invoice->oc->assignment && $invoice->oc->assignment->cost_center && $invoice->oc->assignment->cost_center > 0 ? $invoice->oc->assignment->cost_center : '',
+                'Proveedor'         => $invoice->oc->provider,
+                'Nº de factura'     => $invoice->number,
+                'Fecha de emisión'  => Carbon::parse($invoice->date_issued)->format('d/m/Y'),
+                'Monto facturado'   => $invoice->amount + 0, // number_format($invoice->amount,2),
+                'Concepto'          => $concept,
+                'Estado'            => $status,
+                'Fecha de pago'     => $payment_date,
+                'Código de transacción' => $invoice->transaction_code,
+                'Información adicional' => $invoice->detail,
+              ]);
+          }
 
-                $sheet_content->prepend(
-                    [   'Fecha de registro' => date_format($invoice->created_at,'d/m/Y'),
-                        'Código de OC'      => 'OC-'.str_pad($invoice->oc_id, 5, "0", STR_PAD_LEFT),
-                        'Centro de costos'  => $invoice->oc->assignment && $invoice->oc->assignment->cost_center && $invoice->oc->assignment->cost_center > 0 ? $invoice->oc->assignment->cost_center : '',
-                        'Proveedor'         => $invoice->oc->provider,
-                        'Nº de factura'     => $invoice->number,
-                        'Fecha de emisión'  => Carbon::parse($invoice->date_issued)->format('d/m/Y'),
-                        'Monto facturado'   => $invoice->amount + 0, // number_format($invoice->amount,2),
-                        'Concepto'          => $concept,
-                        'Estado'            => $status,
-                        'Fecha de pago'     => $payment_date,
-                        'Código de transacción' => $invoice->transaction_code,
-                        'Información adicional' => $invoice->detail,
-                    ]);
-            }
+          $this->record_export('/invoice','Full table',0);
 
-            $this->record_export('/invoice','Full table',0);
-
-            return $this->create_excel($excel_name, $sheet_name, $sheet_content);
+          return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
         if ($table == 'item_categories') {

@@ -470,78 +470,77 @@ class AjaxController extends Controller
 
     public function load_oc_values(Request $request)
     {
-        $oc_id = Request::input('oc_id');
-        $amount = Request::input('amount');
-        $invoice_reason = Request::input('invoice_reason');
-        $message = "$oc_id";
+      $oc_id = Request::input('oc_id');
+      $amount = Request::input('amount');
+      $concept = Request::input('concept');
+      $message = "$oc_id";
 
-        if($oc_id){
-            $oc = OC::find($oc_id);
+      if ($oc_id) {
+        $oc = OC::find($oc_id);
 
-            $part0 = "<tr><td>Monto asignado:</td><td style='color:green;'>".number_format($oc->oc_amount,2)." Bs</td></tr>";
+        $part0 = "<tr><td>Monto asignado:</td><td style='color:green;'>".number_format($oc->oc_amount,2)." Bs</td></tr>";
 
-            if($oc->executed_amount!=0){
-                $executed = number_format($oc->executed_amount,2).' Bs';
-                $part1 = "<td width='30%' style='color:green;'>$executed</td>";
-                $balance = number_format($oc->executed_amount - $oc->payed_amount - $amount,2).' Bs';
-            }
-            else{
-                $assigned = number_format($oc->oc_amount,2).' Bs';
-                $part1 = "<td width='30%' style='color:green;'>$assigned</td>";
-                $balance = number_format($oc->oc_amount - $oc->payed_amount - $amount,2).' Bs';
-            }
-
-            if($balance >= 0)
-                $part2 = "<td style='color:green;'>$balance</td>";
-            else
-                $part2 = "<td style='color:red;'>$balance</td>";
-
-            $reference = $oc->executed_amount!=0 ? 'Monto ejecutado:' : 'Monto asignado:';
-
-            $message = "<br><table width='90%'>";
-
-            if($oc->executed_amount!=0){
-                $message .= $part0;
-            }
-
-            $message .= "<tr><td width='25%'>".$reference."</td>".$part1."<td width='15%' >Saldo:</td>".$part2."</tr>";
-
-            if($invoice_reason){
-                $percentages = explode('-',$oc->percentages);
-
-                if($invoice_reason=='adelanto')
-                    $invoice_reason_percentage = $percentages[0];
-                elseif($invoice_reason=='avance')
-                    $invoice_reason_percentage = $percentages[1];
-                elseif($invoice_reason=='final')
-                    $invoice_reason_percentage = $percentages[2];
-                else
-                    $invoice_reason_percentage = 0;
-
-                $part3 = "<td style='color:green;'>$invoice_reason_percentage %</td>";
-
-                $current_percentage = number_format(($amount/$oc->oc_amount)*100,2);
-
-                /*
-                $current_percentage = number_format(($amount/($oc->executed_amount!=0 ? $oc->executed_amount :
-                            $oc->oc_amount))*100,2);
-                */
-
-                if($invoice_reason_percentage<$current_percentage)
-                    $part4 = "<td style='color:red;'>$current_percentage %</td>";
-                else
-                    $part4 = "<td style='color:green;'>$current_percentage %</td>";
-
-                $message=$message."<tr><td>% acordado</td>".$part3."<td>% actual</td>".$part4."</tr>";
-            }
-
-            $message = $message."</table><p></p>";
+        if ($oc->executed_amount != 0) {
+          $executed = number_format($oc->executed_amount,2).' Bs';
+          $part1 = "<td width='30%' style='color:green;'>$executed</td>";
+          $balance = number_format($oc->executed_amount - $oc->payed_amount - $amount,2).' Bs';
+        } else {
+          $assigned = number_format($oc->oc_amount,2).' Bs';
+          $part1 = "<td width='30%' style='color:green;'>$assigned</td>";
+          $balance = number_format($oc->oc_amount - $oc->payed_amount - $amount,2).' Bs';
         }
 
-        if (Request::ajax()) {
-            return response()->json($message);
+        if ($balance >= 0)
+          $part2 = "<td style='color:green;'>$balance</td>";
+        else
+          $part2 = "<td style='color:red;'>$balance</td>";
+
+        $reference = $oc->executed_amount != 0 ? 'Monto ejecutado:' : 'Monto asignado:';
+
+        $message = "<br><table width='90%'>";
+
+        if ($oc->executed_amount != 0) {
+          $message .= $part0;
         }
-        return redirect()->back();
+
+        $message .= "<tr><td width='25%'>".$reference."</td>".$part1."<td width='15%' >Saldo:</td>".$part2."</tr>";
+
+        if ($concept) {
+          $percentages = explode('-', $oc->percentages);
+
+          if ($concept == 'Adelanto')
+            $concept_percentage = $percentages[0];
+          elseif ($concept == 'Avance')
+            $concept_percentage = $percentages[1];
+          elseif ($concept == 'Entrega')
+            $concept_percentage = $percentages[2];
+          else
+            $concept_percentage = 0;
+
+          $part3 = "<td style='color:green;'>$concept_percentage %</td>";
+
+          $current_percentage = number_format(($amount/$oc->oc_amount)*100,2);
+
+          /*
+          $current_percentage = number_format(($amount/($oc->executed_amount!=0 ? $oc->executed_amount :
+                      $oc->oc_amount))*100,2);
+          */
+
+          if ($concept_percentage < $current_percentage)
+            $part4 = "<td style='color:red;'>$current_percentage %</td>";
+          else
+            $part4 = "<td style='color:green;'>$current_percentage %</td>";
+
+          $message = $message."<tr><td>% acordado</td>".$part3."<td>% actual</td>".$part4."</tr>";
+        }
+
+        $message = $message."</table><p></p>";
+      }
+
+      if (Request::ajax()) {
+        return response()->json($message);
+      }
+      return redirect()->back();
     }
 
     public function load_oc_amount_values(Request $request)

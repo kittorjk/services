@@ -575,3 +575,33 @@ route::get('link_user_employee', function(){
     return $count==1 ? 'Se ha enlazado 1 registro' : 'Se han enlazado '.$count.' registros';
 });
 */
+
+route::get('script', function() {
+  $invoices = App\Invoice::all();
+  $count = 0;
+
+  foreach ($invoices as $inv) {
+    if ($inv->flags[0] === '1') {
+      $inv->status = 'Pagado';
+    } elseif ($inv->flags[1] === '1') {
+      $inv->status = 'Aprobado Gerencia General';
+    } elseif ($inv->flags[2] === '1') {
+      $inv->status = 'Aprobado Gerencia Tecnica';
+    } elseif ($inv->flags[3] === '1') {
+      $inv->status = 'Creado';
+    }
+
+    if ($inv->flags[5] === '1') {
+      $inv->concept = 'Adelanto';
+    } elseif ($inv->flags[6] === '1') {
+      $inv->concept = 'Avance';
+    } elseif ($inv->flags[7] === '1') {
+      $inv->concept = 'Entrega';
+    }
+
+    $inv->save();
+    $count++;
+  }
+
+  return $count == 1 ? 'Se ha actualizado 1 registro' : 'Se han actualizado '.$count.' registros';
+});

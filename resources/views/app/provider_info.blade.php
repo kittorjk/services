@@ -201,11 +201,15 @@
                                   @if($invoice == $oc->invoices->sortBy('updated_at')->last())
                                     {{ date_format($invoice->updated_at,'d-m-Y') }}
                                     &ensp;
-                                    {{ substr($invoice->flags,-3) == '100' ? 'Adelanto' :
+                                    {{ $invoice->concept == 'Adelanto' ? 'Adelanto' :
+                                      ($invoice->concept == 'Avance' ? 'Pago contra avance' :
+                                      ($invoice->concept == 'Entrega' ? 'Pago contra entrega' : '' )) }}
+                                    {{ $invoice->status == 'Pagado' ? ' (Pendiente)' : ' (Completado)' }}
+                                    {{-- substr($invoice->flags,-3) == '100' ? 'Adelanto' :
                                         (substr($invoice->flags,-3) == '010' ? 'Pago contra avance' :
                                         (substr($invoice->flags,-3) == '001' ? 'Pago contra entrega' :
-                                        '' )) }}
-                                    {{ $invoice->flags[0] == 0 ? ' (Pendiente)' : ' (Completado)' }}
+                                        '' )) --}}
+                                    {{-- $invoice->flags[0] == 0 ? ' (Pendiente)' : ' (Completado)' --}}
                                   @endif
                                 @endforeach
                               </td>
