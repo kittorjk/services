@@ -146,17 +146,19 @@ class ProviderController extends Controller
      */
     public function show($id)
     {
-        $user = Session::get('user');
-        if ((is_null($user)) || (!$user->id))
-            return redirect()->route('root');
+      $user = Session::get('user');
+      if ((is_null($user)) || (!$user->id))
+        return redirect()->route('root');
 
-        $service = Session::get('service');
+      $service = Session::get('service');
 
-        $provider = Provider::find($id);
-        $ocs = OC::where('provider_id', $provider->id)->where('flags', 'like', '01%0')->get(); //select only active records
+      $provider = Provider::find($id);
+      // $ocs = OC::where('provider_id', $provider->id)->where('flags', 'like', '01%0')->get();
+      $ocs = OC::where('provider_id', $provider->id)->where('status', 'Aprobado Gerencia General')
+                ->where('payment_status', '<>', 'Concluido')->get(); //select only active records
 
-        return View::make('app.provider_info', ['provider' => $provider, 'service' => $service, 'user' => $user,
-            'ocs' => $ocs]);
+      return View::make('app.provider_info', ['provider' => $provider, 'service' => $service, 
+          'user' => $user, 'ocs' => $ocs]);
     }
 
     /**

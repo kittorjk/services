@@ -1623,10 +1623,10 @@ class ExcelController extends Controller
                 }
             }
 
-            if ($oc->flags[1] == 1 && $oc->flags[2] == 1) {
+            if ($oc->status == 'Aprobado Gerencia General') {
                 $data = $oc->code.' aprobada por Gerencia General el '.Carbon::parse($oc->auth_ceo_date)->format('d-m-Y').
                     ' autorización '.$oc->auth_ceo_code;
-            } elseif($oc->flags[1] == 0 && $oc->flags[2] == 1) {
+            } elseif ($oc->status == 'Aprobado Gerencia Tecnica') {
                 $data = $oc->code.' aprobada por Gerencia Tecnica el '.Carbon::parse($oc->auth_tec_date)->format('d-m-Y').
                     ' autorización '.$oc->auth_tec_code;
             } else

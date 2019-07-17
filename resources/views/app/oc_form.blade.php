@@ -70,7 +70,7 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="assignment_id" id="assignment_id"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="" hidden>Seleccione una asignación</option>
                                                 @foreach($assignments as $assignment)
                                                     <option value="{{ $assignment->id }}"
@@ -98,24 +98,24 @@
                                                    id="proy_concept"
                                                    value="{{ $oc ? $oc->proy_concept : old('proy_concept') }}"
                                                    placeholder="Concepto"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                         </div>
 
                                         {{--<!--
                                         <input required="required" type="text" class="form-control" name="proy_description"
                                             value="{{ $oc ? $oc->proy_description : '' }}" placeholder="Descripción"
-                                            @if($oc&&$oc->status=='Anulada'){{'disabled'}}@endif>
+                                            @if($oc && $oc->status == 'Anulado'){{'disabled'}}@endif>
                                         -->--}}
 
                                         <textarea rows="2" required="required" class="form-control" name="proy_description"
                                                   placeholder="Descripción del proyecto (info adicional)"
-                                                {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}
+                                                {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}
                                         >{{ $oc ? $oc->proy_description : old('proy_description') }}</textarea>
 
                                         {{--<!--
                                         <input required="required" type="text" class="form-control" name="provider"
                                             value="{{ $oc ? $oc->provider : '' }}" placeholder="Proveedor"
-                                            @if($oc&&$oc->status=='Anulada'){{'disabled'}}@endif>
+                                            @if($oc && $oc->status == 'Anulado'){{'disabled'}}@endif>
                                         -->--}}
 
                                         <div class="input-group" style="width: 100%">
@@ -124,7 +124,7 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="provider_id" id="provider_id"
-                                                    {{$oc&&$oc->status=='Anulada' ? 'disabled' : ''}}>
+                                                    {{$oc && $oc->status == 'Anulado' ? 'disabled' : ''}}>
                                                 <option value="" hidden>Seleccione un proveedor de la lista</option>
                                                 @foreach($providers as $provider)
                                                     <option value="{{$provider->id}}"
@@ -141,7 +141,7 @@
                                           </label>
 
                                           <select required="required" class="form-control" name="type" id="type"
-                                                  {{$oc && $oc->status === 'Anulada' ? 'disabled' : ''}}>
+                                                  {{$oc && $oc->status === 'Anulado' ? 'disabled' : ''}}>
                                               <option value="" hidden>Seleccione el tipo de OC</option>
                                               <option value="Servicio" {{ ($oc && $oc->type == 'Servicio') || old('type') == 'Servicio' ? 'selected="selected"' : '' }}>Servicio</option>
                                               <option value="Compra de material" {{ ($oc && $oc->type == 'Compra de material') || old('type') == 'Compra de material' ? 'selected="selected"' : '' }}>Compra de material</option>
@@ -157,7 +157,7 @@
                                                    id="delivery_place"
                                                    value="{{ $oc ? $oc->delivery_place : old('delivery_place') }}"
                                                    placeholder="Lugar de entrega"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                         </div>
 
                                         <div class="input-group" style="width: 75%">
@@ -166,12 +166,12 @@
                                                    step="1" min="1" placeholder="1"
                                                    value="{{ $oc&&$oc->delivery_term!=0 ? $oc->delivery_term :
                                                         old('delivery_term') }}"
-                                                   {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                   {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                             <span class="input-group-addon" style="width:55px">días</span>
                                         </div>
                                     @endif
 
-                                    @if($action&&$action=='cmp')
+                                    @if ($action && $action == 'cmp')
                                         <div class="input-group" style="width:75%">
                                             <label for="link_id" class="input-group-addon" style="width:31%; text-align: left">
                                                 Número OC <span class="pull-right">*</span>
@@ -193,7 +193,7 @@
                                             <input required="required" type="number" class="form-control" name="oc_amount"
                                                    step="any" min="0" placeholder="0.00"
                                                    value="{{ $oc ? $oc->oc_amount : old('oc_amount') }}"
-                                                   {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                   {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                             <span class="input-group-addon" style="width:55px">Bs</span>
                                         </div>
                                     @endif
@@ -209,7 +209,7 @@
                                                        step="any" min="0" placeholder="0.00"
                                                        value="{{ $oc->executed_amount!=0 ? $oc->executed_amount :
                                                             old('executed_amount') }}"
-                                                       {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                       {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <span class="input-group-addon" style="width:55px">Bs</span>
                                             </div>
                                         @endif
@@ -221,7 +221,7 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="percentages" id="percentages"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="" hidden>Seleccione los porcentajes de pago</option>
                                                 @foreach($percentages as $percentage)
                                                     <option value="{{ $percentage->percentages }}"
@@ -244,7 +244,7 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="client" id="client"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="" hidden>Seleccione un cliente</option>
                                                 @foreach($clients as $client)
                                                     <option value="{{ $client->client }}"
@@ -267,7 +267,7 @@
                                             <input required="required" type="text" class="form-control" name="client_oc"
                                                    id="client_oc" placeholder="Código de orden de compra de cliente"
                                                    value="{{ $oc&&$oc->client_oc ? $oc->client_oc : old('client_oc') }}"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                         </div>
 
                                         <div class="input-group" style="width: 100%">
@@ -278,7 +278,7 @@
                                             <input required="required" type="text" class="form-control" name="client_ad"
                                                    id="client_ad" placeholder="Código de documento de asignación de cliente"
                                                    value="{{ $oc ? $oc->client_ad : old('client_ad') }}"
-                                                   {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                   {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                         </div>
 
                                         <div class="input-group" style="width: 100%">
@@ -287,7 +287,7 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="pm_id" id="pm_id"
-                                                    {{ $oc&&$oc->status=='Anulada' ? 'disabled' : '' }}>
+                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="">Seleccione un responsable por parte de ABROS</option>
                                                 @foreach($pm_candidates as $pm_candidate)
                                                     <option value="{{ $pm_candidate->id }}"
@@ -317,12 +317,12 @@
                                             </label>
 
                                             <select required="required" class="form-control" name="status" id="status">
-                                                <option value="Activa"
-                                                        {{ ($oc&&$oc->status=='Activa')||old('status')=='Activa' ?
-                                                            'selected="selected"' : '' }}>Activa</option>
-                                                <option value="Anulada"
-                                                        {{ ($oc&&$oc->status=='Anulada')||old('status')=='Anulada' ?
-                                                            'selected="selected"' : '' }}>Anulada</option>
+                                              <option value="Creado"
+                                                  {{ ($oc && $oc->status == 'Creado') || old('status') == 'Creado' ?
+                                                      'selected="selected"' : '' }}>Activa</option>
+                                              <option value="Anulado"
+                                                  {{ ($oc && $oc->status == 'Anulado') || old('status') == 'Anulado' ?
+                                                      'selected="selected"' : '' }}>Anulada</option>
                                             </select>
                                         </div>
                                     @endif

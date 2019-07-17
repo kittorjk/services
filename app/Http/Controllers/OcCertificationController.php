@@ -74,11 +74,11 @@ class OcCertificationController extends Controller
 
         $oc = OC::find($preselected_id);
 
-        if(!$oc){
+        if (!$oc) {
             Session::flash('message', 'Ocurrió un error al recuperar la información del servidor, intente de nuevo por favor');
             return redirect()->back();
         }
-        if($oc->status=='Anulada'){
+        if ($oc->status == 'Anulado') {
             Session::flash('message', "No se puede emitir un certificado para esta OC porque ha sido anulada!");
             return redirect()->back();
         }

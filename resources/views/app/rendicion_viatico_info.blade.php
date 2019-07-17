@@ -61,7 +61,7 @@
           <ul class="nav nav-tabs">
               <li class="active"><a href="#main" data-toggle="tab"> Datos Generales</a></li>
               <li><a href="#respaldos" data-toggle="tab"> Respaldos</a></li>
-              {{--@if($oc->status<>'Anulada'||$user->priv_level==4)
+              {{--@if($oc->status <> 'Anulado' || $user->priv_level == 4)
                 <li><a href="#payments" data-toggle="tab"> Estado de pagos</a></li>
               @endif--}}
           </ul>

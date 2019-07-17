@@ -128,8 +128,8 @@ class InvoiceController extends Controller
 
     $ps_id = Input::get('oc'); // Previously selected OC id
 
-    $ocs = OC::where('flags','like','0111%')->where('flags','not like','%1')->where(function ($query) {
-                $query->where('executed_amount','<>',0)->orwhere('flags','like','011100%');
+    $ocs = OC::where('status','Aprobado Gerencia General')->where('payment_status','<>','Concluido')->where(function ($query) {
+                $query->where('executed_amount','<>',0)->orwhere('payment_status','Sin pagos')->orwhere('payment_status', '');
             })->get();
     //$bank_options = Provider::select('bnk_name')->where('bnk_name', '<>', '')->groupBy('bnk_name')->get();
 
@@ -333,8 +333,8 @@ class InvoiceController extends Controller
     $invoice->transaction_date = Carbon::parse($invoice->transaction_date)->format('Y-m-d');
 
     //$ocs = OC::where('flags','like','0111%')->where('flags','<>','01110111')->get();
-    $ocs = OC::where('flags','like','0111%')->where('flags','not like','%1')->where(function ($query) {
-          $query->where('executed_amount','<>',0)->orwhere('flags','like','011100%');
+    $ocs = OC::where('status','Aprobado Gerencia General')->where('payment_status','<>','Concluido')->where(function ($query) {
+          $query->where('executed_amount','<>',0)->orwhere('payment_status','Sin pagos')->orwhere('payment_status', '');
       })
       ->orwhere('id', $invoice->oc_id)
       ->get();
@@ -505,16 +505,18 @@ class InvoiceController extends Controller
     $oc = OC::find($invoice->oc_id);
 
     if ($invoice->concept == 'Adelanto') {
-      if ($oc->flags[5] == 0)
-        $oc->flags = str_pad($oc->flags+100, 8, "0", STR_PAD_LEFT);
-
+      //if ($oc->flags[5] == 0)
+      //  $oc->flags = str_pad($oc->flags+100, 8, "0", STR_PAD_LEFT);
+      $oc->payment_status = 'Adelanto';
       $oc->executed_amount += $invoice->amount;
     } elseif ($invoice->concept == 'Avance') {
-      if ($oc->flags[6] == 0)
-        $oc->flags = str_pad($oc->flags+10, 8, "0", STR_PAD_LEFT);
+      //if ($oc->flags[6] == 0)
+      //  $oc->flags = str_pad($oc->flags+10, 8, "0", STR_PAD_LEFT);
+      $oc->payment_status = 'Avance';
     } elseif ($invoice->concept == 'Entrega') {
-      if ($oc->flags[7] == 0)
-        $oc->flags = str_pad($oc->flags+1, 8, "0", STR_PAD_LEFT);
+      //if ($oc->flags[7] == 0)
+      //  $oc->flags = str_pad($oc->flags+1, 8, "0", STR_PAD_LEFT);
+      $oc->payment_status = 'Concluido';
     }
 
     $oc->payed_amount += $invoice->amount;

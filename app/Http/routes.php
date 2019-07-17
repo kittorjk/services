@@ -577,29 +577,35 @@ route::get('link_user_employee', function(){
 */
 
 route::get('script', function() {
-  $invoices = App\Invoice::all();
+  $ocs = App\OC::all();
   $count = 0;
 
-  foreach ($invoices as $inv) {
-    if ($inv->flags[0] === '1') {
-      $inv->status = 'Pagado';
-    } elseif ($inv->flags[1] === '1') {
-      $inv->status = 'Aprobado Gerencia General';
-    } elseif ($inv->flags[2] === '1') {
-      $inv->status = 'Aprobado Gerencia Tecnica';
-    } elseif ($inv->flags[3] === '1') {
-      $inv->status = 'Creado';
+  foreach ($ocs as $oc) {
+    if ($oc->flags[0] === '1') {
+      $oc->status = 'Anulado';
+    } elseif ($oc->flags[1] === '1') {
+      $oc->status = 'Aprobado Gerencia General';
+    } elseif ($oc->flags[2] === '1') {
+      $oc->status = 'Aprobado Gerencia Tecnica';
+    } elseif ($oc->flags[3] === '1') {
+      $oc->status = 'Creado';
     }
 
-    if ($inv->flags[5] === '1') {
-      $inv->concept = 'Adelanto';
-    } elseif ($inv->flags[6] === '1') {
-      $inv->concept = 'Avance';
-    } elseif ($inv->flags[7] === '1') {
-      $inv->concept = 'Entrega';
+    if ($oc->flags[0] == '0') {
+      if ($oc->flags[7] === '1') {
+        $oc->payment_status = 'Concluido';
+      } elseif ($oc->flags[6] === '1') {
+        $oc->payment_status = 'Avance';
+      } elseif ($oc->flags[5] === '1') {
+        $oc->payment_status = 'Adelanto';
+      } else {
+        $oc->payment_status = 'Sin pagos';
+      }
+    } else {
+      $oc->payment_status = 'Anulado';
     }
 
-    $inv->save();
+    $oc->save();
     $count++;
   }
 

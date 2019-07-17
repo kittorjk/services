@@ -187,13 +187,13 @@
                                 </tbody>
                             </table>
                         </div>
-                        @if(($certificate->oc->flags[7]==0&&($user->id==$certificate->user_id||$user->action->oc_ctf_edt
-                            /*$user->priv_level==3*/))||$user->priv_level==4)
-                            <div class="col-sm-12 mg10" align="center">
-                                <a href="/oc_certificate/{{ $certificate->id }}/edit" class="btn btn-primary">
-                                    <i class="fa fa-pencil-square-o"></i> Modificar certificado
-                                </a>
-                            </div>
+                        @if (($certificate->oc->payment_status != 'Concluido' && ($user->id == $certificate->user_id || $user->action->oc_ctf_edt
+                            /*$user->priv_level==3*/)) || $user->priv_level == 4)
+                          <div class="col-sm-12 mg10" align="center">
+                            <a href="/oc_certificate/{{ $certificate->id }}/edit" class="btn btn-primary">
+                              <i class="fa fa-pencil-square-o"></i> Modificar certificado
+                            </a>
+                          </div>
                         @endif
                     </div>
 

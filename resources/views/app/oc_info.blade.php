@@ -40,7 +40,7 @@
                 <div class="pull-left">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#details" data-toggle="tab"> Detalle de OC</a></li>
-                        @if($oc->status<>'Anulada'||$user->priv_level==4)
+                        @if ($oc->status<>'Anulado' || $user->priv_level == 4)
                             <li><a href="#payments" data-toggle="tab"> Estado de pagos</a></li>
                         @endif
                     </ul>
@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="col-lg-7" align="right">
-                        @if($oc->status<>'Anulada')
+                        @if ($oc->status <> 'Anulado')
                             @if($user->action->oc_ctf_add /*$user->priv_level>=2*/)
                                 <a href="{{ '/oc_certificate/create?id='.$oc->id }}" class="btn btn-success"
                                    title="Agregar certificado de aceptación para ésta OC">
@@ -156,7 +156,7 @@
                                 </tr>
                             @endif
 
-                            @if($oc->status<>'Anulada')
+                            @if ($oc->status <> 'Anulado')
                                 <tr><td colspan="4"></td></tr>
                                 <tr>
                                     <th colspan="4">Datos de proyecto:</th>
@@ -382,9 +382,12 @@
                         </table>
                     </div>
                     
-                    @if((substr($oc->flags,0,4)=='0001' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
+                    {{-- @if((substr($oc->flags,0,4)=='0001' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
                         (substr($oc->flags,0,4)=='0011' && $user->area == 'Gerencia General' && $user->priv_level == 3) ||
-                        ((substr($oc->flags,0,4)=='0011' || substr($oc->flags,0,4)=='0001') && $user->priv_level == 4))
+                        ((substr($oc->flags,0,4)=='0011' || substr($oc->flags,0,4)=='0001') && $user->priv_level == 4)) --}}
+                    @if (($oc->status == 'Creado' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
+                        ($oc->status == 'Aprobado Gerencia Tecnica' && $user->area == 'Gerencia General' && $user->priv_level == 3) ||
+                        (($oc->status =='Aprobado Gerencia Tecnica' || $oc->status == 'Creado') && $user->priv_level == 4))
                         
                       <div class="col-sm-12 mg10">
                         <form method="post" action="{{ '/approve_oc' }}" id="approve_oc"
@@ -435,19 +438,19 @@
                       </div>
                     @endif
 
-                    @if(($oc->status <> 'Anulada' && $oc->flags[1] == 0 && ($user->id == $oc->user_id || $user->action->oc_edt
+                    @if(($oc->status <> 'Anulado' && $oc->status != 'Aprobado Gerencia General' && ($user->id == $oc->user_id || $user->action->oc_edt
                         /*$user->priv_level==3*/)) || $user->priv_level == 4)
-                        <div class="col-sm-12 mg20" align="center">
-                            <a href="/oc/{{ $oc->id }}/edit" class="btn btn-success">
-                                <i class="fa fa-pencil-square-o"></i> Modificar OC
-                            </a>
+                      <div class="col-sm-12 mg20" align="center">
+                        <a href="/oc/{{ $oc->id }}/edit" class="btn btn-success">
+                          <i class="fa fa-pencil-square-o"></i> Modificar OC
+                        </a>
 
-                            @if($user->action->oc_nll)
-                                <a href="/oc/cancel/{{ $oc->id }}" class="btn btn-danger">
-                                    <i class="fa fa-ban"></i> Anular OC
-                                </a>
-                            @endif
-                        </div>
+                        @if($user->action->oc_nll)
+                          <a href="/oc/cancel/{{ $oc->id }}" class="btn btn-danger">
+                            <i class="fa fa-ban"></i> Anular OC
+                          </a>
+                        @endif
+                      </div>
                     @endif
                 </div>
 
@@ -609,8 +612,8 @@
                     </table>
                   </div>
 
-                  @if(($oc->status <> 'Anulada' && ($oc->executed_amount - $oc->payed_amount >= 0) &&
-                      $oc->flags[7] == 0 && $oc->flags[1] == 1 && $oc->flags[2] == 1) ||
+                  @if(($oc->status <> 'Anulado' && ($oc->executed_amount - $oc->payed_amount >= 0) &&
+                      $oc->payment_status != 'Concluido' && $oc->status == 'Aprobado Gerencia General') ||
                       $user->priv_level == 4)
                     <div class="col-sm-12 mg10" align="center">
                       <a href="{{ '/invoice/create?oc='.$oc->id }}" class="btn btn-success">
