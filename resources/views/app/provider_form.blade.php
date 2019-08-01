@@ -212,6 +212,9 @@
                       <option value="CH"
                             {{ ($provider&&$provider->contact_id_place=='CH')||old('contact_id_place')=='CH' ?
                                 'selected="selected"' : '' }}>CH</option>
+                      <option value="E"
+                            {{ ($provider&&$provider->contact_id_place=='E')||old('contact_id_place')=='E' ?
+                                'selected="selected"' : '' }}>E</option>
                     </select>
 
                   </div>

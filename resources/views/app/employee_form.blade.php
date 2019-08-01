@@ -138,6 +138,10 @@
                                                                 {{ ($employee&&$employee->id_extension=='CH')||
                                                                     old('id_extension')=='CH' ?
                                                                      'selected="selected"' : '' }}>CH</option>
+                                                        <option value="E"
+                                                                {{ ($employee&&$employee->id_extension=='E')||
+                                                                    old('id_extension')=='E' ?
+                                                                     'selected="selected"' : '' }}>E</option>
                                                     </select>
 
                                                 </div>
