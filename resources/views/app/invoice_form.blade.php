@@ -178,7 +178,8 @@
 
       // Cargar certificados
       var ps_id = {!! json_encode($ps_id) !!};
-      var oc_id_stored = {!! json_encode($invoice->oc_id) !!};
+      var oc_stored = {!! json_encode($invoice) !!};
+      var oc_id_stored = oc_stored ? oc_stored.oc_id : null;
       $.post('/load_oc_certificates', { oc_id: $("oc_id").val() || ps_id || oc_id_stored }, function(data) {
         $("#oc_certification_id").html(data);
       });

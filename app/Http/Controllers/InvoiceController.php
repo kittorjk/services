@@ -217,6 +217,15 @@ class InvoiceController extends Controller
       }
     }
 
+    if ($invoice->concept == 'Adelanto') {
+      foreach ($invoice->oc->invoices as $inv) {
+        if ($inv->concept == 'Adelanto') {
+          Session::flash('message', "La orden seleccionada ya tiene una factura por adelanto!");
+          return redirect()->back()->withInput();
+        }
+      }
+    }
+
     // Commented lines regarding approval, all invoices are now recorded as approved
     /*
     if (($user->priv_level == 3 && $user->area == 'Gerencia General') || $user->priv_level == 4) {
@@ -430,6 +439,15 @@ class InvoiceController extends Controller
         if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
           Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
           return redirect()->back()->withInput();
+        }
+      }
+
+      if ($invoice->concept == 'Adelanto') {
+        foreach ($invoice->oc->invoices as $inv) {
+          if ($inv->concept == 'Adelanto') {
+            Session::flash('message', "La orden seleccionada ya tiene una factura por adelanto!");
+            return redirect()->back()->withInput();
+          }
         }
       }
     }
