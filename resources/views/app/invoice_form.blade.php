@@ -115,6 +115,21 @@
                     </select>
                   </div>
 
+                  <div class="input-group" style="width: 100%" id="certification_select">
+                    <label for="oc_certification_id" class="input-group-addon" style="width: 23%;text-align: left">
+                      Certificado: <span class="pull-right">*</span>
+                    </label>
+
+                    <select required="required" class="form-control" name="oc_certification_id" id="oc_certification_id">
+                      <option value="" hidden>Seleccione un certificado</option>
+                      {{-- @foreach($oc_certifications as $oc_certification)
+                        <option value="{{ $oc_certificaction->id }}"
+                          {{ ($invoice && $invoice->oc_certification_id == $oc_certification->id) ||
+                              old('oc_certification_id') == $oc_certification->id ? 'selected="selected"' : '' }}>{{ $oc_certification->code }}</option>
+                      @endforeach --}}
+                    </select>
+                  </div>
+
                   <textarea rows="3" required="required" class="form-control" name="detail"
                             id="detail" placeholder="Información adicional">{{ $invoice ?
                               $invoice->detail : old('detail') }}</textarea>
@@ -152,36 +167,69 @@
     $(document).ready(function() {
       $("#wait").hide();
       $("#oc_values").hide();
+      $("#certification_select").hide();
 
-      $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
-        concept: $("#concept").val() }, function(data) {
-        $("#oc_values").html(data).show();
+      if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
+        $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
+          concept: $("#concept").val() }, function(data) {
+          $("#oc_values").html(data).show();
+        });
+      }
+
+      // Cargar certificados
+      var ps_id = {!! json_encode($ps_id) !!};
+      var oc_id_stored = {!! json_encode($invoice->oc_id) !!};
+      $.post('/load_oc_certificates', { oc_id: $("oc_id").val() || ps_id || oc_id_stored }, function(data) {
+        $("#oc_certification_id").html(data);
       });
+
+      if ($("#concept").val() === 'Avance' || $("#concept").val() === 'Entrega') {
+        $("#certification_select").show();
+      } else {
+        $("#certification_select").hide();
+      }
     });
 
     $("#oc_id").change(function () {
       $("#oc_id option:selected").each(function () {
-        $.post('/load_oc_values', { oc_id: $(this).val(), amount: $("#amount").val(),
-          concept: $("#concept").val() }, function(data) {
-          $("#oc_values").html(data).show();
+        if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
+          $.post('/load_oc_values', { oc_id: $(this).val(), amount: $("#amount").val(),
+            concept: $("#concept").val() }, function(data) {
+            $("#oc_values").html(data).show();
+          });
+        }
+
+        // Cargar certificados
+        $.post('/load_oc_certificates', { oc_id: $(this).val() }, function(data) {
+          $("#oc_certification_id").html(data);
         });
       });
     });
 
     $("#concept").change(function () {
       $("#concept option:selected").each(function () {
-        $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
-          concept: $("#concept").val() }, function(data) {
-          $("#oc_values").html(data).show();
-        });
+        if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
+          $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
+            concept: $("#concept").val() }, function(data) {
+            $("#oc_values").html(data).show();
+          });
+        }
+
+        if ($("#concept").val() === 'Avance' || $("#concept").val() === 'Entrega') {
+          $("#certification_select").show();
+        } else {
+          $("#certification_select").hide();
+        }
       });
     });
 
     $("#amount").keyup(function() {
-      $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
-        concept: $("#concept").val() }, function(data) {
-        $("#oc_values").html(data);
-      });
+      if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
+        $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
+          concept: $("#concept").val() }, function(data) {
+          $("#oc_values").html(data);
+        });
+      }
     });
   </script>
 @endsection

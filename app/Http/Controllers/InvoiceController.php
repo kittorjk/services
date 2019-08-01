@@ -155,6 +155,7 @@ class InvoiceController extends Controller
         'amount'                 => 'required',
         'date_issued'            => 'required',
         'concept'                => 'required',
+        'oc_certification_id'    => 'required_unless:concept,Adelanto'
     ],
         [
             'oc_id.required'             => 'Debe especificar la orden a la que pertenece la factura!',
@@ -163,6 +164,7 @@ class InvoiceController extends Controller
             'date_issued.required'       => 'Debe especificar la fecha de emisión de la factura!',
             'billed_price.required'      => 'Debe especificar el monto facturado!',
             'concept.required'           => 'Debe seleccionar el motivo de la factura!',
+            'oc_certification_id.required_unless' => 'Debe seleccionar un certificado si la factura no es por adelanto!'
         ]
     );
 
@@ -201,6 +203,19 @@ class InvoiceController extends Controller
     }
 
     $invoice->user_id = $user->id;
+
+    if ($invoice->concept != 'Adelanto') {
+      // Facturas en certificado
+      $existing_amount = 0;
+      foreach ($invoice->oc_certification->invoices as $inv) {
+        $existing_amount += $inv->amount;
+      }
+
+      if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
+        Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
+        return redirect()->back()->withInput();
+      }
+    }
 
     // Commented lines regarding approval, all invoices are now recorded as approved
     /*
@@ -361,12 +376,14 @@ class InvoiceController extends Controller
         'amount'                 => 'required',
         'date_issued'            => 'required',
         'concept'                => 'required',
+        'oc_certification_id'    => 'required_unless:concept,Adelanto'
     ],
         [
             'number.required'               => 'Debe especificar el número de factura!',
             'amount.required'               => 'Debe especificar el monto de la factura!',
             'date_issued.required'          => 'Debe especificar la fecha de emisión de la factura!',
             'concept.required'              => 'Debe seleccionar el motivo de la factura!',
+            'oc_certification_id.required_unless' => 'Debe seleccionar un certificado si la factura no es por adelanto!'
         ]
     );
 
@@ -401,6 +418,19 @@ class InvoiceController extends Controller
         Session::flash('message', "Debe especificar el monto ejecutado de la OC si la factura no es por adelanto! 
             Por favor cargue un certificado de aceptación parcial o total");
         return redirect()->back()->withInput();
+      }
+
+      if ($invoice->concept != 'Adelanto') {
+        // Facturas en certificado
+        $existing_amount = 0;
+        foreach ($invoice->oc_certification->invoices as $inv) {
+          $existing_amount += $inv->amount;
+        }
+  
+        if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
+          Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
+          return redirect()->back()->withInput();
+        }
       }
     }
 

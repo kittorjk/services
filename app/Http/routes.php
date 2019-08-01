@@ -74,6 +74,7 @@ Route::post('/dynamic_guaranteeable', 'AjaxController@dynamic_guaranteeable');
 Route::post('/dynamic_assignment/sub_type', 'AjaxController@dynamic_assignment_sub_type');
 Route::post('/dynamic_requirement/{active}', 'AjaxController@dynamic_requirement');
 Route::post('/load_oc_amount_values', 'AjaxController@load_oc_amount_values');
+Route::post('/load_oc_certificates', 'AjaxController@load_oc_certificates');
 Route::post('/load_oc_values', 'AjaxController@load_oc_values');
 Route::post('/load_task_values', 'AjaxController@load_task_values');
 Route::post('/load_activity_info', 'AjaxController@load_activity_info');

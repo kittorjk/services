@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\CorpLineRequirement;
-use App\Employee;
-use App\Event;
-use App\OcCertification;
-use App\Project;
-use App\TechGroup;
 use Illuminate\Support\Facades\Request;
 //use Request;
 
@@ -16,23 +10,29 @@ use App\Http\Controllers\Controller;
 
 use Session;
 use View;
+use App\Activity;
 use App\Assignment;
-use App\File;
-use App\User;
+use App\Bill;
 use App\Contact;
-use App\Site;
-use App\OC;
-use App\Task;
-use App\Item;
-use App\Vehicle;
-use App\Maintenance;
+use App\CorpLineRequirement;
 use App\Device;
 use App\Driver;
+use App\Employee;
+use App\Event;
+use App\File;
+use App\Item;
+use App\Maintenance;
+use App\Material;
+use App\OC;
+use App\OcCertification;
 use App\Operator;
 use App\Order;
-use App\Bill;
-use App\Activity;
-use App\Material;
+use App\Project;
+use App\Site;
+use App\Task;
+use App\TechGroup;
+use App\User;
+use App\Vehicle;
 use App\Warehouse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
@@ -1306,5 +1306,22 @@ class AjaxController extends Controller
         $this->add_vhc_history_record($vehicle, $maintenance, 'move', $user, 'maintenance');
         
         return $vehicle;
+    }
+
+    public function load_oc_certificates(Request $request) {
+        $data = Request::input('oc_id');
+        $message = "<option value=\"\" hidden>Seleccione un certificado</option>";
+
+        if ($data) {
+            $oc_certifications = OcCertification::where('oc_id', $data)->get();
+            foreach ($oc_certifications as $oc_certification) {
+                $message = $message.'<option value="'.$oc_certification->id.'">'.$oc_certification->code.' - Bs '.$oc_certification->amount.'</option>';
+            }
+        }
+
+        if (Request::ajax()) {
+            return response()->json($message);
+        }
+        return redirect()->back();
     }
 }
