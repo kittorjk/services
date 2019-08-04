@@ -44,7 +44,9 @@
                     </a>
                 </div>
 
-                @include('app.session_flashed_messages', array('opt' => 1))
+                <div class="col-sm-12 mg10">
+                  @include('app.session_flashed_messages', array('opt' => 0))
+                </div>
 
                 <div class="col-sm-12 mg10 mg-tp-px-10">
 
@@ -195,16 +197,23 @@
                         
                         <tr><td colspan="2"></td></tr>
                         <tr>
-                            <th colspan="2">
-                                Imágenes
-                                <div class="pull-right">
-                                    @if(!$exists_picture && ($user->action->adm_emp_edt || $user->priv_level == 4))
-                                        <a href="/files/employee_img/{{ $employee->id }}" title="Subir una imagen del empleado">
-                                            <i class="fa fa-upload"></i> Subir
-                                        </a>
-                                    @endif
-                                </div>
-                            </th>
+                          <th colspan="2">
+                            Imágenes
+                            <div class="pull-right">
+                              @if (!$exists_picture && ($user->action->adm_emp_edt || $user->priv_level == 4))
+                                <a href="/files/employee_img/{{ $employee->id }}" title="Subir una imagen del empleado">
+                                  <i class="fa fa-upload"></i> Subir
+                                </a>
+                              @endif
+                              @foreach ($employee->files as $file)
+                                @if ($file->status === 0 || $user->priv_level === 4)
+                                  <a href="/files/replace/{{ $file->id }}" title="Reemplazar imagen">
+                                    <i class="fa fa-refresh"></i> Reemplazar
+                                  </a>
+                                @endif
+                              @endforeach
+                            </div>
+                          </th>
                         </tr>
                         <tr>
                             <td colspan="2" align="center">
