@@ -321,4 +321,55 @@ class EmployeeController extends Controller
             $employee->save();
         }
     }
+
+    public function retire_form($id)
+    {
+      $user = Session::get('user');
+      if ((is_null($user)) || (!$user->id))
+        return redirect()->route('root');
+
+      $employee = Employee::find($id);
+
+      $service = Session::get('service');
+
+      $employee->date_in = Carbon::parse($employee->date_in)->format('Y-m-d');
+      $employee->date_in_employee = Carbon::parse($employee->date_in_employee)->format('Y-m-d');
+
+      return View::make('app.employee_retire_form', ['employee' => $employee, 'service' => $service,
+        'user' => $user]);
+    }
+
+    public function retire(Request $request, $id)
+    {
+        $user = Session::get('user');
+        if ((is_null($user)) || (!$user->id))
+          return redirect()->route('root');
+
+        $v = \Validator::make(Request::all(), [
+          'reason_out'    => 'required',
+        ],
+          [
+            'reason_out.required'   => 'Debe especificar el/los nombre(s) del empleado!',
+          ]
+        );
+
+        if ($v->fails()) {
+            Session::flash('message', $v->messages()->first());
+            return redirect()->back()->withInput();
+        }
+
+        $employee = Employee::find($id);
+        $employee->fill(Request::all());
+
+        $employee->active = 0;
+        $employee->date_out = Carbon::now();
+
+        $employee->save();
+        
+        Session::flash('message', 'El empleado seleccionado ha sido marcado como "Retirado"');
+        if (Session::has('url'))
+            return redirect(Session::get('url'));
+        else
+            return redirect()->route('employee.index');
+    }
 }

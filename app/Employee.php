@@ -11,7 +11,7 @@ class Employee extends Model
   protected $fillable = ['user_id', 'code', 'first_name', 'last_name', 'birthday', 'id_card',
     'id_extension', 'bnk_account', 'bnk', 'role', 'category', 'area', 'branch_id', 'branch',
     'income', 'basic_income', 'production_bonus', 'payable_amount', 'corp_email', 'ext_email',
-    'phone', 'active', 'access_id', 'date_in', 'date_in_employee', 'date_out'];
+    'phone', 'active', 'access_id', 'date_in', 'date_in_employee', 'date_out', 'reason_out'];
 
   public function access() {
     return $this->hasOne('App\User', 'id', 'access_id');

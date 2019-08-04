@@ -193,6 +193,12 @@
                                     <td>{{ date_format($employee->date_out, 'd-m-Y') }}</td>
                                 </tr>
                             @endif
+                            @if ($employee->reason_out)
+                                <tr>
+                                    <th>Motivo de retiro</th>
+                                    <td>{{ $employee->reason_out }}</td>
+                                </tr>
+                            @endif
                         @endif
                         
                         <tr><td colspan="2"></td></tr>
@@ -248,11 +254,17 @@
                 </div>
 
                 {{--@if($user->priv_level==4)--}}
-                    <div class="col-sm-12 mg10" align="center">
-                        <a href="/employee/{{ $employee->id }}/edit" class="btn btn-success">
-                            <i class="fa fa-pencil-square-o"></i> Actualizar datos
-                        </a>
-                    </div>
+                  <div class="col-sm-12 mg10" align="center">
+                    <a href="/employee/{{ $employee->id }}/edit" class="btn btn-success">
+                      <i class="fa fa-pencil-square-o"></i> Actualizar datos
+                    </a>
+                  
+                    @if ($employee->active != 0)
+                      <a href="/employee/{{ $employee->id }}/retire" class="btn btn-danger">
+                        <i class="fa fa-user-times"></i> Retirar empleado
+                      </a>
+                    @endif
+                </div>
                 {{--@endif--}}
             </div>
         </div>

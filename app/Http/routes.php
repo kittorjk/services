@@ -43,7 +43,6 @@ Route::resource('/branch', 'BranchController');
 Route::resource('/cite', 'CitesController');
 Route::resource('/client_listed_material', 'ClientListedMaterialController');
 Route::resource('/contact', 'ContactController');
-Route::resource('/employee', 'EmployeeController');
 Route::resource('/item', 'ItemController');
 Route::resource('/license', 'LicenseController');
 Route::resource('/rbs_site_characteristics', 'RbsSiteCharacteristicController');
@@ -143,6 +142,10 @@ Route::put('/driver/confirm/{id}', 'DriverController@confirm_reception');
 //Route::get('/driver/devolution/{id}', 'DriverController@devolution_form'); //deprecated
 //Route::post('/driver/devolution', 'DriverController@record_devolution'); //deprecated
 Route::resource('/driver', 'DriverController');
+
+Route::get('/employee/{id}/retire', 'EmployeeController@retire_form');
+Route::put('/employee/{id}/retire', 'EmployeeController@retire');
+Route::resource('/employee', 'EmployeeController');
 
 Route::get('/event', 'EventController@index');
 Route::get('/event/{type}/{id}', 'EventController@events_per_type');
