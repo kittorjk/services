@@ -309,7 +309,7 @@ class StipendRequestController extends Controller
         $stipend->in_days = Carbon::parse($stipend->date_to)->diffInDays(Carbon::parse($stipend->date_from)) + 1; //Extremes count
 
         $hotel_cost = $stipend->hotel_amount ? $stipend->hotel_amount : 0;
-        $stipend->total_amount = ($stipend->per_day_amount + $hotel_cost) * $stipend->in_days;
+        $stipend->total_amount = (($stipend->per_day_amount ?: 0) + $hotel_cost) * $stipend->in_days;
 
         $stipend->status = 'Pending';
         $stipend->save();
@@ -645,39 +645,40 @@ class StipendRequestController extends Controller
 
         $stipend = StipendRequest::find($id);
 
-        if(!$stipend){
+        if (!$stipend) {
             Session::flash('message', 'No se encontró el registro solicitado en el servidor!');
             return redirect()->back();
         }
 
         $message = 'No se ralizó ningún cambio';
 
-        if($mode=='complete'){
-            if($stipend->xls_gen!=''){
+        if ($mode == 'complete') {
+            /* Cerrar solicitudes una por una, se dehabilita la opción de marcar como pagado en bloque
+            if ($stipend->xls_gen!='') {
                 $grouped_records = StipendRequest::where('xls_gen',$stipend->xls_gen)->get();
                 $count = 0;
 
-                foreach($grouped_records as $record){
+                foreach ($grouped_records as $record) {
                     $record->status = 'Completed';
                     $record->save();
                     $count++;
                 }
 
-                if($count==1)
-                    $message = '1 solicitud ha sido registrada como completada. No se requiere ninuna acción adicional';
+                if ($count == 1)
+                    $message = '1 solicitud ha sido registrada como completada. No se requiere ninguna acción adicional';
                 else
-                    $message = "$count solicitudes han sido registradas como completadas. No se requiere ninuna acción adicional";
+                    $message = "$count solicitudes han sido registradas como completadas. No se requiere ninguna acción adicional";
             }
-            else{
+            else {*/
                 $stipend->status = 'Completed';
                 $stipend->save();
 
-                $message = 'La solicitud ha sido registrada como completada. No se requiere ninuna acción adicional';
-            }
+                $message = 'La solicitud ha sido registrada como completada. No se requiere ninguna acción adicional';
+            //}
         }
 
         Session::flash('message', $message);
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect('/stipend_request?asg='.$stipend->assignment_id);
