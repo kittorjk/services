@@ -101,9 +101,11 @@ class ExcelController extends Controller
                             'Cliente'               => $assignment->client,
                             'Área de trabajo'       => $assignment->type,
                             'Oficina'               => $assignment->branch,
-                            'Estado'                => $assignment->statuses($assignment->status),
+                            'Estado de proyecto'    => $assignment->statuses($assignment->status),
+                            'Estado de sitio'       => $site->statuses($site->status),
                             'porcentaje de avance'  => number_format($assignment->percentage_completed,2).' %',
-                            'Project Manager'       => $assignment->responsible ? $assignment->responsible->name : '',
+                            'PM de proyecto'        => $assignment->responsible ? $assignment->responsible->name : '',
+                            'PM de sitio'           => $site->responsible ? $site->responsible->name : ($assignment->responsible ? $assignment->responsible->name : ''),
                             'Inicio cotización'     => $assignment->quote_from==0 ? '' :
                                 date_format(Carbon::parse($assignment->quote_from),'d-m-Y'),
                             'Fin cotización'        => $assignment->quote_to==0 ? '' :
@@ -225,8 +227,7 @@ class ExcelController extends Controller
 
             $cites = Cite::all();
 
-            foreach($cites as $cite)
-            {
+            foreach ($cites as $cite) {
                 $sheet_content->prepend(
                     [   'Nº CITE'       => $cite->code,
                         'Fecha'         => date_format($cite->created_at,'d-m-Y'),
@@ -1049,7 +1050,10 @@ class ExcelController extends Controller
             $excel_name = 'Tabla de solicitudes de viaticos';
             $sheet_name = 'Solicitudes de viaticos';
 
-            $stipend_requests = StipendRequest::all();
+            // $stipend_requests = StipendRequest::all();
+            $stipend_requests = StipendRequest::whereDate('created_at', '>=', Carbon::today()->subDays(90))->get();
+            
+            // return $stipend_requests;
             
             foreach($stipend_requests as $stipend_request) {
                 $stipend_request->cost_center = $stipend_request->assignment && $stipend_request->assignment->cost_center > 0 ? $stipend_request->assignment->cost_center : '';
