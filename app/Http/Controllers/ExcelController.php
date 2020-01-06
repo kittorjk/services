@@ -3661,6 +3661,14 @@ class ExcelController extends Controller
 
                 if (!empty($data) && $data->count()) {
                     foreach ($data as $key => $value) {
+                        // Consulta de ID de responsable en base a nombre en archivo
+                        if ($value->responsable) {
+                            $responsible = User::select('id')->where('name', $value->responsable)->first();
+                            $tmp_id = $responsible == '' ? 0 : $responsible->id;
+                        } else {
+                            $tmp_id = 0;
+                        }
+                        
                         $insert[] = [
                             'user_id'           => $user->id,
                             'name'              => $value->nombre,
@@ -3672,6 +3680,7 @@ class ExcelController extends Controller
                             'department'        => isset($value['departamento']) ? $value->departamento : '',
                             'municipality'      => isset($value['municipio']) ? $value->municipio : '',
                             'type_municipality' => isset($value['area']) ? $value->area : '',
+                            'resp_id'           => $tmp_id,
                             'contact_id'        => $assignment->contact_id,
                             'start_line'        => $value->fecha_de_inicio ? $value->fecha_de_inicio->format('Y-m-d') :
                                 ($assignment->start_date ? $assignment->start_date : $assignment->quote_from),
@@ -3683,27 +3692,25 @@ class ExcelController extends Controller
                                 ($assignment->end_date ? $assignment->end_date : $assignment->quote_to),
                             'created_at'        => date('Y-m-d H:i:s')];
                     }
-                    if(!empty($insert)){
 
+                    if (!empty($insert)) {
                         Site::insert($insert);
 
                         $empty_coded_sites = Site::where('code','')->get();
 
-                        foreach($empty_coded_sites as $site)
-                        {
+                        foreach ($empty_coded_sites as $site) {
                             $site->code = 'ST-'.str_pad($site->id, 4, "0", STR_PAD_LEFT).
                                 date_format($site->created_at,'-y');
                             $site->save();
                         }
 
                         $message = "Los sitios fueron importados correctamente";
-                    }
-                    else{
+                    } else {
                         $message = 'No se cargó ningún sitio!';
                     }
 
                     Session::flash('message', $message);
-                    if(Session::has('url'))
+                    if (Session::has('url'))
                         return redirect(Session::get('url'));
                     else
                         return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
