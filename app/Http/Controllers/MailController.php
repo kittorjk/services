@@ -8,18 +8,17 @@ use View;
 use Mail;
 use Session;
 use Exception;
-use App\User;
 use App\Assignment;
-use App\Order;
-use App\Contract;
 use App\Bill;
-use App\Guarantee;
-use App\Project;
-use App\Vehicle;
-use App\Tender;
+use App\Contract;
 use App\Email;
+use App\Guarantee;
+use App\Order;
+use App\Project;
+use App\Tender;
+use App\User;
+use App\Vehicle;
 use Carbon\Carbon;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -40,24 +39,32 @@ class MailController extends Controller
     public function send_notifications($type)
     {
         /* send emails */
-        if($type=='assignment_reminder'||$type=='assignment_expiring'){
+        if ($type == 'assignment_reminder' || $type == 'assignment_expiring') {
 
             $last_stat = count(Assignment::$status_names) - 1; //Assignment::first()->last_stat();
 
-            if($type=='assignment_expiring') {
+            if ($type == 'assignment_expiring') {
                 $assignments = Assignment::where('deadline', '<', Carbon::now()->addDays(5))
                     ->where('deadline', '>=', Carbon::now())
                     ->where('deadline', '<>', '0000-00-00 00:00:00')
                     ->whereNotIn('status', [$last_stat/*'Concluído'*/, 0/*'No asignado'*/])->get();
             }
-            else{
-                $assignments = Assignment::whereNotIn('status', [$last_stat/*'Concluído'*/, 0/*'No asignado'*/])
+            /* else {
+                $assignments = Assignment::whereNotIn('status', [$last_stat/*'Concluído', 0/*'No asignado'])
                     ->where('deadline', '<>', '0000-00-00 00:00:00')->get();
+            } */
+            else {
+                $assignments = Assignment::whereNotIn('status', [$last_stat/*'Concluído'*/, 0/*'No asignado'*/])
+                    ->where('deadline', '<>', '0000-00-00 00:00:00')
+                    ->where(function($query) {
+                        $query->where('deadline', '=', Carbon::now()-addDays(10))
+                            ->orwhere('deadline', '=', Carbon::now()->addDays(20));
+                    })->get();
             }
 
             $manager = User::where('area', 'Gerencia Tecnica')->where('priv_level', 3)->first();
 
-            foreach($assignments as $assignment){
+            foreach ($assignments as $assignment) {
                 $recipient = $assignment->responsible ? $assignment->responsible : $manager;
                 //$assignment->end_date = Carbon::parse($assignment->end_date);
                 $assignment->deadline = Carbon::parse($assignment->deadline);
@@ -87,7 +94,7 @@ class MailController extends Controller
             }
         }
 
-        if($type=='order'){
+        if ($type == 'order') {
             $orders = Order::where('date_issued','<',Carbon::now()->subDays(15))->where('status','<>','Cobrado')
                 ->where('status','<>','Anulado')->get();
             $manager = User::where('area','Gerencia General')->where('priv_level',3)->first();
