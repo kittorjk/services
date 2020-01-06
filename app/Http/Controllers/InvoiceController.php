@@ -443,11 +443,15 @@ class InvoiceController extends Controller
       }
 
       if ($invoice->concept == 'Adelanto') {
+        $count = 0;
         foreach ($invoice->oc->invoices as $inv) {
           if ($inv->concept == 'Adelanto') {
-            Session::flash('message', "La orden seleccionada ya tiene una factura por adelanto!");
-            return redirect()->back()->withInput();
+            $count++;
           }
+        }
+        if ($count > 1) {
+          Session::flash('message', "La orden seleccionada ya tiene una factura por adelanto!");
+          return redirect()->back()->withInput();
         }
       }
     }
