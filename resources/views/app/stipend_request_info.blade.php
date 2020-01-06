@@ -138,75 +138,90 @@
                                 <tr><td colspan="4"></td></tr>
 
                                 <tr>
-                                    <th colspan="4">Solicitado para</th>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Nombre</td>
-                                    <td>Viático [Bs]</td>
-                                    <td>Adicionales [Bs]</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
+                                    <th>Solicitado para</th>
+                                    <td colspan="3">
                                         {{ $stipend->employee ?
                                             $stipend->employee->first_name.' '.$stipend->employee->last_name : '' }}
                                     </td>
-                                    <td align="right">{{ $stipend->per_day_amount }}</td>
-                                    <td align="right">{{ $stipend->additional }}</td>
                                 </tr>
                                 <tr>
-                                    <th colspan="3" style="text-align: right">Total a depositar [Bs]</th>
-                                    <td align="right">{{ number_format($stipend->total_amount+$stipend->additional,2) }}</td>
+                                    <td colspan="2"></td>
+                                    <td>Monto por día [Bs]</td>
+                                    <td>{{ 'Monto * '.$stipend->in_days.' día(s) [Bs]' }}</td>
                                 </tr>
+                                <tr>
+                                    <td colspan="2">{{ 'Viático' }}</td>
+                                    <td align="right">{{ $stipend->per_day_amount }}</td>
+                                    <td align="right">{{ $stipend->per_day_amount * $stipend->in_days }}</td>
+                                    <!--<td align="right">{{ $stipend->additional }}</td>-->
+                                </tr>
+                                <tr>
+                                    <td colspan="2">{{ 'Alojamiento' }}</td>
+                                    <td align="right">{{ $stipend->hotel_amount }}</td>
+                                    <td align="right">{{ $stipend->hotel_amount * $stipend->in_days }}</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="3" style="text-align: right">Subtotal [Bs]</th>
+                                    <td align="right">{{ number_format($stipend->total_amount, 2) }}</td>
+                                </tr>
+                                
                                 <tr><td colspan="4"></td></tr>
 
-                                @if($stipend->additional>0)
+                                @if($stipend->additional > 0)
                                     <tr>
                                         <th colspan="4">Detalle de adicionales</th>
                                     </tr>
                                     @if($stipend->transport_amount>0)
                                         <tr>
-                                            <td colspan="3">Transporte (pasajes)</td>
-                                            <td align="right">{{ $stipend->transport_amount.' Bs' }}</td>
+                                            <td colspan="3">Transporte (pasajes) [Bs]</td>
+                                            <td align="right">{{ $stipend->transport_amount }}</td>
                                         </tr>
                                     @endif
                                     @if($stipend->gas_amount>0)
                                         <tr>
-                                            <td colspan="3">Combustible</td>
-                                            <td align="right">{{ $stipend->gas_amount.' Bs' }}</td>
+                                            <td colspan="3">Combustible [Bs]</td>
+                                            <td align="right">{{ $stipend->gas_amount }}</td>
                                         </tr>
                                     @endif
                                     @if($stipend->taxi_amount>0)
                                         <tr>
-                                            <td colspan="3">Taxi (pasajes)</td>
-                                            <td align="right">{{ $stipend->taxi_amount.' Bs' }}</td>
+                                            <td colspan="3">Taxi (pasajes) [Bs]</td>
+                                            <td align="right">{{ $stipend->taxi_amount }}</td>
                                         </tr>
                                     @endif
                                     @if($stipend->comm_amount>0)
                                         <tr>
-                                            <td colspan="3">Comunicaciones</td>
-                                            <td align="right">{{ $stipend->comm_amount.' Bs' }}</td>
+                                            <td colspan="3">Comunicaciones [Bs]</td>
+                                            <td align="right">{{ $stipend->comm_amount }}</td>
                                         </tr>
                                     @endif
+                                    {{--
                                     @if($stipend->hotel_amount>0)
                                         <tr>
-                                            <td colspan="3">Alojamiento</td>
-                                            <td align="right">{{ $stipend->hotel_amount.' Bs' }}</td>
+                                            <td colspan="3">Alojamiento [Bs]</td>
+                                            <td align="right">{{ $stipend->hotel_amount }}</td>
                                         </tr>
                                     @endif
+                                    --}}
                                     @if($stipend->materials_amount>0)
                                         <tr>
-                                            <td colspan="3">Compra de materiales</td>
-                                            <td align="right">{{ $stipend->materials_amount.' Bs' }}</td>
+                                            <td colspan="3">Compra de materiales [Bs]</td>
+                                            <td align="right">{{ $stipend->materials_amount }}</td>
                                         </tr>
                                     @endif
                                     @if($stipend->extras_amount>0)
                                         <tr>
-                                            <td colspan="3">Extras</td>
-                                            <td align="right">{{ $stipend->extras_amount.' Bs' }}</td>
+                                            <td colspan="3">Extras [Bs]</td>
+                                            <td align="right">{{ $stipend->extras_amount }}</td>
                                         </tr>
                                     @endif
                                     <tr><td colspan="4"></td></tr>
                                 @endif
+
+                                <tr>
+                                    <th colspan="3" style="text-align: right">Total a depositar [Bs]</th>
+                                    <th style="text-align: right">{{ number_format($stipend->total_amount+$stipend->additional,2) }}</th>
+                                </tr>
 
                                 <tr>
                                     <th colspan="4">Asignación</th>

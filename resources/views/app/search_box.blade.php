@@ -153,7 +153,7 @@
                                             <option value="resp_name">Responsable de ABROS</option>
                                             <option value="contact_name">Responsable del cliente</option>
                                         @elseif ($table == 'assignments')
-                                            {{--<option value="code">Código de asignación</option>--}}
+                                            <option value="code">Código interno</option>
                                             <option value="client_code">Código de cliente</option>
                                             <option value="literal_code">Identificador</option>
                                             <option value="name">Nombre</option>
