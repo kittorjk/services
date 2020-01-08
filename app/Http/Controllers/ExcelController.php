@@ -3780,6 +3780,8 @@ class ExcelController extends Controller
                         $new_category->area = $area ?: $user->work_type;
                         $new_category->status = 1;
 
+                        $new_category->client = $new_category->project ? $new_category->project->client : '';
+
                         $new_category->save();
                     }
 
