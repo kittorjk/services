@@ -835,29 +835,41 @@ class AssignmentController extends Controller
         $action = Input::get('action');
         $message = '';
 
-        if($action=='upgrade'){
-            if($assignment->status<$assignment->last_stat()){
-                
+        if ($action == 'upgrade') {
+            if ($assignment->status < $assignment->last_stat()) {
                 $assignment->status += 1;
 
-                if($assignment->statuses($assignment->status)=='Ejecución'){
+                if ($assignment->statuses($assignment->status) == 'Ejecución') {
                     $assignment->start_date = Carbon::now();
                     $assignment->end_date = Carbon::now()->addDays(20);
-                }
-                elseif($assignment->statuses($assignment->status)=='Cobro'){
+                } elseif($assignment->statuses($assignment->status) == 'Cobro') {
                     $assignment->billing_from = Carbon::now();
-                }
-                elseif($assignment->statuses($assignment->status)=='Concluído'){
-                    $assignment->billing_to = Carbon::now();
+                } elseif ($assignment->statuses($assignment->status) == 'Concluído') {
+                    /*
+                    $temp_amount = 0;
+                    foreach ($assignment->sites as $site) {
+                        foreach ($site->orders as $order) {
+                            $temp_amount += $order->pivot->assigned_amount;
+                        }
+                        $assignment->assigned_price += $site->assigned_price;
+                    }
+                    */
 
-                    foreach($assignment->files as $file){
-                        $this->blockFile($file);
+                    // Si el proyecto no ha sido ejecutdo al 100% el estado pasa de Cobro a Aplicado
+                    if ($assignment->percentage_completed == 100) {
+                        $assignment->billing_to = Carbon::now();
+
+                        foreach ($assignment->files as $file) {
+                            $this->blockFile($file);
+                        }
+                    } else {
+                        $assignment->status = $assignment->status_number('Aplicado');
                     }
                 }
                 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
+                foreach ($assignment->sites as $site) {
                     $this->new_stat_site($site, $assignment->status); //Set the status of the child sites
                 }
 
@@ -990,30 +1002,26 @@ class AssignmentController extends Controller
             $match = true;
             $message = "El estado de la asignación ha cambiado a $assignment->status";
             */
-        }
-        elseif($action=='downgrade'){
-            if($assignment->status>1){
-                
+        } elseif ($action == 'downgrade') {
+            if ($assignment->status > 1) {
                 $assignment->status -= 1;
                 
-                if($assignment->statuses($assignment->status)=='Cotización'){
+                if ($assignment->statuses($assignment->status) == 'Cotización') {
                     $assignment->start_date = '0000-00-00 00:00:00';
                     $assignment->end_date = '0000-00-00 00:00:00';
-                }
-                elseif($assignment->statuses($assignment->status)=='Certificación (Control de calidad)'){
+                } elseif ($assignment->statuses($assignment->status) == 'Certificación (Control de calidad)') {
                     $assignment->billing_from = '0000-00-00 00:00:00';
-                }
-                elseif($assignment->statuses($assignment->status)=='Cobro'){
+                } elseif($assignment->statuses($assignment->status) == 'Cobro') {
                     $assignment->billing_to = '0000-00-00 00:00:00';
 
-                    foreach($assignment->files as $file){
+                    foreach ($assignment->files as $file) {
                         $this->unblockFile($file);
                     }
                 }
                 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
+                foreach ($assignment->sites as $site) {
                     $this->new_stat_site($site, $assignment->status); //Set the status of the child sites
                 }
 
@@ -1074,12 +1082,11 @@ class AssignmentController extends Controller
             $match = true;
             $message = "El estado de la asignación ha cambiado a $assignment->status";
             */
-        }
-        elseif($action=='close'){
+        } elseif ($action == 'close') {
             $assignment->status = 0 /*'No asignado'*/;
             $assignment->save();
 
-            foreach($assignment->sites as $site){
+            foreach ($assignment->sites as $site) {
                 $this->new_stat_site($site, 0 /*'No asignado'*/); //Set the status of the child sites
             }
 
@@ -1109,7 +1116,7 @@ class AssignmentController extends Controller
             }
             */
 
-            foreach($assignment->files as $file){
+            foreach ($assignment->files as $file) {
                 $this->blockFile($file);
             }
 
@@ -1117,16 +1124,15 @@ class AssignmentController extends Controller
             $message = "Este registro ha sido marcado como No asignado";
         }
 
-        if($match){
+        if ($match) {
             $this->add_event('status changed', $assignment); //Record an event for the date the status was changed
 
             Session::flash('message', $message);
-            if(Session::has('url'))
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->route('assignment.index');
-        }
-        else{
+        } else {
             /* default redirection if no match is found */
             return redirect()->back();
         }

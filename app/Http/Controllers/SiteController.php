@@ -941,20 +941,32 @@ class SiteController extends Controller
         $action = Input::get('action');
         $message = '';
 
-        if($action=='upgrade'){
-            if($site->status<$site->last_stat()){
-
+        if ($action == 'upgrade') {
+            if ($site->status < $site->last_stat()) {
                 $site->status += 1;
 
-                if($site->status==$site->last_stat()){
-                    foreach($site->files as $file){
-                        $this->blockFile($file);
+                if ($site->status == $site->last_stat()) {
+                    /*
+                    $temp_amount = 0;
+                    
+                    foreach ($site->orders as $order) {
+                        $temp_amount += $order->pivot->assigned_amount;
+                    }
+                    */
+
+                    // Si el sitio no ha sido ejecutado al 100% el estado pasa de Cobro a Aplicado
+                    if ($site->percentage_completed == 100) {
+                        foreach ($site->files as $file) {
+                            $this->blockFile($file);
+                        }
+                    } else {
+                        $site->status = $site->status_number('Aplicado');
                     }
                 }
 
                 $site->save();
 
-                foreach($site->tasks as $task){
+                foreach ($site->tasks as $task) {
                     $this->new_stat_task($task, $site->status); //Set the status of the child tasks
                 }
 
@@ -1047,21 +1059,19 @@ class SiteController extends Controller
             $match = true;
             $message = "El estado del sitio ha cambiado a $site->status";
             */
-        }
-        elseif($action=='downgrade'){
-            if($site->status>1){
-
+        } elseif ($action == 'downgrade') {
+            if ($site->status > 1) {
                 $site->status -= 1;
 
-                if($site->status==($site->last_stat()-1)){
-                    foreach($site->files as $file){
+                if ($site->status == ($site->last_stat()-1)) {
+                    foreach ($site->files as $file) {
                         $this->unblockFile($file);
                     }
                 }
 
                 $site->save();
 
-                foreach($site->tasks as $task){
+                foreach ($site->tasks as $task) {
                     $this->new_stat_task($task, $site->status); //Set the status of the child tasks
                 }
 
@@ -1120,12 +1130,11 @@ class SiteController extends Controller
             $match = true;
             $message = "El estado del sitio ha cambiado a $site->status";
             */
-        }
-        elseif($action=='close'){
+        } elseif ($action == 'close') {
             $site->status = 0 /*'No asignado'*/;
             $site->save();
 
-            foreach($site->tasks as $task){
+            foreach ($site->tasks as $task) {
                 $this->new_stat_task($task, 0 /*'No asignado'*/); //Set the status of the child tasks
             }
             /*
@@ -1142,7 +1151,7 @@ class SiteController extends Controller
                 }
             }
             */
-            foreach($site->files as $file){
+            foreach ($site->files as $file) {
                 $this->blockFile($file);
             }
 
@@ -1150,16 +1159,15 @@ class SiteController extends Controller
             $message = "Este registro ha sido marcado como No asignado";
         }
 
-        if($match){
+        if ($match) {
             $this->add_event('status changed', $site); //Record an event for the date the status was changed
 
             Session::flash('message', $message);
-            if(Session::has('url'))
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
-        }
-        else{
+        } else {
             /* default redirection if no match is found */
             return redirect()->back();
         }

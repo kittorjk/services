@@ -92,8 +92,10 @@ class Site extends Model
         4 => 'Elaboración de informes',
         5 => 'ATP',
         6 => 'Certificación (control de calidad)',
-        7 => 'Cobro',
-        8 => 'Concluído',
+        7 => 'Aplicado',
+        8 => 'Facturado',
+        9 => 'Cobro',
+        10 => 'Concluído',
     );
     
     public function statuses($value){

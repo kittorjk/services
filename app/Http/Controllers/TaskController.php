@@ -730,16 +730,28 @@ class TaskController extends Controller
         $action = Input::get('action');
         $message = '';
 
-        if($action=='upgrade'){
-            if($task->status<$task->last_stat()){
-
+        if ($action == 'upgrade') {
+            if ($task->status < $task->last_stat()) {
                 $task->status += 1;
 
-                if($task->status==$task->last_stat()){
-                    foreach($task->activities as $activity){
-                        foreach($activity->files as $file){
-                            $this->blockFile($file);
+                if ($task->status == $task->last_stat()) {
+                    /*
+                    $temp_amount = 0;
+                    
+                    foreach ($site->orders as $order) {
+                        $temp_amount += $order->pivot->assigned_amount;
+                    }
+                    */
+
+                    // Si la cantidad ejecutada del item no es igual a la cantidad asignada el estado pasa de Cobro a Aplicado
+                    if ($task->executed_price == $task->assigned_price) {
+                        foreach ($task->activities as $activity) {
+                            foreach($activity->files as $file){
+                                $this->blockFile($file);
+                            }
                         }
+                    } else {
+                        $task->status = $task->status_number('Aplicado');
                     }
                 }
 
@@ -772,14 +784,12 @@ class TaskController extends Controller
             $match = true;
             $message = "El estado del ítem ha cambiado a $task->status";
             */
-        }
-        elseif($action=='downgrade'){
-            if($task->status>1){
-
+        } elseif ($action == 'downgrade') {
+            if ($task->status > 1) {
                 $task->status -= 1;
 
-                if($task->status==$task->last_stat()-1){
-                    foreach($task->activities as $activity) {
+                if ($task->status == $task->last_stat() - 1) {
+                    foreach ($task->activities as $activity) {
                         foreach ($activity->files as $file) {
                             $this->unblockFile($file);
                         }
@@ -815,13 +825,12 @@ class TaskController extends Controller
             $match = true;
             $message = "El estado del ítem ha cambiado a $task->status";
             */
-        }
-        elseif($action=='close'){
+        } elseif ($action == 'close') {
             $task->status = 0 /*'No asignado'*/;
             $task->save();
 
-            foreach($task->activities as $activity){
-                foreach($activity->files as $file){
+            foreach ($task->activities as $activity) {
+                foreach ($activity->files as $file) {
                     $this->blockFile($file);
                 }
             }
@@ -830,16 +839,15 @@ class TaskController extends Controller
             $message = "Este registro ha sido marcado como No asignado";
         }
 
-        if($match){
+        if ($match) {
             $this->add_event('status changed', $task); //Record an event for the date the status was changed
 
             Session::flash('message', $message);
-            if(Session::has('url'))
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
-        }
-        else{
+        } else {
             /* default redirection if no match is found */
             return redirect()->back();
         }
