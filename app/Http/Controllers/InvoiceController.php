@@ -238,7 +238,9 @@ class InvoiceController extends Controller
         $invoice->flags = str_pad($invoice->flags+100000, 8, "0", STR_PAD_LEFT);
     }
     */
-    $invoice->status = 'Aprobado Gerencia General'; // All invoices are recorded as approved by GG
+    
+    // All invoices are recorded as approved by GG after a file with the scanned bill is uploaded
+    $invoice->status = 'Creado';
       
     $invoice->save();
 

@@ -85,7 +85,11 @@
               @if ($invoice->status == 'Pagado')
                 {{ 'Pagado' }}
               @else
-                @if ($user->action->oc_inv_pmt &&
+                @if ($invoice->status == 'Creado')
+                  <a href="/files/invoice/{{ $invoice->id }}">
+                    <i class="fa fa-upload"></i> {{ 'Creada, archivo pendiente' }}
+                  </a>
+                @elseif ($user->action->oc_inv_pmt &&
                   ($user->area=='Gerencia Administrativa' && $user->priv_level >= 2) || $user->priv_level == 4)
                   <a href="/invoice/payment/{{ $invoice->id }}">{{ 'Autorizado, pago pendiente' }}</a>
                 @else

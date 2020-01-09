@@ -1246,8 +1246,11 @@ class FilesController extends Controller
             if ($upload) {
                 $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$invoice);
 
+                $invoice->status = 'Aprobado Gerencia General';
+                $invoice->save();
+
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('invoice.index');
