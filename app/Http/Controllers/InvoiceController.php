@@ -205,6 +205,18 @@ class InvoiceController extends Controller
     $invoice->user_id = $user->id;
 
     if ($invoice->concept != 'Adelanto') {
+      // Certificado firmado
+      $signed_file_exists = false;
+      foreach ($invoice->oc_certification->files as $file) {
+        if (substr($file->name, 0, 4) == 'CTDF') {
+          $signed_file_exists = true;
+        }
+      }
+      if (!$signed_file_exists) {
+        Session::flash('message', "El certificado seleccionado no cuenta con el archivo firmado en el sistema!");
+        return redirect()->back()->withInput();
+      }
+
       // Facturas en certificado
       $existing_amount = 0;
       foreach ($invoice->oc_certification->invoices as $inv) {
