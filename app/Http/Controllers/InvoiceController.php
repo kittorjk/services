@@ -194,6 +194,17 @@ class InvoiceController extends Controller
       return redirect()->back()->withInput();
     }
 
+    // Validación de porcentajes de pago según OC
+    $percentages = explode('-', $invoice->oc->percentages);
+    
+    if (($invoice->concept == 'Adelanto' && $percentages[0] == 0) ||
+        ($invoice->concept == 'Avance' && $percentages[1] == 0) ||
+        ($invoice->concept == 'Entrega' && $percentages[2] == 0)) {
+      $message = "No puede cargar una factura por ".$invoice->concept." para la OC seleccionada, revise los porcentajes de pago de la OC!";
+      Session::flash('message', $message);
+      return redirect()->back()->withInput();
+    }
+
     $similar_invoices = Invoice::where('number', $invoice->number)->get();
     foreach ($similar_invoices as $similar_invoice) {
       if ($similar_invoice->oc->provider_id == $invoice->oc->provider_id) {
@@ -440,6 +451,17 @@ class InvoiceController extends Controller
       if ($invoice->concept != 'Adelanto' && $invoice->oc->executed_amount == 0) {
         Session::flash('message', "Debe especificar el monto ejecutado de la OC si la factura no es por adelanto! 
             Por favor cargue un certificado de aceptación parcial o total");
+        return redirect()->back()->withInput();
+      }
+
+          // Validación de porcentajes de pago según OC
+      $percentages = explode('-', $invoice->oc->percentages);
+      
+      if (($invoice->concept == 'Adelanto' && $percentages[0] == 0) ||
+          ($invoice->concept == 'Avance' && $percentages[1] == 0) ||
+          ($invoice->concept == 'Entrega' && $percentages[2] == 0)) {
+        $message = "No puede cargar una factura por ".$invoice->concept." para la OC seleccionada, revise los porcentajes de pago de la OC!";
+        Session::flash('message', $message);
         return redirect()->back()->withInput();
       }
 
