@@ -293,6 +293,7 @@ class OCController extends Controller
     $oc = OC::find($id);
 
     $oc->percentages = str_replace('-','% - ',$oc->percentages).'%';
+    $exploded_percentages = explode('-', $oc->percentages);
 
     /*
     if(!empty($oc->percentages)){
@@ -316,7 +317,7 @@ class OCController extends Controller
     $pm_name = empty($oc->pm_id) ? '' : User::find($oc->pm_id)->name;
     */
 
-    return View::make('app.oc_info', ['oc' => $oc, 'service' => $service, 'user' => $user]);
+    return View::make('app.oc_info', ['oc' => $oc, 'exploded_percentages' => $exploded_percentages, 'service' => $service, 'user' => $user]);
   }
 
   /**

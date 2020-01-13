@@ -511,7 +511,7 @@
                         <tr>
                           <th>Pendiente de pago:</th>
                           <td class="update">
-                            {{ $oc->executed_amount!=0 ? number_format(($oc->executed_amount - $oc->payed_amount), 2).' Bs' : '0.00 Bs' }}
+                            {{ $oc->executed_amount != 0 ? number_format(($oc->executed_amount - $oc->payed_amount), 2).' Bs' : '0.00 Bs' }}
                           </td>
                         </tr>
                         <tr>
@@ -524,7 +524,13 @@
 
                         <tr>
                           <th colspan="2">Porcentajes de pago:</th>
-                          <td colspan="2">{{ $oc->percentages }}</td>
+                          <td colspan="2">
+                            {{ $exploded_percentages[0].' adelanto' }}
+                            <br>
+                            {{ $exploded_percentages[1].' avance' }}
+                            <br>
+                            {{ $exploded_percentages[2].' entrega' }}
+                          </td>
                         </tr>
                         <tr><th colspan="4"></th></tr>
 
