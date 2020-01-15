@@ -41,7 +41,7 @@
       <thead>
         <tr>
           <th width="10%">NIT</th>
-          <th width="25%">Nombre o razón social</th>
+          <th width="20%">Nombre o razón social</th>
           <th>Especialidad</th>
           <th>Persona de contacto</th>
           <th>Correo electrónico</th>

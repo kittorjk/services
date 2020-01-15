@@ -3629,17 +3629,20 @@ class ExcelController extends Controller
 
                 $excelIsValid = false;
 
-                foreach($data as $ex){
-                    if(isset($ex["numero"])&&isset($ex["nombre"])&&isset($ex["fecha_de_inicio"])&&
+                foreach ($data as $exKey => $ex) {
+                    if (isset($ex["numero"]) && isset($ex["nombre"]) && isset($ex["fecha_de_inicio"]) &&
                         isset($ex["fecha_de_fin"]))
                         $excelIsValid = true;
+                    // Remover filas vacías de archivo excel                    
+                    if (!$ex["numero"])
+                        unset($data[$exKey]);
                 }
 
                 $to_validate = $data->toArray();
                 $number_of_records = count($to_validate);
                 $i = 0;
 
-                while($i<$number_of_records){
+                while ($i < $number_of_records) {
                     $v = \Validator::make($to_validate[$i], [
                         'numero'            => 'numeric',
                         'nombre'            => 'required',
@@ -3649,6 +3652,7 @@ class ExcelController extends Controller
 
                     if ($v->fails()) {
                         $excelIsValid = false;
+                        break;
                     }
                     $i++;
                 }
