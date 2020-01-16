@@ -3679,11 +3679,11 @@ class ExcelController extends Controller
                             'assignment_id'     => $assignment->id,
                             'status'            => $assignment ? $assignment->status : 1 /* Initial status */,
                             'origin_name'       => $value->nombre,
-                            'latitude'          => isset($value['latitud']) ? $value->latitud : '',
-                            'longitude'         => isset($value['longitud']) ? $value->longitud : '',
-                            'department'        => isset($value['departamento']) ? $value->departamento : '',
-                            'municipality'      => isset($value['municipio']) ? $value->municipio : '',
-                            'type_municipality' => isset($value['area']) ? $value->area : '',
+                            'latitude'          => isset($value['latitud']) && $value->latitud ? $value->latitud : '',
+                            'longitude'         => isset($value['longitud']) && $value->longitud ? $value->longitud : '',
+                            'department'        => isset($value['departamento']) && $value->departamento ? $value->departamento : '',
+                            'municipality'      => isset($value['municipio']) && $value->municipio ? $value->municipio : '',
+                            'type_municipality' => isset($value['area']) && $value->area ? $value->area : '',
                             'resp_id'           => $tmp_id,
                             'contact_id'        => $assignment->contact_id,
                             'start_line'        => $value->fecha_de_inicio ? $value->fecha_de_inicio->format('Y-m-d') :
@@ -3726,8 +3726,8 @@ class ExcelController extends Controller
                 $area = $request->input('area');
                 $project_id = $request->input('project_id');
 
-                if($category=='Otro'||$category==''){
-                    if($request->input('other_category')==""){
+                if ($category == 'Otro' || $category == '') {
+                    if ($request->input('other_category') == "") {
                         //$category = 'Otros - '.$area;
                         Session::flash('message', 'Debe indicar una categoría!');
                         return redirect()->back()->withInput();
@@ -3742,8 +3742,8 @@ class ExcelController extends Controller
 
                 $excelIsValid = false;
 
-                foreach($data as $ex){
-                    if(isset($ex["number"])&&isset($ex["description"])&&isset($ex["units"])&&isset($ex["cost_unit_central"]))
+                foreach ($data as $ex) {
+                    if (isset($ex["number"]) && isset($ex["description"]) && isset($ex["units"]) && isset($ex["cost_unit_central"]))
                         $excelIsValid = true;
                 }
                 /*
@@ -3783,31 +3783,30 @@ class ExcelController extends Controller
                         $new_category->name = $category;
                         $new_category->area = $area ?: $user->work_type;
                         $new_category->status = 1;
-
                         $new_category->client = $new_category->project ? $new_category->project->client : '';
 
                         $new_category->save();
                     }
 
                     foreach ($data as $key => $value) {
-                        if(!empty($value->number)&&!empty($value->description)&&!empty($value->units)&&
-                            !empty($value->cost_unit_central)&&/*is_numeric($value->number)&&*/
-                            is_numeric($value->cost_unit_central)){
+                        if (!empty($value->number) && !empty($value->description) && !empty($value->units) && 
+                            !empty($value->cost_unit_central) && /*is_numeric($value->number)&&*/
+                            is_numeric($value->cost_unit_central)) {
 
                             $item_exists = Item::where('number', $value->number)->where('description', $value->description)
                                 ->where('units', $value->units)->where('cost_unit_central', $value->cost_unit_central)
                                 ->where('item_category_id', $new_category->id)->exists();
 
-                            if(!$item_exists) {
+                            if (!$item_exists) {
                                 $insert[] = [
                                     'number' => $value->number,
-                                    'client_code' => isset($value["client_code"]) ? $value->client_code : '',
-                                    'subcategory' => isset($value["subcategory"]) ? $value->subcategory : '',
+                                    'client_code' => isset($value["client_code"]) && $value->client_code ? $value->client_code : '',
+                                    'subcategory' => isset($value["subcategory"]) && $value->subcategory ? $value->subcategory : '',
                                     'description' => $value->description,
                                     'units' => $value->units,
                                     'cost_unit_central' => $value->cost_unit_central,
                                     //'cost_unit_remote'  => $value->e,
-                                    'detail' => isset($value["detail"]) ? $value->detail : '',
+                                    'detail' => isset($value["detail"]) && $value->detail ? $value->detail : '',
                                     'category' => $new_category->name,
                                     'item_category_id' => $new_category->id,
                                     'area' => $area,
@@ -3816,19 +3815,20 @@ class ExcelController extends Controller
                             }
                         }
                     }
+
                     if (!empty($insert)) {
                         Item::insert($insert);
 
                         $message = "Los items fueron cargados al sistema correctamente";
                     }
-                    else{
+                    else {
                         $message = 'No se cargó ningún item!';
                     }
 
                     Session::flash('message', $message);
-                    if(Session::has('url'))
+                    if (Session::has('url'))
                         return redirect(Session::get('url'));
-                    elseif ($id!=0)
+                    elseif ($id != 0)
                         return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
                     else
                         return redirect()->route('item_category.index');
@@ -3965,7 +3965,6 @@ class ExcelController extends Controller
 
                 if (!empty($data) && $data->count()) {
                     foreach ($data as $key => $value) {
-
                         $employee = Employee::where(function ($query) use($value){
                             $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$value->solicitado_para%");
                         })->first();
@@ -3982,29 +3981,27 @@ class ExcelController extends Controller
                                 'per_day_amount'    => $value->viatico_por_dia,
                                 'total_amount'      => $value->viatico_por_dia*(Carbon::parse($value->fecha_desde)
                                             ->diffInDays(Carbon::parse($value->fecha_hasta)) + 1),
-                                'transport_amount'  => isset($value['transporte']) ? $value->transporte : '',
-                                'gas_amount'        => isset($value['combustible']) ? $value->combustible : '',
-                                'taxi_amount'       => isset($value['taxi']) ? $value->taxi : '',
-                                'comm_amount'       => isset($value['comunicaciones']) ? $value->comunicaciones : '',
+                                'transport_amount'  => isset($value['transporte']) && $value->transporte ? $value->transporte : '',
+                                'gas_amount'        => isset($value['combustible']) && $value->combustible ? $value->combustible : '',
+                                'taxi_amount'       => isset($value['taxi']) && $value->taxi ? $value->taxi : '',
+                                'comm_amount'       => isset($value['comunicaciones']) && $value->comunicaciones ? $value->comunicaciones : '',
                                 //'hotel_amount'      => 0,
-                                'materials_amount'  => isset($value['materiales']) ? $value->materiales: '',
-                                'extras_amount'     => isset($value['extras']) ? $value->extras: '',
+                                'materials_amount'  => isset($value['materiales']) && $value->materiales ? $value->materiales : '',
+                                'extras_amount'     => isset($value['extras']) && $value->extras ? $value->extras : '',
                                 'reason'            => $value->motivo,
                                 'status'            => 'Pending',
                                 'created_at'        => date('Y-m-d H:i:s'),
                                 'updated_at'        => date('Y-m-d H:i:s')
                             ];
-
                         }
                     }
-                    if (!empty($insert)) {
 
+                    if (!empty($insert)) {
                         StipendRequest::insert($insert);
 
                         $empty_coded_requests = StipendRequest::where('code','')->get();
 
-                        foreach($empty_coded_requests as $request)
-                        {
+                        foreach ($empty_coded_requests as $request) {
                             $request->code = 'STP-'.str_pad($request->id, 4, "0", STR_PAD_LEFT).'-'.
                                 date_format($request->created_at,'y');
 
@@ -4013,8 +4010,7 @@ class ExcelController extends Controller
 
                         $empty_additional_requests = StipendRequest::where('additional', 0)->get();
 
-                        foreach ($empty_additional_requests as $request)
-                        {
+                        foreach ($empty_additional_requests as $request) {
                             $request->additional = $request->transport_amount + $request->gas_amount + $request->taxi_amount +
                                 $request->comm_amount + $request->hotel_amount + $request->materials_amount +
                                 $request->extras_amount;
@@ -4028,7 +4024,7 @@ class ExcelController extends Controller
                     }
 
                     Session::flash('message', $message);
-                    if(Session::has('url'))
+                    if (Session::has('url'))
                         return redirect(Session::get('url'));
                     else
                         return redirect('/stipend_request?asg='.$assignment->id);
