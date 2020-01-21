@@ -122,15 +122,14 @@ class VehicleRequirementController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
 
         $requirement = new VehicleRequirement(Request::all());
 
-        if(VehicleRequirement::where('vehicle_id',$requirement->vehicle_id)->where('status',1 /*In process*/)->exists()){
+        if (VehicleRequirement::where('vehicle_id',$requirement->vehicle_id)->where('status',1 /*In process*/)->exists()) {
             // If a requirement for this vehicle already exists return with error
             Session::flash('message', "El vehículo seleccionado ya tiene un requerimiento en proceso!");
             return redirect()->back()->withInput();
@@ -140,28 +139,28 @@ class VehicleRequirementController extends Controller
         $requirement->code = 'VR-'.$date_time;
         $requirement->user_id = $user->id;
 
-        if($requirement->type=='devolution'||$requirement->type=='transfer_branch')
-            $person_for = User::whereIn('work_type',['Transporte', 'Director Regional'])->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
+        $branch = Branch::where('name', $requirement->branch_destination)->first();
+
+        if ($requirement->type == 'devolution' || $requirement->type == 'transfer_branch')
+            $person_for = User::whereIn('work_type',['Transporte', 'Director Regional'])->where('branch_id', $branch->id)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
         $person_from = User::select('id')->where('name',Request::input('from_name'))->first();
 
-        if($person_for==''){
+        if ($person_for == '') {
             Session::flash('message', "No se ha encontrado en el sistema un registro del receptor del vehículo");
             return redirect()->back()->withInput();
-        }
-        else
+        } else
             $requirement->for_id = $person_for->id;
 
-        if($person_from==''){
+        if ($person_from == '') {
             Session::flash('message', "No se ha encontrado en el sistema un registro del responsable actual del vehículo!");
             return redirect()->back()->withInput();
-        }
-        else
+        } else
             $requirement->from_id = $person_from->id;
 
-        $requirement->status = 1; //In process
+        $requirement->status = 1; // In process
 
         $requirement->save();
 
@@ -175,7 +174,7 @@ class VehicleRequirementController extends Controller
         $this->send_email($requirement, 'store' /*$recipient, $cc, $data, $mail_structure, $subject*/);
 
         Session::flash('message', "El requerimiento de vehículo fue registrado correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('vehicle_requirement.index');
@@ -282,8 +281,10 @@ class VehicleRequirementController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if($requirement->type=='devolution'||$requirement->type=='transfer_branch')
-            $person_for = User::whereIn('work_type',['Transporte', 'Director Regional'])->where('branch', $requirement->branch_destination)->where('status', 'Activo')->first();
+        $branch = Branch::where('name', $requirement->branch_destination)->first();
+
+        if ($requirement->type == 'devolution' || $requirement->type == 'transfer_branch')
+            $person_for = User::whereIn('work_type',['Transporte', 'Director Regional'])->where('branch_id', $branch->id)->where('status', 'Activo')->first();
         else
             $person_for = User::select('id')->where('name',Request::input('for_name'))->first();
 
@@ -313,7 +314,7 @@ class VehicleRequirementController extends Controller
         $this->send_email($requirement, 'update' /*$recipient, $cc, $data, $mail_structure, $subject*/);
 
         Session::flash('message', "Requerimiento modificado correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('vehicle_requirement.index');
