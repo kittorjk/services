@@ -291,7 +291,7 @@ Route::get('/site/set_global_dates/{id}', 'SiteController@set_global_dates_form'
 Route::put('/site/set_global_dates/{id}', 'SiteController@set_global_dates');
 Route::get('/site/{id}', 'SiteController@sites_per_project');
 Route::get('/site/{id}/control', 'SiteController@control_form');
-Route::put('/site/{id}/control', 'siteController@config_control');
+Route::put('/site/{id}/control', 'SiteController@config_control');
 Route::get('/site/{id}/edit', 'SiteController@edit');
 Route::put('/site/{id}', 'SiteController@update');
 Route::get('/site/{id}/show', 'SiteController@show');
