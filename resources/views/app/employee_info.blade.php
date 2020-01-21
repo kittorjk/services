@@ -72,7 +72,10 @@
                         </tr>
                         <tr>
                             <th>Fecha de nacimiento</th>
-                            <td>{{ date_format($employee->birthday, 'd-m-Y') }}</td>
+                            <td>
+                                {{ date_format(new \DateTime($employee->birthday), 'd-m-Y') != '30-11--0001' ?
+                                            date_format(new \DateTime($employee->birthday), 'd-m-Y') : 'N/E' }}
+                            </td>
                         </tr>
                         <tr>
                             <th>Carnet de identidad</th>

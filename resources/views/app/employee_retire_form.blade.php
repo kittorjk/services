@@ -63,6 +63,17 @@
                         placeholder="Apellidos" disabled="disabled">
                 </div>
 
+                <div class="input-group" style="width: 75%;text-align: center">
+                  <label for="date_out" class="input-group-addon" style="width: 31%; text-align: left">
+                    Fecha de retiro:
+                  </label>
+
+                  <span class="input-group-addon">
+                    <input type="date" name="date_out" id="date_out" step="1" min="{{ $employee ? $employee->date_in : '2014-01-01' }}"
+                          value="{{ date('Y-m-d') }}">
+                  </span>
+                </div>
+
                 <div class="input-group" style="width: 100%">
                   <label for="address" class="input-group-addon" style="width: 23%;text-align: left">
                       Motivo de retiro:

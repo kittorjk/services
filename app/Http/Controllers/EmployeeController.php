@@ -346,10 +346,12 @@ class EmployeeController extends Controller
           return redirect()->route('root');
 
         $v = \Validator::make(Request::all(), [
-          'reason_out'    => 'required',
+          'reason_out'      => 'required',
+          'date_out'        => 'date'
         ],
           [
             'reason_out.required'   => 'Debe especificar el/los nombre(s) del empleado!',
+            'date_out.date'         => 'La fecha de retiro no tiene un formato válido!'
           ]
         );
 
@@ -362,7 +364,7 @@ class EmployeeController extends Controller
         $employee->fill(Request::all());
 
         $employee->active = 0;
-        $employee->date_out = Carbon::now();
+        $employee->date_out = $employee->date_out == '0000-00-00 00:00:00' ? Carbon::now() : $employee->date_out;
 
         $employee->save();
         
