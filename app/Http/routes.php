@@ -143,6 +143,7 @@ Route::put('/driver/confirm/{id}', 'DriverController@confirm_reception');
 //Route::post('/driver/devolution', 'DriverController@record_devolution'); //deprecated
 Route::resource('/driver', 'DriverController');
 
+Route::get('/employee/{id}/add_account', 'EmployeeController@add_account');
 Route::get('/employee/{id}/retire', 'EmployeeController@retire_form');
 Route::put('/employee/{id}/retire', 'EmployeeController@retire');
 Route::resource('/employee', 'EmployeeController');

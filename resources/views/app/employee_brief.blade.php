@@ -58,6 +58,7 @@
                 <th>Área</th>
                 <th>Email corporativo</th>
                 <th>Teléfono</th>
+                <th>Acciones</th>
             </tr>
             </thead>
             <tbody>
@@ -102,6 +103,14 @@
                     <td>{{ $employee->area !== '' ? $areas[$employee->area] : 'N/E' }}</td>
                     <td>{{ $employee->corp_email }}</td>
                     <td>{{ $employee->phone!=0 ? $employee->phone : '' }}</td>
+                    <td>
+                        @if ((($user->action->adm_emp_edt && $employee->active === 1) || $user->priv_level === 4) && $employee->access_id == 0)
+                            <a href="/employee/{{ $employee->id }}/add_account" title="Crear acceso de empleado al sistema"
+                                @if($employee->active==0)style="color: inherit"@endif>
+                                <i class="fa fa-lock"></i>
+                            </a>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
             </tbody>
