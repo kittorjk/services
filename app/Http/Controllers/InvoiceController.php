@@ -223,15 +223,18 @@ class InvoiceController extends Controller
           $signed_file_exists = true;
         }
       }
+
       if (!$signed_file_exists) {
         Session::flash('message', "El certificado seleccionado no cuenta con el archivo firmado en el sistema!");
         return redirect()->back()->withInput();
       }
 
-      // Facturas en certificado
+      // Facturas en certificado, no se toma en cuenta la factura actual
       $existing_amount = 0;
       foreach ($invoice->oc_certification->invoices as $inv) {
-        $existing_amount += $inv->amount;
+        if ($inv->id != $invoice->id) {
+          $existing_amount += $inv->amount;
+        }
       }
 
       if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
@@ -466,10 +469,12 @@ class InvoiceController extends Controller
       }
 
       if ($invoice->concept != 'Adelanto') {
-        // Facturas en certificado
+        // Facturas en certificado, no se toma en cuenta la factura actual
         $existing_amount = 0;
         foreach ($invoice->oc_certification->invoices as $inv) {
-          $existing_amount += $inv->amount;
+          if ($inv->id != $invoice->id) {
+            $existing_amount += $inv->amount;
+          }
         }
   
         if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
