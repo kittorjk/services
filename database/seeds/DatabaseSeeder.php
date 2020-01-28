@@ -12,15 +12,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        /*
         $user = User::create([
                     "name" => "Adolfo",
                     "login" => "adolfo",
                     "password" => Hash::make('arildo10')
                 ]);
+                */
         Model::unguard();
 
-        $this->call(AdminBaseSeeder::class);
-        $this->call(CiteSeeder::class);
+        //$this->call(AdminBaseSeeder::class);
+        //$this->call(CiteSeeder::class);
+        $this->call(CiteCodesSeeder::class);
         
         Model::reguard();
     }

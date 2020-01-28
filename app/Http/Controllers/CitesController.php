@@ -11,6 +11,7 @@ use View;
 use Input;
 
 use App\Cite;
+use App\CiteCode;
 use App\ClientSession;
 use App\File;
 use App\User;
@@ -36,7 +37,7 @@ class CitesController extends Controller
             return View('app.index', ['service'=>'cite', 'user'=>null]);
             //return redirect()->route('root');
         }
-        if($user->acc_cite==0)
+        if ($user->acc_cite == 0)
             return redirect()->action('LoginController@logout', ['service' => 'cite']);
 
         Session::put('service', 'cite');
@@ -45,22 +46,22 @@ class CitesController extends Controller
         
         $this->trackService($user, $service);
 
-        if($user->action->ct_vw_all /*($user->priv_level==3&&$user->area=='Gerencia General')*/||$user->priv_level==4){
-
+        if ($user->action->ct_vw_all /*($user->priv_level==3&&$user->area=='Gerencia General')*/ || $user->priv_level == 4) {
             $prefix = Input::get('prefix');
 
-            if($prefix=='gg')
-                $cites = Cite::where('title','AB-GG'); //where('num_cite', '>', 0)
-            elseif($prefix=='adm')
-                $cites = Cite::where('title','AB-ADM');
-            elseif($prefix=='tec')
-                $cites = Cite::where('title','AB-GTEC');
+            // $cites = Cite::where('title','AB-GG'); //where('num_cite', '>', 0)
+
+            if ($prefix == 'gg')
+                $cites = Cite::where('area','Gerencia General');
+            elseif ($prefix == 'adm')
+                $cites = Cite::where('area','Gerencia Administrativa');
+            elseif ($prefix == 'tec')
+                $cites = Cite::where('area','Gerencia Tecnica');
             else
                 $cites = Cite::where('num_cite', '>', 0);
 
             //$files = File::where('imageable_type', 'App\Cite')->get();
-        }
-        else{
+        } else {
             $cites = Cite::where('area', $user->area);
             /*
             $files = File::join('cites', 'files.imageable_id', '=', 'cites.id')
@@ -72,7 +73,7 @@ class CitesController extends Controller
             */
         }
 
-        if($user->priv_level!=4)
+        if ($user->priv_level != 4)
             $cites = $cites->where('asunto', 'not like', "%Néstor Romero%"); // Filter records referring to ADM
 
         $cites = $cites->orderBy('created_at', 'desc')->paginate(20);
@@ -98,28 +99,40 @@ class CitesController extends Controller
         //$session_user = User::where('id', $user->id)->first();
         $cod_cite->area = $user->area;
 
-        if($user->area=='Gerencia Tecnica')
-            $cod_cite->title = 'AB-GTEC';
-        elseif($user->area=='Gerencia Administrativa')
-            $cod_cite->title = 'AB-ADM';
-        elseif($user->area=='Gerencia General')
-            $cod_cite->title = 'AB-GG';
-        else{
-            Session::flash('message', "Ocurrió un error al recuperar sus datos de sesión, intente de nuevo por favor");
+        $temp_code_record = CiteCode::where('area', $user->area)->where('branch_id', $user->branch_id)->where('status', 1)->first();
+
+        if ($temp_code_record && $temp_code_record->code) {
+            $cod_cite->title = $temp_code_record->code;
+        } else {
+            Session::flash('message', "Ocurrió un error al recuperar sus datos de sesión o usted no puede crear cites en el sistema, intente de nuevo por favor");
             return redirect()->route('cite.index');
         }
 
+        /*
+        if ($user->area == 'Gerencia Tecnica')
+            $cod_cite->title = 'AB-GTEC';
+        elseif ($user->area == 'Gerencia Administrativa')
+            $cod_cite->title = 'AB-ADM';
+        elseif ($user->area == 'Gerencia General')
+            $cod_cite->title = 'AB-GG';
+        else {
+            Session::flash('message', "Ocurrió un error al recuperar sus datos de sesión, intente de nuevo por favor");
+            return redirect()->route('cite.index');
+        }
+        */
+
         $date = Carbon::now()->format('Y');
 
-        $last_cite = Cite::where('area' , $cod_cite->area)
+        $last_cite = Cite::where('title' , $cod_cite->title)
             ->whereYear('created_at', '=', $date)
             ->orderBy('num_cite', 'desc')->first();
 
-        $cod_cite->num_cite = $last_cite ? $last_cite->num_cite+1 : 1;
+        $cod_cite->num_cite = $last_cite ? $last_cite->num_cite + 1 : 1;
 
         $cod_cite->created_at = Carbon::now();
 
-        $prefixes = Cite::select('title')->where('title','<>','')->groupBy('title')->get();
+        // $prefixes = Cite::select('title')->where('title','<>','')->groupBy('title')->get();
+        $prefixes = CiteCode::select('code')->where('code', '<>', '')->get();
 
         return View::make('app.cite_form', ['cite' => 0, 'user' => $user, 'service' => $service, 'cod_cite' => $cod_cite,
             'prefixes' => $prefixes]);
@@ -151,8 +164,7 @@ class CitesController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
@@ -161,20 +173,40 @@ class CitesController extends Controller
 
         $cite->area = $user->area;
 
-        if($user->priv_level==4){
+        $temp_code_record = CiteCode::where('area', $user->area)->where('branch_id', $user->branch_id)->where('status', 1)->first();
+
+        if ($user->priv_level == 4) {
             $cite->title = Request::input('cite_prefix');
 
-            if($cite->title=='AB-GTEC')
-                $cite->area = 'Gerencia Tecnica';
-            elseif($cite->title=='AB-ADM')
-                $cite->area = 'Gerencia Administrativa';
-            elseif($cite->title=='AB-GG')
-                $cite->area = 'Gerencia General';
-            else{
+            $temp_area_record = CiteCode::where('code', $cite->title)->first();
+
+            if ($temp_area_record && $temp_area_record->area) {
+                $cite->area = $temp_area_record->area;
+            } else {
                 Session::flash('message', "Debe seleccionar un prefijo");
                 return redirect()->route('cite.index');
             }
+
+            /*
+            if ($cite->title == 'AB-GTEC')
+                $cite->area = 'Gerencia Tecnica';
+            elseif ($cite->title == 'AB-ADM')
+                $cite->area = 'Gerencia Administrativa';
+            elseif ($cite->title == 'AB-GG')
+                $cite->area = 'Gerencia General';
+            else {
+                Session::flash('message', "Debe seleccionar un prefijo");
+                return redirect()->route('cite.index');
+            }
+            */
+        } elseif ($temp_code_record && $temp_code_record->code) {
+            $cite->title = $temp_code_record->code;
+        } else {
+            Session::flash('message', "Ocurrió un error al recuperar sus datos de sesión o usted no puede crear cites en el sistema, intente de nuevo por favor");
+            return redirect()->route('cite.index');
         }
+
+        /*
         elseif($user->area=='Gerencia Tecnica'){
             $cite->title = 'AB-GTEC';
         }
@@ -184,18 +216,15 @@ class CitesController extends Controller
         elseif($user->area=='Gerencia General'){
             $cite->title = 'AB-GG';
         }
-        else{
-            Session::flash('message', "Ocurrió un error al recuperar sus datos de sesión, intente de nuevo por favor");
-            return redirect()->route('cite.index');
-        }
+        */
 
         $date = Carbon::now()->format('Y');
 
-        $last_cite = Cite::where('area' , $cite->area)
+        $last_cite = Cite::where('title' , $cite->title)
             ->whereYear('created_at', '=', $date)
             ->orderBy('num_cite', 'desc')->first();
 
-        $cite->num_cite = $last_cite ? $last_cite->num_cite+1 : 1;
+        $cite->num_cite = $last_cite ? $last_cite->num_cite + 1 : 1;
 
         $cite->code = $cite->title.'-'.str_pad($cite->num_cite, 3, "0", STR_PAD_LEFT).date('-Y');
         //$cite->title.'-'.str_pad($cite->num_cite, 3, "0", STR_PAD_LEFT).date_format($cite->created_at,'-Y');
@@ -226,13 +255,14 @@ class CitesController extends Controller
     public function edit($id)
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $service = Session::get('service');
         $cite = Cite::find($id);
 
-        $prefixes = Cite::select('title')->where('title','<>','')->groupBy('title')->get();
+        // $prefixes = Cite::select('title')->where('title','<>','')->groupBy('title')->get();
+        $prefixes = CiteCode::select('code')->where('code', '<>', '')->get();
 
         return View::make('app.cite_form', ['cite' => $cite, 'user' => $user, 'service' => $service,
             'prefixes' => $prefixes]);
@@ -248,41 +278,53 @@ class CitesController extends Controller
     public function update(Request $request, $id)
     {
         $user = Session::get('user');
-        if ((is_null($user))||(!$user->id))
+        if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
         $cite = Cite::find($id);
         $cite->fill(Request::all());
         //$cite->user_id = $user->id;
 
-        if(empty($cite->responsable)||empty($cite->para_empresa)||empty($cite->destino)||empty($cite->asunto)){
+        if (empty($cite->responsable) || empty($cite->para_empresa) || empty($cite->destino) || empty($cite->asunto)) {
             Session::flash('message', "Debe llenar el formulario!");
             return redirect()->back();
         }
+
+        $temp_code_record = CiteCode::where('area', $user->area)->where('branch_id', $user->branch_id)->where('status', 1)->first();
         
-        if($user->priv_level==4){
+        if ($user->priv_level == 4) {
             $prefix = Request::input('cite_prefix');
-            if($prefix!=$cite->title){
+            if ($prefix != $cite->title) {
                 $cite->title = $prefix;
 
-                if($cite->title=='AB-GTEC')
-                    $cite->area = 'Gerencia Tecnica';
-                elseif($cite->title=='AB-ADM')
-                    $cite->area = 'Gerencia Administrativa';
-                elseif($cite->title=='AB-GG')
-                    $cite->area = 'Gerencia General';
-                else{
-                    Session::flash('message', "Debe seleccione un prefijo");
+                $temp_area_record = CiteCode::where('code', $cite->title)->first();
+
+                if ($temp_area_record && $temp_area_record->area) {
+                    $cite->area = $temp_area_record->area;
+                } else {
+                    Session::flash('message', "Debe seleccionar un prefijo");
                     return redirect()->route('cite.index');
                 }
+                /*
+                if ($cite->title == 'AB-GTEC')
+                    $cite->area = 'Gerencia Tecnica';
+                elseif ($cite->title == 'AB-ADM')
+                    $cite->area = 'Gerencia Administrativa';
+                elseif ($cite->title == 'AB-GG')
+                    $cite->area = 'Gerencia General';
+                else {
+                    Session::flash('message', "Debe seleccionar un prefijo");
+                    return redirect()->route('cite.index');
+                }
+                */
 
                 $date = Carbon::now()->format('Y');
 
-                $last_cite = Cite::where('area' , $cite->area)
+                $last_cite = Cite::where('title' , $cite->title)
                     ->whereYear('created_at', '=', $date)
                     ->orderBy('num_cite', 'desc')->first();
 
-                $cite->num_cite = $last_cite ? $last_cite->num_cite+1 : 1;
+                $cite->num_cite = $last_cite ? $last_cite->num_cite + 1 : 1;
 
                 $cite->code = $cite->title.'-'.str_pad($cite->num_cite, 3, "0", STR_PAD_LEFT).date('-Y');
             }
@@ -291,7 +333,7 @@ class CitesController extends Controller
         $cite->save();
 
         Session::flash('message', "Datos actualizados correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('cite.index');
@@ -314,7 +356,7 @@ class CitesController extends Controller
 
         $file_error = false;
 
-        foreach($cite->files as $file){
+        foreach ($cite->files as $file) {
             /*
             $success = true;
 
@@ -329,7 +371,7 @@ class CitesController extends Controller
                 $file->delete();
             */
             $file_error = $this->removeFile($file);
-            if($file_error)
+            if ($file_error)
                 break;
         }
 
@@ -348,12 +390,11 @@ class CitesController extends Controller
             $cite->delete();
 
             Session::flash('message', "El registro fue eliminado del sistema");
-            if(Session::has('url'))
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->route('cite.index');
-        }
-        else {
+        } else {
             Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
             return redirect()->back();
         }

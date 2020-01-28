@@ -15,7 +15,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/cite' }}" class="btn btn-warning" title="Volver a la tabla de CITEs">
                         <i class="fa fa-arrow-up"></i>
@@ -76,9 +76,9 @@
                                             <select required="required" class="form-control" name="cite_prefix" id="cite_prefix">
                                                 <option value="" hidden>Seleccione un prefijo</option>
                                                 @foreach($prefixes as $prefix)
-                                                    <option value="{{  $prefix->title }}"
-                                                            {{ $cite&&$cite->title==$prefix->title ? 'selected="selected"' : '' }}
-                                                    >{{$prefix->title}}</option>
+                                                    <option value="{{  $prefix->code }}"
+                                                            {{ $cite && $cite->title == $prefix->code ? 'selected="selected"' : '' }}
+                                                    >{{ $prefix->code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
