@@ -129,27 +129,28 @@ class MailController extends Controller
             }
         }
 
-        if($type=='contract'){
+        if ($type == 'contract') {
             $projects = Project::where('valid_to','<',Carbon::now()->addDays(5))->where('status', 'Activo')->get();
 
             $carbon_copies = User::select('email')
-                ->where(function ($query) {$query->where('area','Gerencia General')->where('priv_level',2);})
-                ->orwhere(function ($query) {$query->where('priv_level','>=',3);})
+                ->where(function ($query) { $query->where('area','Gerencia General')->where('priv_level',2); })
+                ->orwhere(function ($query) { $query->where('priv_level','>=',3); })
                 ->get();
 
             $cc = array();
-            foreach($carbon_copies as $carbon_copy){
-                if($carbon_copy->email)
+
+            foreach ($carbon_copies as $carbon_copy) {
+                if ($carbon_copy->email)
                     $cc[] = $carbon_copy->email;
             }
 
             $recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
 
-            foreach($projects as $project){
+            foreach ($projects as $project) {
                 $project->valid_to = Carbon::parse($project->valid_to);
             }
 
-            if($projects->count()>0){
+            if ($projects->count() > 0) {
 
                 $data = array('recipient' => $recipient, 'contracts' => $projects);
                 $subject = 'Recordatorio de contratos a punto de vencer';
@@ -160,7 +161,7 @@ class MailController extends Controller
                 $success = 1;
 
                 try {
-                    Mail::send($mail_structure, $data, function($message) use($recipient, $cc, $subject){
+                    Mail::send($mail_structure, $data, function($message) use($recipient, $cc, $subject) {
                         $message->to($recipient->email, $recipient->name)
                             ->cc($cc)
                             ->subject($subject)
@@ -174,18 +175,18 @@ class MailController extends Controller
             }
         }
 
-        if($type=='bill'){
+        if ($type == 'bill') {
             $bills = Bill::where('date_issued','<',Carbon::now()->subDays(15))->where('status',0)->get();
             $manager = User::where('area','Gerencia General')->where('priv_level',3)->first();
             $recipient = User::where('role','Asistente administrativo de cobranzas')->where('priv_level',2)->first();
 
             $recipient = $recipient ?: $manager;
 
-            foreach($bills as $bill){
+            foreach ($bills as $bill) {
                 $bill->date_issued = Carbon::parse($bill->date_issued);
             }
 
-            if($bills->count()>0) {
+            if ($bills->count()>0) {
 
                 $data = array('recipient' => $recipient, 'bills' => $bills);
                 $subject = 'Recordatorio de facturas pendientes de cobro';
@@ -209,7 +210,7 @@ class MailController extends Controller
             }
         }
 
-        if($type=='guarantee'){
+        if ($type == 'guarantee') {
             /*
             $guarantees = Guarantee::join('assignments', 'guarantees.assignment_id','=','assignments.id')
                 ->select('guarantees.*')
@@ -227,12 +228,11 @@ class MailController extends Controller
             $recipient = $recipient ?: $supervisor;
             $supervisor = $recipient ? $supervisor : $manager;
 
-            foreach($guarantees as $guarantee){
+            foreach ($guarantees as $guarantee) {
                 $guarantee->expiration_date = Carbon::parse($guarantee->expiration_date);
             }
 
-            if($guarantees->count()>0){
-
+            if ($guarantees->count() > 0) {
                 $data = array('recipient' => $recipient, 'guarantees' => $guarantees);
                 $subject = 'Recordatorio de polizas de garantía próximas a vencer';
                 $mail_structure = 'emails.expiring_guarantees';
@@ -258,8 +258,7 @@ class MailController extends Controller
             }
         }
 
-        if($type=='project'){
-
+        if ($type == 'project') {
             $tenders = Tender::where('applied',0)->where('status','Activo')
                 ->where('application_deadline','<=',Carbon::now()/*->addDays(3)*/)->get();
             
@@ -272,17 +271,17 @@ class MailController extends Controller
                 ->get();
 
             $cc = array();
-            foreach($carbon_copies as $carbon_copy){
-                if($carbon_copy->email)
+
+            foreach ($carbon_copies as $carbon_copy) {
+                if ($carbon_copy->email)
                     $cc[] = $carbon_copy->email;
             }
 
-            foreach($tenders as $tender){
+            foreach ($tenders as $tender) {
                 $tender->application_deadline = Carbon::parse($tender->application_deadline);
             }
 
-            if($tenders->count()>0){
-
+            if ($tenders->count() > 0) {
                 $data = array('recipient' => $recipient, 'projects' => $tenders);
                 $subject = 'Plazo para presentación a licitaciones termina pronto';
                 $mail_structure = 'emails.project_application_deadlines_ending';
@@ -306,19 +305,18 @@ class MailController extends Controller
             }
         }
 
-        if($type=='driver_license'){
-
+        if ($type == 'driver_license') {
             $licenses = License::where('exp_date', '<>', '0000-00-00 00:00:00')->where('exp_date', '<', Carbon::now()->addDays(15))->whereHas('user', function ($q) {
                 $q->where('status', 'Activo');
             })->get();
             
-            if($licenses->count()>0){
+            if ($licenses->count() > 0) {
                 $recipient = User::where('work_type', 'Transporte')->where('status', 'Activo')->first();
                 $cc = User::where('priv_level', 3)->where('area', 'Gerencia Tecnica')->where('status', 'Activo')->first();
 
                 //$manager = User::where('area', 'Gerencia General')->where('priv_level', 3)->first();
 
-                foreach($licenses as $license){
+                foreach ($licenses as $license) {
                     $license->exp_date = Carbon::parse($license->exp_date);
                 }
 
@@ -346,16 +344,15 @@ class MailController extends Controller
             }
         }
 
-        if($type=='vhc_gas_inspection'){
-
+        if ($type == 'vhc_gas_inspection') {
             $exp_inspections = Vehicle::where('gas_inspection_exp', '<', Carbon::now()->addDays(30))
                 ->where('gas_inspection_exp', '<>', '0000-00-00 00:00:00')->where('flags', '<>', '0000')->get();
 
-            if($exp_inspections->count()>0){
+            if ($exp_inspections->count() > 0) {
                 $recipient = User::where('work_type', 'Transporte')->first();
                 $cc = User::where('priv_level', 3)->where('area', 'Gerencia Administrativa')->first();
 
-                foreach($exp_inspections as $inspection){
+                foreach ($exp_inspections as $inspection) {
                     $inspection->gas_inspection_exp = Carbon::parse($inspection->gas_inspection_exp);
                 }
 
@@ -388,7 +385,7 @@ class MailController extends Controller
 
     public function send_requested_notification($type, $id)
     {
-        if($type=='user'){
+        if ($type == 'user') {
             $recipient = User::find($id);
 
             $data = array('recipient' => $recipient);
@@ -417,9 +414,9 @@ class MailController extends Controller
 
         Session::flash('message', "Emails sent and successfully stored");
 
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
-        elseif($user->priv_level==4)
+        elseif ($user->priv_level == 4)
             return redirect()->route('user.index');
         else
             return redirect()->back();
@@ -445,10 +442,10 @@ class MailController extends Controller
         $recipient = User::where('priv_level',4)->first();
         $message = "HTML Email Sent. Please check your inbox.";
 
-        try{
+        try {
             Mail::send('emails.test_mail_conf', $data, function($message) use($recipient) {
                 $message->to($recipient->email, $recipient->name)
-                        ->cc('nestor.rrc@gmail.com', 'Admin')
+                        ->cc(['nestor.rrc@gmail.com', 'marcelo.auza@gmail.com'])
                         ->subject('Testing Hosting Mail Functions')
                         ->from('postmaster@gerteabros.com', 'Postmaster');
             });
@@ -481,7 +478,7 @@ class MailController extends Controller
         $data = array('model'=>$old_email);
         $subject = $old_email->subject.' (reenviado '.date_format($old_email->created_at,'d-m-Y').')';
         
-        if(!$old_email){
+        if (!$old_email) {
             Session::flash('message', 'Ocurrió un error al recuperar el correo del servidor! Intente de nuevo por favor');
             return redirect()->back();
         }
@@ -498,16 +495,15 @@ class MailController extends Controller
             $success = 0;
         }
 
-        if($success==1){
+        if ($success == 1) {
             $this->record_email_data($old_email->sent_to, '', $subject, $old_email->content, $success);
 
             $message = "El correo fue reenviado correctamente";
-        }
-        else
+        } else
             $message = "Ocurrió un error al reenviar el correo! Intente de nuevo por favor";
 
         Session::flash('message', $message);
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('email.index');
@@ -522,9 +518,9 @@ class MailController extends Controller
         $service = Session::get('service');
         $email = Email::find($id);
 
-        if($email)
+        if ($email)
             return View::make('app.email_choose_recipient_form', ['email' => $email, 'service' => $service, 'user' => $user]);
-        else{
+        else {
             Session::flash('message', 'Ocurrió un error al recuperar el correo del servidor! Intente de nuevo por favor');
             return redirect()->back();
         }
@@ -545,8 +541,7 @@ class MailController extends Controller
             ]
         );
         
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -558,7 +553,7 @@ class MailController extends Controller
         $subject = $old_email->subject.' (de fecha '.date_format($old_email->created_at,'d-m-Y').')';
         $mail_structure = 'emails.basic_layout';
 
-        if(!$old_email){
+        if (!$old_email) {
             Session::flash('message', 'Ocurrió un error al recuperar el correo del servidor. Intente de nuevo por favor');
             return redirect()->back()->withInput();
         }
@@ -575,16 +570,15 @@ class MailController extends Controller
             $success = 0;
         }
 
-        if($success==1){
+        if ($success == 1) {
             $this->record_email_data($sent_to, '', $subject, $old_email->content, $success);
 
             $message = "El correo fue reenviado correctamente";
-        }
-        else
+        } else
             $message = "El correo no pudo ser enviado al destinatario especificado!";
 
         Session::flash('message', $message);
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('email.index');
