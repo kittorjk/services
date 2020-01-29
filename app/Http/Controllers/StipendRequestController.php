@@ -836,7 +836,9 @@ class StipendRequestController extends Controller
             $cc = [];
             
             foreach ($copies as $copy) {
-                $cc[] = $copy->email;
+                if ($copy->email != "") {
+                    $cc[] = $copy->email;
+                }
             }
             
             $subject = 'Solicitudes de viáticos pendientes de pago';
