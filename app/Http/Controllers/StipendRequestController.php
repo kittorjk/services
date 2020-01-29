@@ -696,7 +696,7 @@ class StipendRequestController extends Controller
         $this->notify_request($stipend, $requests);
 
         Session::flash('message', 'Se ha generado y enviado la solicitud de viáticos al encargado administrativo');
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect('/stipend_request?asg='.$stipend->assignment_id);
@@ -805,36 +805,33 @@ class StipendRequestController extends Controller
 
         $creator = $stipend->user;
         $administrator = User::where('area', 'Gerencia Administrativa')->where('priv_level', 3)->first();
-        $technical_manager = User::where('priv_level',3)->where('area', 'Gerencia Tecnica')->first();
+        $technical_manager = User::where('area', 'Gerencia Tecnica')->where('priv_level', 3)->first();
         
-        if($stipend->status=='Pending'){
+        if ($stipend->status == 'Pending') {
             $recipient = $technical_manager;
             $subject = 'Tiene una solicitud de viáticos pendiente de aprobación';
             $mail_structure = 'emails.stipend_request_new';
-        }
-        elseif($stipend->status=='Observed'){
+        } elseif ($stipend->status == 'Observed') {
             $recipient = $creator;
             $subject = "La solicitud de viáticos $stipend->id ha sido observada";
             $mail_structure = 'emails.stipend_request_observed';
-        }
-        elseif($stipend->status=='Rejected'){
+        } elseif ($stipend->status == 'Rejected') {
             $recipient = $creator;
             $subject = "La solicitud de viáticos $stipend->id ha sido rechazada";
             $mail_structure = 'emails.stipend_request_rejected';
-        }
-        elseif($stipend->status=='Approved_tech'){
+        } elseif($stipend->status == 'Approved_tech') {
             $recipient = $administrator;
             
             //$copies = User::where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->get();
-            $copies = User::where(function ($query){
+            $copies = User::where(function ($query) {
                 $query->where('area', 'Gerencia Administrativa')->where('work_type', 'Administrativo')->where('priv_level', '>=', 2)->where('status', 'Activo');
-            })->orwhere(function ($query1){
+            })->orwhere(function ($query1) {
                 $query1->where('area', 'Gerencia Tecnica')->where('priv_level', 3);
             })->get();
             
             $cc = [];
             
-            foreach($copies as $copy){
+            foreach ($copies as $copy) {
                 $cc[] = $copy->email;
             }
             
@@ -844,12 +841,12 @@ class StipendRequestController extends Controller
         
         $data = array('recipient' => $recipient, 'stipend' => $stipend, 'requests' => $requests);
         
-        if($mail_structure!=''){
+        if ($mail_structure != '') {
             $view = View::make($mail_structure, $data);
             $content = (string) $view;
             $success = 1;
 
-            if($stipend->status=='Approved_tech'){
+            if ($stipend->status == 'Approved_tech') {
                 try {
                     Mail::send($mail_structure, $data, function($message) use($recipient, $cc, $user, $subject) {
                         $message->to($recipient->email, $recipient->name)
@@ -860,9 +857,10 @@ class StipendRequestController extends Controller
                     });
                 } catch (Exception $ex) {
                     $success = 0;
+                    return $ex;
                 }
             }
-            else{
+            else {
                 try {
                     Mail::send($mail_structure, $data, function($message) use($recipient, $user, $subject) {
                         $message->to($recipient->email, $recipient->name)
