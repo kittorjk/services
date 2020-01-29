@@ -511,7 +511,7 @@ class StipendRequestController extends Controller
         $stipend->in_days = Carbon::parse($stipend->date_to)->diffInDays(Carbon::parse($stipend->date_from)) + 1; //Extremes count
 
         $hotel_cost = $stipend->hotel_amount ? $stipend->hotel_amount : 0;
-        $stipend->total_amount = ($stipend->per_day_amount + $hotel_cost) * $stipend->in_days;
+        $stipend->total_amount = (($stipend->per_day_amount ?: 0) + $hotel_cost) * $stipend->in_days;
 
         $stipend->status = 'Pending';
         $stipend->save();
