@@ -693,7 +693,11 @@ class StipendRequestController extends Controller
 
         $requests = $this->generate_request_file();
 
-        $this->notify_request($stipend, $requests);
+        $response = $this->notify_request($stipend, $requests);
+
+        if ($response && $response != 1) {
+            return $response;
+        }
 
         Session::flash('message', 'Se ha generado y enviado la solicitud de viáticos al encargado administrativo');
         if (Session::has('url'))
@@ -732,19 +736,19 @@ class StipendRequestController extends Controller
         if ($request->additional > 0) {
           $description = '';
 
-          if($request->transport_amount>0)
+          if ($request->transport_amount > 0)
               $description .= $description=='' ? 'TR' : ' TR';
-          if($request->gas_amount>0)
+          if ($request->gas_amount > 0)
               $description .= $description=='' ? 'COMB' : ' COMB';
-          if($request->taxi_amount>0)
+          if ($request->taxi_amount > 0)
               $description .= $description=='' ? 'TX' : ' TX';
-          if($request->comm_amount>0)
+          if ($request->comm_amount > 0)
               $description .= $description=='' ? 'COM' : ' COM';
-          if($request->hotel_amount>0)
+          if ($request->hotel_amount > 0)
               $description .= $description=='' ? 'AL' : ' AL';
-          if($request->materials_amount>0)
+          if ($request->materials_amount > 0)
               $description .= $description=='' ? 'MAT' : ' MAT';
-          if($request->extras_amount>0)
+          if ($request->extras_amount > 0)
               $description .= $description=='' ? 'EX' : ' EX';
 
           $content->push([
@@ -870,6 +874,7 @@ class StipendRequestController extends Controller
                     });
                 } catch (Exception $ex) {
                     $success = 0;
+                    return $ex;
                 }
             }
 
@@ -882,6 +887,10 @@ class StipendRequestController extends Controller
             $email->content = $content;
             $email->success = $success;
             $email->save();
+
+            return 1; // Success
+        } else {
+            return 'No se encontró la plantilla de correo necesaria...';
         }
     }
 
