@@ -695,7 +695,7 @@ class StipendRequestController extends Controller
 
         $response = $this->notify_request($stipend, $requests);
 
-        if ($response && $response != 1) {
+        if ($response) {
             return $response;
         }
 
@@ -888,7 +888,7 @@ class StipendRequestController extends Controller
             $email->success = $success;
             $email->save();
 
-            return 1; // Success
+            return null; // Success
         } else {
             return 'No se encontró la plantilla de correo necesaria...';
         }
