@@ -15,7 +15,7 @@
             <div class="mg20">
                 <!-- <a href="/" class="btn btn-warning"><i class="fa fa-home"></i> Inicio</a> -->
                 <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                    <i class="fa fa-undo"></i>
+                    <i class="fa fa-arrow-left"></i>
                 </a>
                 @if($session_user->priv_level==4)
                     <a href="{{ '/user' }}" class="btn btn-warning" title="Volver a lista de usuarios">

@@ -63,7 +63,7 @@
             @foreach ($records as $record)
                 <tr @if($record->status=='Retirado')style="background-color: #ba5e5e" title="Usuario retirado"@endif>
                     <td>
-                        @if($user->priv_level==4)
+                        @if($user->priv_level==4 || $user->action->adm_add_usr)
                             <a href="/user/{{ $record->id }}" title="Ver información de usuario"
                                @if($record->status=='Retirado')style="color: inherit"@endif>
                                 {{ $record->name }}

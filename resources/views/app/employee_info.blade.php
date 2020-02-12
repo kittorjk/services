@@ -125,11 +125,15 @@
                                 <td>{{ $employee->bnk }}</td>
                             </tr>
                         @endif
-                        <tr>
-                            <th>Cuenta</th>
-                            <td>{{ $employee->bnk_account }}</td>
-                        </tr>
-                        <tr><td colspan="2"></td></tr>
+                        @if($employee->bnk_account!='')
+                            <tr>
+                                <th>Cuenta</th>
+                                <td>{{ $employee->bnk_account }}</td>
+                            </tr>
+                        @endif
+                        @if($employee->basic_income > 0 || $employee->production_bonus > 0 || $employee->payable_amount > 0 || $employee->bnk!='' || $employee->bnk_account!='')
+                            <tr><td colspan="2"></td></tr>
+                        @endif
 
                         @if($employee->role)
                             <tr>

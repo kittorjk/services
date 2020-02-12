@@ -293,3 +293,8 @@ html, body {
     display:    block;
     width:      120px;
 }
+
+.wide_uniform_width {
+    display:    block;
+    width:      250px;
+}

@@ -22,7 +22,10 @@ class AdminController extends Controller
         if ((is_null($user)) || (!$user->id)) {
             return View('app.index', ['service' => 'cite', 'user' => null]);
         }
-        if($user->priv_level<4)
+
+        // return $user->priv_level < 4 || $user->action->acc_adm == 0 ? "false" : "true";
+
+        if ($user->priv_level < 4 && $user->action->acc_adm == 0)
             return redirect()->back();
 
         $service = Session::get('service');

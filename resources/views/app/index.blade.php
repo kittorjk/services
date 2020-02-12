@@ -185,44 +185,44 @@
                 <div class="panel-body" align="center">
                     <div class="form-group">
                         <div class="input-group">
-                            <a href="{{ '/cite' }}" class="btn btn-success uniform_width">
+                            <a href="{{ '/cite' }}" class="btn btn-success wide_uniform_width">
                                 <span class="badge pull-left">1</span> CITES
                             </a>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="input-group">
-                            <a href="{{ '/oc' }}" class="btn btn-success uniform_width" >
+                            <a href="{{ '/oc' }}" class="btn btn-success wide_uniform_width" >
                                 <span class="badge pull-left">2</span> O.C.
                             </a>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="input-group">
-                            <a href="{{ $user ? '/assignment' : '/project' }}" class="btn btn-success uniform_width">
+                            <a href="{{ $user ? '/assignment' : '/project' }}" class="btn btn-success wide_uniform_width">
                                 <span class="badge pull-left">3</span> Proyectos
                             </a>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="input-group">
-                            <a href="{{ '/active' }}" class="btn btn-success uniform_width">
+                            <a href="{{ '/active' }}" class="btn btn-success wide_uniform_width">
                                 <span class="badge pull-left">4</span> Activos
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <a href="/adm" class="btn btn-success wide_uniform_width">
+                                <span class="badge pull-left">5</span> Administración del sistema
                             </a>
                         </div>
                     </div>
                     {{-- Not visible until functional
                     <div class="form-group">
                         <div class="input-group">
-                            <a href="/warehouse" class="btn btn-success uniform_width">
+                            <a href="/warehouse" class="btn btn-success wide_uniform_width">
                                 <span class="badge pull-left">5</span> Almacenes
-                            </a>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <a href="/staff" class="btn btn-success uniform_width">
-                                <span class="badge pull-left">6</span> Personal
                             </a>
                         </div>
                     </div>

@@ -34,7 +34,7 @@
             <div class="panel-body">
                 <div class="col-sm-12 mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     @if($user->priv_level==4)
                         <a href="{{ '/user' }}" class="btn btn-warning" title="Volver a lista de usuarios">
@@ -79,19 +79,19 @@
                                 <td>{{ $view_user->rank }}</td>
                             </tr>
                         @endif
-                        @if($view_user->cost&&$view_user->cost>0&&$user->priv_level==4)
+                        @if($view_user->cost && $view_user->cost > 0 && ($user->priv_level == 4 || $user->action->adm_add_usr == 1))
                             <tr>
                                 <th>Salario:</th>
                                 <td>{{ number_format($view_user->cost,2).' Bs' }}</td>
                             </tr>
                         @endif
 
-                        @if($view_user->phone||$view_user->email)
+                        @if($view_user->phone || $view_user->email)
                             <tr><td colspan="2"></td></tr>
                             <tr>
                                 <th colspan="2">Datos de contacto</th>
                             </tr>
-                            @if($view_user->phone&&$view_user->phone!=0)
+                            @if($view_user->phone && $view_user->phone != 0)
                                 <tr>
                                     <td>Teléfono</td>
                                     <td>{{ $view_user->phone }}</td>
@@ -116,18 +116,18 @@
                         <tr>
                             <td>Tiene acceso a:</td>
                             <td>
-                                {!! $view_user->acc_cite==1 ? "CITES<br>" : '' !!}
-                                {!! $view_user->acc_oc==1 ? "OCs<br>" : '' !!}
-                                {!! $view_user->acc_project==1 ? "Seguimiento de Proyectos<br>" : '' !!}
-                                {!! $view_user->acc_active==1 ? "Activos<br>" : '' !!}
-                                {!! $view_user->acc_warehouse==1 ? "Almacén<br>" : '' !!}
-                                {!! $view_user->acc_staff==1 ? 'Registro de personal' : '' !!}
+                                {!! $view_user->acc_cite == 1 ? "CITES<br>" : '' !!}
+                                {!! $view_user->acc_oc == 1 ? "OCs<br>" : '' !!}
+                                {!! $view_user->acc_project == 1 ? "Seguimiento de Proyectos<br>" : '' !!}
+                                {!! $view_user->acc_active == 1 ? "Activos<br>" : '' !!}
+                                {!! $view_user->acc_warehouse == 1 ? "Almacén<br>" : '' !!}
+                                {!! $view_user->acc_staff == 1 ? 'Registro de personal' : '' !!}
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                @if($user->id==$view_user->id||$user->priv_level==4)
+                @if($user->id == $view_user->id || $user->priv_level == 4 || $user->action->adm_add_usr == 1)
                     <div class="col-sm-12 mg10" align="center">
                         <a href="/user/{{ $view_user->id }}/edit" class="btn btn-success">
                             <i class="fa fa-pencil-square-o"></i> Actualizar datos

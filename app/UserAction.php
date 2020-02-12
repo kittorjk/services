@@ -17,7 +17,7 @@ class UserAction extends Model
         'acv_vhc_lic_mod', 'acv_dvc_req', 'acv_dvc_edt', 'acv_dvc_add', 'acv_dvc_exp', 'acv_dfr_add', 'acv_dfr_mod',
         'acv_cbr_mod', 'acv_cbr_exp', 'acv_mnt_add', 'acv_mnt_edt', 'acv_mnt_exp', 'acv_ln_req', 'acv_ln_edt',
         'acv_ln_add', 'acv_ln_asg', 'acv_ln_exp', 'acc_adm', 'adm_add_usr', 'adm_acc_file', 'adm_file_del',
-        'adm_file_exp', 'adm_acc_mail', 'adm_acc_stf', 'adm_acc_bch', 'adm_bch_mod'];
+        'adm_file_exp', 'adm_acc_mail', 'adm_acc_stf', 'adm_acc_bch', 'adm_bch_mod', 'adm_emp_edt'];
 
     public function user(){
         return $this->belongsTo('App\User');

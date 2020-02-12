@@ -72,7 +72,7 @@ class UserController extends Controller
 
         $add_user = new User(Request::all());
 
-        if($user->priv_level==4){
+        if ($user->priv_level == 4) {
             $v = \Validator::make(Request::all(), [
                 'name'          => 'required',
                 'full_name'     => 'required',
@@ -96,13 +96,11 @@ class UserController extends Controller
                 ]
             );
 
-            if ($v->fails())
-            {
+            if ($v->fails()) {
                 Session::flash('message', $v->messages()->first());
                 return redirect()->back()->withInput();
             }
-        }
-        else{
+        } else {
             $v = \Validator::make(Request::all(), [
                 'name'          => 'required',
                 'full_name'     => 'required',
@@ -127,8 +125,7 @@ class UserController extends Controller
                 ]
             );
 
-            if ($v->fails())
-            {
+            if ($v->fails()) {
                 Session::flash('message', $v->messages()->first());
                 return redirect()->back()->withInput();
             }
@@ -187,7 +184,7 @@ class UserController extends Controller
 
         Session::flash('message', "El usuario fue agregado al sistema de forma correcta!");
         
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         elseif ($user->priv_level == 4)
             return redirect()->route('user.index');
@@ -233,12 +230,11 @@ class UserController extends Controller
 
         $branches = Branch::select('id', 'name', 'city')->where('name','<>','')->where('active', 1)->orderBy('name')->get();
 
-        if($current_user->id==$session_user->id||$session_user->priv_level==4){
+        if ($current_user->id == $session_user->id || $session_user->priv_level == 4 || $session_user->action->adm_add_usr == 1) {
             return View::make('app.user_form', ['current_user' => $current_user, 'service' => $service,
                 'branches' => $branches, 'session_user' => $session_user]);
-        }
-        else{
-            if(Session::has('url'))
+        } else {
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->route('root');
@@ -281,19 +277,17 @@ class UserController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
 
-        if(Request::input('login')!=$user->login&&$user->priv_level!=4){
+        if (Request::input('login') != $user->login && $user->priv_level != 4) {
             $v = \Validator::make(Request::all(), [
                 'login'         => 'required|unique:users',
             ]);
 
-            if ($v->fails())
-            {
+            if ($v->fails()) {
                 Session::flash('message', " El usuario ya existe! ");
                 return redirect()->back()->withInput();
             }
@@ -302,7 +296,7 @@ class UserController extends Controller
         $modify_user = User::find($id);
         $modify_user->fill(Request::all());
         
-        if($user->priv_level==4){
+        if ($user->priv_level == 4) {
             $modify_user->acc_cite = Request::input('acc_cite') ? 1 : 0;
             $modify_user->acc_oc = Request::input('acc_oc') ? 1 : 0;
             $modify_user->acc_project = Request::input('acc_project') ? 1 : 0;
@@ -310,10 +304,10 @@ class UserController extends Controller
             $modify_user->acc_warehouse = Request::input('acc_warehouse') ? 1 : 0;
             $modify_user->acc_staff = Request::input('acc_staff') ? 1 : 0;
 
-            $modify_user->cost_day = $modify_user->cost>0 ? $modify_user->cost/22 : 0;
+            $modify_user->cost_day = $modify_user->cost > 0 ? $modify_user->cost/22 : 0;
         }
 
-        if(Request::input('chg_pass')==1) {
+        if (Request::input('chg_pass') == 1) {
             $pass_to_hash = Request::input('new_pass');
             $modify_user->password = Hash::make($pass_to_hash);
         }
@@ -324,9 +318,9 @@ class UserController extends Controller
 
         Session::flash('message', "Datos modificados correctamente");
 
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
-        elseif($user->priv_level==4)
+        elseif ($user->priv_level == 4)
             return redirect()->route('user.index');
         else
             return redirect()->route($service.'.index');
@@ -360,7 +354,7 @@ class UserController extends Controller
 
         //$delete_user->delete();
 
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('user.index');
@@ -378,12 +372,12 @@ class UserController extends Controller
         //a variable to define the length of the pass
         $passLength = 8;
 
-        for($i=1 ; $i<=$passLength ; $i++){
+        for ($i = 1; $i <= $passLength; $i++) {
             //generate a random number indicating the position of the character on the string from 0 to length-1
-            $pos = rand(0,$chainLength-1);
+            $pos = rand(0,$chainLength - 1);
 
             //put the character obtained on the pass variable
-            $pass .= substr($chain,$pos,1);
+            $pass .= substr($chain,$pos, 1);
         }
 
         return $pass;
