@@ -853,7 +853,7 @@ class AjaxController extends Controller
         $term = Request::input('query');
         $suggestions = Array(); //$suggestions[] = '';
 
-        if($table=='users'){
+        if ($table == 'users') {
             $results = User::where('name','like','%'.$term.'%')->where('status', 'Activo')->get(); // only active users
             
             foreach ($results as $result) {
@@ -862,21 +862,21 @@ class AjaxController extends Controller
                 //$suggestions = json_encode(array('suggestions'=>array(array('value'=>$result->name))));
             }
         }
-        if($table=='contacts'){
+        if ($table == 'contacts') {
             $results = Contact::where('name','like','%'.$term.'%')->get();
 
             foreach ($results as $result) {
                 $suggestions[] = $result->name;
             }
         }
-        if($table=='materials'){
+        if ($table == 'materials') {
             $results = Material::where('name','like','%'.$term.'%')->get();
 
             foreach ($results as $result) {
                 $suggestions[] = $result->name;
             }
         }
-        if($table=='technicians'){
+        if ($table == 'technicians') {
             $results = User::where('name','like','%'.$term.'%')->where('role', 'Técnico')
                 ->where('status', 'Activo')->get(); //only active users
 
@@ -884,7 +884,7 @@ class AjaxController extends Controller
                 $suggestions[] = $result->name;
             }
         }
-        if($table=='rbs_sites'){
+        if ($table == 'rbs_sites') {
             $last_stat = Site::first()->last_stat();
             
             $results = Site::join('assignments', 'sites.assignment_id', '=', 'assignments.id')
@@ -898,7 +898,7 @@ class AjaxController extends Controller
                 $suggestions[] = $result->name.' - '.$result->code;
             }
         }
-        if($table=='employees'){
+        if ($table == 'employees') {
             $results = Employee::where(function ($query) use($term){
                     $query->where('first_name','like','%'.$term.'%')->orwhere('last_name', 'like', "%$term%");
                 })->where('active', 1)
@@ -908,10 +908,17 @@ class AjaxController extends Controller
                 $suggestions[] = $result->first_name.' '.$result->last_name;
             }
         }
+        if ($table == 'orders') {
+            $results = Order::where('code','like','%'.$term.'%')->get();
+
+            foreach ($results as $result) {
+                $suggestions[] = $result->code;
+            }
+        }
 
         if (Request::ajax()) {
             //return response()->json($suggestions);
-            return json_encode(array('suggestions'=>$suggestions));
+            return json_encode(array('suggestions' => $suggestions));
         }
         return redirect()->back();
     }

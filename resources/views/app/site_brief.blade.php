@@ -438,12 +438,19 @@
                         </td>
                     {{--@endif--}}
 
-                    @if($user->priv_level>=1)
+                    @if ($user->priv_level >= 1)
                         <td>
-                            @foreach($site->orders as $order)
-                                <a href="/order/{{ $order->id }}">{{ $order->type.' - '.$order->code }}</a><br>
-                            @endforeach
-                            {{ $site->orders->count()==0 ? 'Sin ordenes asociadas' : '' }}
+                            {{-- Deshabilitado temporalmente por relación uno a muchos 
+                                @foreach($site->orders as $order)
+                                    <a href="/order/{{ $order->id }}">{{ $order->type.' - '.$order->code }}</a><br>
+                                @endforeach
+                                {{ $site->orders->count()==0 ? 'Sin ordenes asociadas' : '' }}
+                            --}}
+                            @if ($site->order)
+                                <a href="/order/{{ $site->order->id }}">{{ $site->order->type.' - '.$site->order->code }}</a><br>
+                            @else
+                                {{ 'No cuenta con PO' }}
+                            @endif
                         </td>
                         <td align="center">
                             @if($site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/)

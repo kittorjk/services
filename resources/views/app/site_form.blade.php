@@ -12,7 +12,6 @@
 @section('content')
 
     <div id="loginbox" class="mg-tp-px-50 mg-btm-px-40 col-md-6 col-md-offset-3 col-sm-10 col-sm-offset-1">
-
         <div class="panel panel-sky">
             <div class="panel-heading" align="center">
                 <div class="panel-title">{{ $site ? 'Actualizar información de sitio' : 'Agregar nuevo sitio' }}</div>
@@ -20,7 +19,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="/site{{ $site ? '/'.$site->assignment_id : ($assignment_id!=0 ? '/'.$assignment_id : '') }}"
                        class="btn btn-warning" title="Volver a resumen de sitios">
@@ -39,13 +38,13 @@
                     </form>
                     <form novalidate="novalidate" action="{{ '/site/'.$site->id }}" method="post">
                         <input type="hidden" name="_method" value="put">
-                        @else
-                            <form novalidate="novalidate" action="{{ '/site' }}" method="post">
-                                @endif
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                @else
+                    <form novalidate="novalidate" action="{{ '/site' }}" method="post">
+                @endif
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
-                                <div class="form-group">
-                                    <div class="input-group">
+                        <div class="form-group">
+                            <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-pencil-square-o"></i>
 
                                     <div class="input-group" style="width: 100%">
@@ -54,7 +53,7 @@
                                         </label>
 
                                         <input required="required" type="text" class="form-control" name="name" id="name"
-                                               value="{{ $site ? $site->name : old('name') }}" placeholder="Nombre de sitio">
+                                                value="{{ $site ? $site->name : old('name') }}" placeholder="Nombre de sitio">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
@@ -70,7 +69,7 @@
                                         </select>
                                     </div>
 
-                                    @if($site/*||$user->priv_level==4*/)
+                                    @if($site /*|| $user->priv_level == 4*/)
                                         <div class="input-group" style="width: 100%">
                                             <label for="status" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Estado: <span class="pull-right">*</span>
@@ -78,9 +77,9 @@
 
                                             <select required="required" class="form-control" name="status" id="status">
                                                 <option value="" hidden>Seleccione un estado</option>
-                                                @for($i=0;$i<=$last_stat;$i++)
+                                                @for($i = 0; $i <= $last_stat; $i++)
                                                     <option value="{{ $i }}"
-                                                            {{ ($site&&$site->status==$i)||old('statud')==$i
+                                                            {{ ($site && $site->status == $i) || old('statud') == $i
                                                                 ? 'selected="selected"' : '' }}
                                                     >{{ App\Site::$status_options[$i] /*App\Site::first()->statuses($i)*/ }}</option>
                                                 @endfor
@@ -111,7 +110,7 @@
                                         </div>
                                     @endif
 
-                                    @if($assignment&&$assignment->type=='Radiobases')
+                                    @if($assignment && $assignment->type=='Radiobases')
                                         <div class="input-group" style="width: 100%">
                                             <label for="site_type" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Tipo de sitio:
@@ -167,8 +166,8 @@
                                         </label>
 
                                         <input required="required" type="text" class="form-control" name="origin_name"
-                                               id="origin_name" value="{{ $site ? $site->origin_name : old('origin_name') }}"
-                                               placeholder="Nombre de ubicación de orígen (Tx)">
+                                                id="origin_name" value="{{ $site ? $site->origin_name : old('origin_name') }}"
+                                                placeholder="Nombre de ubicación de orígen (Tx)">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
@@ -177,18 +176,18 @@
                                         </label>
 
                                         <input required="required" type="number" class="form-control" name="latitude"
-                                               id="latitude" step="any" min="0"
-                                               value="{{ $site&&$site->latitude!=0 ? $site->latitude : old('latitude') }}"
-                                               placeholder="Ej. -19.000000" title="Latitud de orígen en grados (º)">
+                                                id="latitude" step="any" min="0"
+                                                value="{{ $site&&$site->latitude!=0 ? $site->latitude : old('latitude') }}"
+                                                placeholder="Ej. -19.000000" title="Latitud de orígen en grados (º)">
 
                                         <label for="longitude" class="input-group-addon" style="width: 23%;text-align: left">
                                             Longitud:
                                         </label>
 
                                         <input required="required" type="number" class="form-control" name="longitude"
-                                               id="longitude" step="any" min="0"
-                                               value="{{ $site&&$site->longitude!=0 ? $site->longitude : old('longitude') }}"
-                                               placeholder="Ej. -67.000000" title="Longitud de orígen en grados (º)">
+                                                id="longitude" step="any" min="0"
+                                                value="{{ $site&&$site->longitude!=0 ? $site->longitude : old('longitude') }}"
+                                                placeholder="Ej. -67.000000" title="Longitud de orígen en grados (º)">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
@@ -197,9 +196,9 @@
                                         </label>
 
                                         <input required="required" type="text" class="form-control" name="destination_name"
-                                               id="destination_name" value="{{ $site ? $site->destination_name :
+                                                id="destination_name" value="{{ $site ? $site->destination_name :
                                                 old('destination_name') }}"
-                                               placeholder="Nombre de ubicación de destino (Rx)">
+                                                placeholder="Nombre de ubicación de destino (Rx)">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
@@ -208,20 +207,20 @@
                                         </label>
 
                                         <input required="required" type="number" class="form-control" name="lat_destination"
-                                               id="lat_destination" step="any" min="0"
-                                               value="{{ $site&&$site->lat_destination!=0 ? $site->lat_destination :
+                                                id="lat_destination" step="any" min="0"
+                                                value="{{ $site&&$site->lat_destination!=0 ? $site->lat_destination :
                                                 old('lat_destination') }}"
-                                               placeholder="Ej. -19.000000" title="Latitud de destino en grados (º)">
+                                                placeholder="Ej. -19.000000" title="Latitud de destino en grados (º)">
 
                                         <label for="long_destination" class="input-group-addon" style="width: 23%;text-align: left">
                                             Longitud:
                                         </label>
 
                                         <input required="required" type="number" class="form-control" name="long_destination"
-                                               id="long_destination" step="any" min="0"
-                                               value="{{ $site&&$site->long_destination!=0 ? $site->long_destination :
+                                                id="long_destination" step="any" min="0"
+                                                value="{{ $site&&$site->long_destination!=0 ? $site->long_destination :
                                                 old('long_destination') }}"
-                                               placeholder="Ej. -67.000000" title="Longitud de destino en grados (º)">
+                                                placeholder="Ej. -67.000000" title="Longitud de destino en grados (º)">
 
                                     </div>
 
@@ -268,8 +267,8 @@
                                         </label>
 
                                         <input required="required" type="text" class="form-control" name="municipality"
-                                               id="municipality" value="{{ $site ? $site->municipality : old('municipality') }}"
-                                               placeholder="Ciudad / Localidad / Población / Municipio">
+                                                id="municipality" value="{{ $site ? $site->municipality : old('municipality') }}"
+                                                placeholder="Ciudad / Localidad / Población / Municipio">
                                     </div>
 
                                     <div class="input-group" style="width: 100%">
@@ -298,9 +297,9 @@
                                             </label>
 
                                             <input required="required" type="text" class="form-control" name="resp_name"
-                                                   id="resp_name" value="{{ $site&&$site->responsible ?
+                                                    id="resp_name" value="{{ $site&&$site->responsible ?
                                                     $site->responsible->name : old('resp_name') }}"
-                                                   placeholder="Responsable por parte de ABROS">
+                                                    placeholder="Responsable por parte de ABROS">
                                         </div>
 
                                         <div class="input-group" style="width: 100%;text-align: center" id="resultado" align="center"></div>
@@ -312,9 +311,9 @@
                                         </label>
 
                                         <input required="required" type="text" class="form-control" name="contact_name"
-                                               id="contact_name" value="{{ $site&&$site->contact ? $site->contact->name :
+                                                id="contact_name" value="{{ $site&&$site->contact ? $site->contact->name :
                                                 old('contact_name') }}"
-                                               placeholder="Responsable por parte del cliente">
+                                                placeholder="Responsable por parte del cliente">
                                     </div>
 
                                     <div class="input-group" style="width: 100%;text-align: center">
@@ -324,14 +323,14 @@
                                         <span class="input-group-addon">
                                             <label for="start_line" style="font-weight: normal; margin-bottom: 0">Desde:</label>
                                             <input type="date" name="start_line" id="start_line" step="1" min="2014-01-01"
-                                                   value="{{ $site ? $site->start_line : (old('start_line') ?: $current_date) }}">
+                                                    value="{{ $site ? $site->start_line : (old('start_line') ?: $current_date) }}">
 
                                             <label for="deadline" style="font-weight: normal; margin-bottom: 0">Hasta:</label>
                                             <input type="date" name="deadline" id="deadline" step="1" min="2014-01-01"
-                                                   value="{{ $site ? $site->deadline : old('deadline') }}">
+                                                    value="{{ $site ? $site->deadline : old('deadline') }}">
                                         </span>
                                         <input required="required" type="number" class="form-control" name="interval_days_assigned"
-                                               step="any" min="0" placeholder="Días">
+                                                step="any" min="0" placeholder="Días">
                                     </div>
 
                                     <div class="input-group" style="width: 100%;text-align: center">
@@ -341,51 +340,84 @@
                                         <span class="input-group-addon">
                                             <label for="start_date" style="font-weight: normal; margin-bottom: 0">Desde:</label>
                                             <input type="date" name="start_date" id="start_date" step="1" min="2014-01-01"
-                                                   value="{{ $site ? $site->start_date : (old('start_date') ?: $current_date) }}">
+                                                    value="{{ $site ? $site->start_date : (old('start_date') ?: $current_date) }}">
 
                                             <label for="end_date" style="font-weight: normal; margin-bottom: 0">Hasta:</label>
                                             <input type="date" name="end_date" id="end_date" step="1" min="2014-01-01"
-                                                   value="{{ $site ? $site->end_date : old('end_date') }}">
+                                                    value="{{ $site ? $site->end_date : old('end_date') }}">
                                         </span>
                                         <input required="required" type="number" class="form-control" name="interval_days"
-                                               step="any" min="0" placeholder="Días">
+                                                step="any" min="0" placeholder="Días">
+                                    </div>
+
+                                    @if($assignment && $assignment->client == 'HUAWEI') {{-- TODO this should not be hardcoded --}}
+                                        <div class="input-group" style="width: 100%">
+                                            <label for="du_id" class="input-group-addon" style="width: 23%;text-align: left">
+                                                DU ID:
+                                            </label>
+
+                                            <input required="required" type="text" class="form-control" name="du_id"
+                                                    id="du_id" value="{{ $site ? $site->du_id : old('du_id') }}"
+                                                    placeholder="DU ID">
+                                        </div>
+
+                                        <div class="input-group" style="width: 100%">
+                                            <label for="isdp_account" class="input-group-addon" style="width: 23%;text-align: left">
+                                                Cuenta de ISDP:
+                                            </label>
+
+                                            <input required="required" type="text" class="form-control" name="isdp_account"
+                                                    id="isdp_account" value="{{ $site ? $site->isdp_account : old('isdp_account') }}"
+                                                    placeholder="Cuenta de ISDP">
+                                        </div>
+                                    @endif
+
+                                    <div class="input-group" style="width: 100%">
+                                        <label for="order_code" class="input-group-addon" style="width: 23%;text-align: left">
+                                            PO:
+                                        </label>
+
+                                        <input required="required" type="text" class="form-control" name="order_code"
+                                                id="order_code" value="{{ $site && $site->order ? $site->order->code :
+                                                old('order_code') }}"
+                                                placeholder="Orden de compra de cliente">
                                     </div>
 
                                     {{--
-                                    @if($user->priv_level==4)
+                                    @if($user->priv_level == 4)
                                         <div class="input-group" style="width: 75%">
                                             <span class="input-group-addon" style="width: 31%;text-align: left">Monto cotizado:</span>
                                             <input required="required" type="number" class="form-control" name="quote_price"
-                                                   step="any" min="0" value="{{ $site ? $site->quote_price :
+                                                    step="any" min="0" value="{{ $site ? $site->quote_price :
                                                         old('quote_price') }}"
-                                                   placeholder="Monto cotizado (sin impuestos)">
+                                                    placeholder="Monto cotizado (sin impuestos)">
                                             <span class="input-group-addon">Bs.</span>
                                         </div>
 
                                         <div class="input-group" style="width: 75%">
                                             <span class="input-group-addon" style="width: 31%;text-align: left">Monto ejecutado:</span>
                                             <input required="required" type="number" class="form-control" name="executed_price"
-                                                   step="any" min="0" value="{{ $site ? $site->executed_price :
+                                                    step="any" min="0" value="{{ $site ? $site->executed_price :
                                                         old('executed_price') }}"
-                                                   placeholder="Monto ejecutado (sin impuestos)">
+                                                    placeholder="Monto ejecutado (sin impuestos)">
                                             <span class="input-group-addon">Bs.</span>
                                         </div>
 
                                         <div class="input-group" style="width: 75%">
                                             <span class="input-group-addon" style="width: 31%;text-align: left">Monto asignado:</span>
                                             <input required="required" type="number" class="form-control" name="assigned_price"
-                                                   step="any" min="0" value="{{ $site ? $site->assigned_price :
+                                                    step="any" min="0" value="{{ $site ? $site->assigned_price :
                                                         old('assigned_price') }}"
-                                                   placeholder="Monto asignado (sin impuestos)">
+                                                    placeholder="Monto asignado (sin impuestos)">
                                             <span class="input-group-addon">Bs.</span>
                                         </div>
 
                                         <div class="input-group" style="width: 75%">
                                             <span class="input-group-addon" style="width: 31%;text-align: left">Monto cobrado:</span>
                                             <input required="required" type="number" class="form-control" name="charged_price"
-                                                   step="any" min="0" value="{{ $site ? $site->charged_price :
+                                                    step="any" min="0" value="{{ $site ? $site->charged_price :
                                                         old('charged_price') }}"
-                                                   placeholder="Monto cobrado (sin impuestos)">
+                                                    placeholder="Monto cobrado (sin impuestos)">
                                             <span class="input-group-addon">Bs.</span>
                                         </div>
                                     @endif
@@ -395,25 +427,25 @@
                                         >{{ $site ? $site->observations : old('observations') }}</textarea>
 
                                 </span>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
 
-                                @include('app.loader_gif')
+                        @include('app.loader_gif')
 
-                                <div class="form-group" align="center">
-                                    <button type="submit" class="btn btn-success"
-                                            onclick="this.disabled=true; $('#wait').show(); this.form.submit()">
-                                        <i class="fa fa-floppy-o"></i> Guardar
-                                    </button>
+                        <div class="form-group" align="center">
+                            <button type="submit" class="btn btn-success"
+                                    onclick="this.disabled=true; $('#wait').show(); this.form.submit()">
+                                <i class="fa fa-floppy-o"></i> Guardar
+                            </button>
 
-                                    @if($site&&$user->action->prj_st_del /*$user->priv_level==4*/)
-                                        <button type="submit" form="delete" class="btn btn-danger">
-                                            <i class="fa fa-trash-o"></i> Eliminar
-                                        </button>
-                                    @endif
-                                </div>
-                                {{ csrf_field() }}
-                            </form>
+                            @if($site && $user->action->prj_st_del /* $user->priv_level == 4 */)
+                                <button type="submit" form="delete" class="btn btn-danger">
+                                    <i class="fa fa-trash-o"></i> Eliminar
+                                </button>
+                            @endif
+                        </div>
+                        {{ csrf_field() }}
+                    </form>
             </div>
         </div>
     </div>
@@ -432,26 +464,24 @@
             }
         });
 
-        function check_existence(){
+        function check_existence() {
             var resp_name=$('#resp_name').val();
-            if(resp_name.length >0){
+            if (resp_name.length >0) {
                 $.post('/check_existence', { resp_name: resp_name }, function(data){
                     $("#resultado").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#resp_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#resp_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#resultado").hide();
                 $('#resp_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#wait").hide();
             $("#resultado").hide();
             $('#resp_name').focusout(check_existence);
@@ -459,14 +489,20 @@
 
         $('#resp_name').autocomplete({
             type: 'post',
-            serviceUrl:'/autocomplete/users',
+            serviceUrl: '/autocomplete/users',
             dataType: 'JSON',
             onSelect: check_existence
         });
 
         $('#contact_name').autocomplete({
             type: 'post',
-            serviceUrl:'/autocomplete/contacts',
+            serviceUrl: '/autocomplete/contacts',
+            dataType: 'JSON'
+        });
+
+        $('#order_code').autocomplete({
+            type: 'post',
+            serviceUrl: '/autocomplete/orders',
             dataType: 'JSON'
         });
     </script>

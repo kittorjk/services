@@ -9,18 +9,20 @@ use App\Http\Controllers\Controller;
 use Session;
 use View;
 use Input;
-use App\Site;
-use App\File;
-use App\User;
 use App\Assignment;
 use App\Contact;
-use App\Event;
 use App\DeadInterval;
+use App\Event;
+use App\File;
+use App\Order;
+use App\Site;
 use App\StipendRequest;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use PHPExcel_Worksheet_Drawing;
+
 use App\Http\Traits\FilesTrait;
 use App\Http\Traits\ProjectTrait;
 
@@ -39,7 +41,7 @@ class SiteController extends Controller
         if ((is_null($user))||(!$user->id)) {
             return View('app.index', ['service'=>'project', 'user'=>null]);
         }
-        if($user->acc_project==0)
+        if ($user->acc_project == 0)
             return redirect()->action('LoginController@logout', ['service' => 'project']);
 
         return redirect()->back();
@@ -137,7 +139,7 @@ class SiteController extends Controller
 
         $assignment_info = Assignment::find($id);
 
-        if($assignment_info){
+        if ($assignment_info) {
             //$sites = Site::where('assignment_id',$id)->orderBy('name')->paginate(20);
             $sites = $assignment_info->sites()->orderBy('name')->paginate(20);
 
@@ -149,8 +151,7 @@ class SiteController extends Controller
                 ->where('imageable_type', 'App\Site')
                 ->get();
             */
-            foreach($sites as $site)
-            {
+            foreach($sites as $site) {
                 $site->start_line = Carbon::parse($site->start_line);
                 $site->deadline = Carbon::parse($site->deadline);
                 $site->start_date = Carbon::parse($site->start_date);
@@ -181,8 +182,7 @@ class SiteController extends Controller
                     $site->save();
                 }
                 */
-                foreach($site->files as $file)
-                {
+                foreach($site->files as $file) {
                     $file->created_at = Carbon::parse($file->created_at)->hour(0)->minute(0)->second(0);
                 }
 
@@ -197,8 +197,7 @@ class SiteController extends Controller
 
             return View::make('app.site_brief', ['assignment_info' => $assignment_info, 'sites' => $sites, 'user' => $user,
                 'service' => $service, 'current_date' => $current_date]);
-        }
-        else{
+        } else {
             Session::flash('message', 'Error al recuperar la información solicitada del servidor!
                 Registro de asignación no encontrado');
             return redirect()->back();
@@ -215,7 +214,7 @@ class SiteController extends Controller
 
         $site = Site::find($id);
 
-        if(!$site){
+        if (!$site) {
             Session::flash('message', "No se encontró la página solicitada,
                 revise la dirección e intente de nuevo por favor");
             return redirect()->back();
@@ -226,12 +225,11 @@ class SiteController extends Controller
         else
             $activities = Activity::where('task_id',$id)->where('user_id',$user->id)->orderBy('number')->paginate(20);
         */
-        foreach($site->tasks as $task)
-        {
+        foreach ($site->tasks as $task) {
             $task->start_date = Carbon::parse($task->start_date);
             $task->end_date = Carbon::parse($task->end_date);
             
-            foreach($task->activities as $activity){
+            foreach ($task->activities as $activity) {
                 $activity->date = Carbon::parse($activity->date);
             }
         }
@@ -242,11 +240,11 @@ class SiteController extends Controller
         $from_date = $site->start_date;
         $to_date = $site->end_date;
 
-        foreach($site->tasks as $task){
-            foreach ($task->activities as $activity){
-                if($activity->date<$from_date)
+        foreach ($site->tasks as $task) {
+            foreach ($task->activities as $activity) {
+                if ($activity->date < $from_date)
                     $from_date = $from_date->subDays($activity->date->DiffInDays($from_date));
-                elseif($activity->date>$to_date)
+                elseif ($activity->date > $to_date)
                     $to_date = $to_date->addDays($activity->date->DiffInDays($to_date));
             }
         }
@@ -254,7 +252,7 @@ class SiteController extends Controller
         //$interval = $site->start_date->diffInDays($site->end_date);
         //$date = $site->start_date;
 
-        $interval = $from_date->diffInDays($to_date)+2;
+        $interval = $from_date->diffInDays($to_date) + 2;
         $date = $from_date;
 
         $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
@@ -276,23 +274,22 @@ class SiteController extends Controller
 
         $assignment = Assignment::find($asg_id);
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', "No se encontró la página solicitada, revise la dirección e intente de nuevo por favor");
             return redirect()->back();
         }
         
-        foreach($assignment->sites as $site)
-        {
+        foreach ($assignment->sites as $site) {
             $site->start_date = Carbon::parse($site->start_date);
             $site->end_date = Carbon::parse($site->end_date);
             $site->start_line = Carbon::parse($site->start_line);
             $site->deadline = Carbon::parse($site->deadline);
 
-            foreach($site->tasks as $task){
+            foreach ($site->tasks as $task) {
                 $task->start_date = Carbon::parse($task->start_date);
                 $task->end_date = Carbon::parse($task->end_date);
 
-                foreach($task->activities as $activity){
+                foreach ($task->activities as $activity) {
                     $activity->date = Carbon::parse($activity->date);
                 }
             }
@@ -314,7 +311,7 @@ class SiteController extends Controller
         */
 
         //$interval = $assignment->start_date->diffInDays($assignment->end_date)+2;
-        $interval = $from->diffInDays($to) +2;
+        $interval = $from->diffInDays($to) + 2;
         $date = Carbon::parse($from); //$assignment->start_date->hour(0)->minute(0)->second(0);
 
         $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
@@ -336,15 +333,14 @@ class SiteController extends Controller
 
         $service = Session::get('service');
 
-        $last_stat = count(Site::$status_options) -1; //Site::first()->last_stat();
+        $last_stat = count(Site::$status_options) - 1; //Site::first()->last_stat();
 
         $assignment = Assignment::find($id);
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'No se encontró información de la asignación seleccionada!');
             return redirect()->back();
-        }
-        elseif($assignment->status==0||$assignment->status==$assignment->last_stat()){
+        } elseif ($assignment->status == 0 || $assignment->status == $assignment->last_stat()) {
             Session::flash('message', 'No puede agregar un nuevo sitio a una asignación concluída o no asignada!');
             return redirect()->back();
         }
@@ -378,9 +374,9 @@ class SiteController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['deadline']!='')
+        if ($form_data['deadline'] != '')
             $form_data['deadline'] = $form_data['deadline'].' 23:59:59';
-        if($form_data['end_date']!='')
+        if ($form_data['end_date'] != '')
             $form_data['end_date'] = $form_data['end_date'].' 23:59:59';
 
         $v = \Validator::make($form_data, [
@@ -407,30 +403,29 @@ class SiteController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
 
         $site = new Site($form_data);
         
-        if($site->latitude>90||$site->latitude<-90){
+        if ($site->latitude > 90 || $site->latitude < -90) {
             Session::flash('message', 'Inserte un valor de latitud de orígen válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->longitude>180||$site->longitude<-180){
+        if ($site->longitude > 180 || $site->longitude < -180) {
             Session::flash('message', 'Inserte un valor de longitud de orígen válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->lat_destination>90||$site->lat_destination<-90){
+        if ($site->lat_destination > 90 || $site->lat_destination < -90) {
             Session::flash('message', 'Inserte un valor de latitud de destino válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->long_destination>180||$site->long_destination<-180){
+        if ($site->long_destination > 180 || $site->long_destination < -180) {
             Session::flash('message', 'Inserte un valor de longitud de destino válido!');
             return redirect()->back()->withInput();
         }
@@ -454,20 +449,39 @@ class SiteController extends Controller
         $responsible = User::select('id')->where('name', Request::input('resp_name'))->first();
         $site->resp_id = $responsible=='' ? 0 : $responsible->id;
 
-        if(!empty(Request::input('contact_name'))){
+        // Crear registro de contacto si no existe
+        if (!empty(Request::input('contact_name'))) {
             $contact = Contact::select('id')->where('name', Request::input('contact_name'))->first();
 
-            if($contact=='') {
+            if ($contact == '') {
                 $contact = new Contact;
                 $contact->name = Request::input('contact_name');
                 //$assignment = Assignment::find($site->assignment_id);
                 $contact->company = $site->assignment->client;
                 $contact->save();
             }
+
             $site->contact_id = $contact->id;
-        }
-        else{
+        } else {
             $site->contact_id = $site->assignment->contact_id;
+        }
+
+        // Crear registro de PO si no existe
+        if (!empty(Request::input('order_code'))) {
+            $order = Order::select('id')->where('code', Request::input('order_code'))->first();
+
+            if ($order == '') {
+                $order = new Order;
+                $order->user_id = $user->id;
+                $order->code = Request::input('order_code');
+                $order->type = 'PO';
+                $order->client = $site->assignment->client;
+                $order->date_issued = Carbon::now();
+                $order->status = 'Pendiente';
+                $order->save();
+            }
+
+            $site->order_id = $order->id;
         }
 
         $site->save();
@@ -475,7 +489,7 @@ class SiteController extends Controller
         $this->fill_code_column();
 
         Session::flash('message', "El sitio fue agregado al sistema correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
@@ -541,7 +555,7 @@ class SiteController extends Controller
 
         $site = Site::find($id);
 
-        if(!$site){
+        if (!$site) {
             Session::flash('message', 'No se encontró el registro solicitado, revise la dirección e intente de nuevo.');
             return redirect()->back();
         }
@@ -550,7 +564,7 @@ class SiteController extends Controller
 
         $assignment = $site->assignment;
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'No se encontró información de la asignación seleccionada!');
             return redirect()->back();
         }
@@ -592,9 +606,9 @@ class SiteController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['deadline']!='')
+        if ($form_data['deadline'] != '')
             $form_data['deadline'] = $form_data['deadline'].' 23:59:59';
-        if($form_data['end_date']!='')
+        if ($form_data['end_date'] != '')
             $form_data['end_date'] = $form_data['end_date'].' 23:59:59';
         
         $v = \Validator::make($form_data, [
@@ -623,8 +637,7 @@ class SiteController extends Controller
             ]
         );
         
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -634,22 +647,22 @@ class SiteController extends Controller
         
         $site->fill($form_data);
 
-        if($site->latitude>90||$site->latitude<-90){
+        if ($site->latitude > 90 || $site->latitude < -90) {
             Session::flash('message', 'Inserte un valor de latitud de orígen válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->longitude>180||$site->longitude<-180){
+        if ($site->longitude > 180 || $site->longitude < -180) {
             Session::flash('message', 'Inserte un valor de longitud de orígen válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->lat_destination>90||$site->lat_destination<-90){
+        if ($site->lat_destination > 90 || $site->lat_destination < -90) {
             Session::flash('message', 'Inserte un valor de latitud de destino válido!');
             return redirect()->back()->withInput();
         }
 
-        if($site->long_destination>180||$site->long_destination<-180){
+        if ($site->long_destination > 180 || $site->long_destination < -180) {
             Session::flash('message', 'Inserte un valor de longitud de destino válido!');
             return redirect()->back()->withInput();
         }
@@ -667,31 +680,50 @@ class SiteController extends Controller
                 $site->end_date) : Carbon::parse($site->start_date)->addDays(Request::input('interval_days'));
 
         $responsible = User::select('id')->where('name', Request::input('resp_name'))->first();
-        $site->resp_id = $responsible=='' ? 0 : $responsible->id;
+        $site->resp_id = $responsible == '' ? 0 : $responsible->id;
 
-        if(!empty(Request::input('contact_name'))){
+        // Crear registro de contacto si no existe
+        if (!empty(Request::input('contact_name'))) {
             $contact = Contact::select('id')->where('name', Request::input('contact_name'))->first();
 
-            if($contact=='') {
+            if ($contact == '') {
                 $contact = new Contact;
                 $contact->name = Request::input('contact_name');
                 //$assignment = Assignment::find($site->assignment_id);
                 $contact->company = $site->assignment->client;
                 $contact->save();
             }
+
             $site->contact_id = $contact->id;
-        }
-        else{
+        } else {
             $site->contact_id = $site->assignment->contact_id;
+        }
+
+        // Crear registro de PO si no existe
+        if (!empty(Request::input('order_code'))) {
+            $order = Order::select('id')->where('code', Request::input('order_code'))->first();
+
+            if ($order == '') {
+                $order = new Order;
+                $order->user_id = $user->id;
+                $order->code = Request::input('order_code');
+                $order->type = 'PO';
+                $order->client = $site->assignment->client;
+                $order->date_issued = Carbon::now();
+                $order->status = 'Pendiente';
+                $order->save();
+            }
+
+            $site->order_id = $order->id;
         }
 
         $site->save();
 
-        foreach($site->tasks as $task){
+        foreach ($site->tasks as $task) {
             $this->new_stat_task($task, $site->status); //Set the status of the child tasks
         }
         
-        if($site->status==$site->last_stat()/*'Concluído'*/||$site->status==0/*'No asignado'*/){
+        if ($site->status == $site->last_stat()/*'Concluído'*/ || $site->status == 0/*'No asignado'*/) {
             /*            
             foreach($site->tasks as $task){
                 if($task->status!='Concluído'&&$task->status!='No asignado'){
@@ -713,19 +745,19 @@ class SiteController extends Controller
             }
             */
             
-            foreach($site->files as $file){
+            foreach ($site->files as $file) {
                 $this->blockFile($file);
             }
         }
 
         /* If a date interval changes */
-        if($site->start_line!=$old_info->start_line||$site->deadline!=$old_info->deadline||
-            $site->start_date!=$old_info->start_date||$site->end_date!=$old_info->end_date){
+        if ($site->start_line != $old_info->start_line || $site->deadline != $old_info->deadline ||
+            $site->start_date != $old_info->start_date || $site->end_date != $old_info->end_date) {
             $this->update_dates($site);
         }
 
         Session::flash('message', "Datos actualizados correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
@@ -746,101 +778,96 @@ class SiteController extends Controller
         $site = Site::find($id);
         $return_id = $site->assignment_id;
 
-        if($site->status==$site->last_stat()/*'Concluído'*/){
+        if ($site->status == $site->last_stat()/*'Concluído'*/) {
             Session::flash('message', 'Este sitio no puede ser borrado por que ya ha sido marcado como "Concluído"!');
             return redirect()->back();
         }
 
-        if($site->orders->count()>0){
+        if ($site->orders->count() > 0) {
             Session::flash('message', 'Este sitio no puede ser borrado porque tiene asociada una orden de compra!');
             return redirect()->back();
         }
 
-        if($site->stipend_requests->count()>0){
+        if ($site->stipend_requests->count() > 0) {
             Session::flash('message', 'Este sitio no puede ser borrado porque cuenta con solicitudes de viáticos!');
             return redirect()->back();
         }
 
         $error = false;
 
-        if($site->rbs_char)
+        if ($site->rbs_char)
             $site->rbs_char->delete();
 
-        foreach($site->tasks as $task){
-
-            foreach($task->activities as $activity){
-
-                foreach($activity->files as $file){
+        foreach ($site->tasks as $task) {
+            foreach ($task->activities as $activity) {
+                foreach ($activity->files as $file) {
                     $error = $this->removeFile($file);
-                    if($error)
+                    if ($error)
                         break;
                 }
 
-                if($error)
+                if ($error)
                     break;
 
                 $activity->delete();
             }
 
-            if($error)
+            if ($error)
                 break;
 
-            foreach($task->events as $event){
-
-                foreach($event->files as $file){
+            foreach ($task->events as $event) {
+                foreach ($event->files as $file) {
                     $error = $this->removeFile($file);
-                    if($error)
+                    if ($error)
                         break;
                 }
 
-                if($error)
+                if ($error)
                     break;
 
                 $event->delete();
             }
 
-            if($error)
+            if ($error)
                 break;
 
             $task->delete();
         }
 
-        if(!$error){
-            foreach($site->events as $event){
-
-                foreach($event->files as $file){
+        if (!$error) {
+            foreach ($site->events as $event) {
+                foreach ($event->files as $file) {
                     $error = $this->removeFile($file);
-                    if($error)
+                    if ($error)
                         break;
                 }
 
-                if($error)
+                if ($error)
                     break;
 
                 $event->delete();
             }
         }
 
-        if(!$error){
-            foreach($site->dead_intervals as $dead_interval){
-                
-                foreach($dead_interval->files as $file){
+        if (!$error) {
+            foreach ($site->dead_intervals as $dead_interval) {
+                foreach ($dead_interval->files as $file) {
                     $error = $this->removeFile($file);
-                    if($error)
+                    if ($error)
                         break;
                 }
 
-                if($error)
+                if ($error)
                     break;
                 
                 $dead_interval->delete();
             }
         }
 
-        if(!$error){
-            foreach($site->files as $file){
+        if (!$error) {
+            foreach ($site->files as $file) {
                 $error = $this->removeFile($file);
-                if($error)
+                if ($error)
                     break;
             }
         }
@@ -849,7 +876,7 @@ class SiteController extends Controller
             $site->delete();
 
             Session::flash('message', "El registro fue eliminado del sistema");
-            if(Session::has('url'))
+            if (Session::has('url'))
                 return redirect(Session::get('url'));
             else
                 return redirect()->action('SiteController@sites_per_project', ['id' => $return_id]);
@@ -870,16 +897,14 @@ class SiteController extends Controller
         
         $site = Site::find($id);
 
-        if($site){
+        if ($site) {
             $file_error = false;
 
-            foreach($site->tasks as $task){
-
-                foreach($task->activities as $activity){
-
-                    foreach($activity->files as $file){
+            foreach ($site->tasks as $task) {
+                foreach ($task->activities as $activity) {
+                    foreach ($activity->files as $file) {
                         $file_error = $this->removeFile($file);
-                        if($file_error)
+                        if ($file_error)
                             break;
                     }
 
@@ -889,12 +914,11 @@ class SiteController extends Controller
                         break;
                 }
 
-                if(!$file_error){
-                    foreach($task->events as $event){
-
-                        foreach($event->files as $file){
+                if (!$file_error) {
+                    foreach ($task->events as $event) {
+                        foreach ($event->files as $file) {
                             $file_error = $this->removeFile($file);
-                            if($file_error)
+                            if ($file_error)
                                 break;
                         }
 
@@ -913,17 +937,15 @@ class SiteController extends Controller
 
             if (!$file_error) {
                 Session::flash('message', "Todos los items de este sitio han sido eliminados");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->action('TaskController@tasks_per_site', ['id' => $site->id]);
-            }
-            else {
+            } else {
                 Session::flash('message', "Error al borrar un registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Error al ejecutar el borrado, no se encontró el sitio solicitado.");
             return redirect()->back();
         }
@@ -1186,7 +1208,7 @@ class SiteController extends Controller
 
         $event->number = $prev_number ? $prev_number->number+1 : 1;
 
-        if($type=='status changed'){
+        if ($type=='status changed') {
             $event->description = 'Cambio de estado';
             $event->detail = "$user->name ha cambiado el estado del sitio $site->code a ".$site->statuses($site->status).
                 ". Este cambio ha sido replicado en sus respectivos items";
@@ -1229,8 +1251,7 @@ class SiteController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
@@ -1241,7 +1262,7 @@ class SiteController extends Controller
         $site->save();
 
         Session::flash('message', "Parámetros actualizados correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
@@ -1263,14 +1284,13 @@ class SiteController extends Controller
         $assignment = Assignment::find($id);
         //$sites = Site::where('assignment_id',$id)->whereNotIn('status', ['Concluído','No asignado'])->get();
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'No se encontró la información solicitada. Revise la dirección e intente de nuevo.');
             return redirect()->back();
         }
         
-        foreach($assignment->sites as $site)
-        {
-            foreach($site->tasks as $task){
+        foreach ($assignment->sites as $site) {
+            foreach ($site->tasks as $task) {
                 $this->refresh_task($task);
             }
             
@@ -1316,7 +1336,7 @@ class SiteController extends Controller
             return redirect()->action('SiteController@index');
         else
         */
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('SiteController@sites_per_project', ['id' => $id]);
@@ -1326,7 +1346,7 @@ class SiteController extends Controller
     {
         $sites = Site::where('code','')->get();
         
-        foreach($sites as $site){
+        foreach ($sites as $site) {
             $site->code = 'ST-'.str_pad($site->id, 4, "0", STR_PAD_LEFT).
                 date_format($site->created_at,'-y');
 
@@ -1336,20 +1356,19 @@ class SiteController extends Controller
 
     function get_key_item_values($site)
     {
-        if($site->assignment->type=='Fibra óptica'){
+        if ($site->assignment->type == 'Fibra óptica') {
             $site->cable_projected = 0;
             $site->cable_executed = 0;
             $site->splice_projected = 0;
             $site->splice_executed = 0;
 
-            foreach($site->tasks as $task){
-                if($task->status>0/*'No asignado'*/){
-                    if($task->summary_category){
-                        if($task->summary_category->cat_name=='fo_cable'){
+            foreach ($site->tasks as $task) {
+                if ($task->status > 0/*'No asignado'*/) {
+                    if ($task->summary_category) {
+                        if ($task->summary_category->cat_name == 'fo_cable') {
                             $site->cable_projected += $task->total_expected;
                             $site->cable_executed += $task->progress;
-                        }
-                        elseif($task->summary_category->cat_name=='fo_splice'){
+                        } elseif ($task->summary_category->cat_name == 'fo_splice') {
                             $site->splice_projected += $task->total_expected;
                             $site->splice_executed += $task->progress;
                         }
@@ -1372,8 +1391,8 @@ class SiteController extends Controller
 
     function update_dates($site)
     {
-        foreach($site->tasks as $task){
-            if($task->status!=0&&$task->status!=$task->last_stat()){
+        foreach ($site->tasks as $task) {
+            if ($task->status != 0 && $task->status != $task->last_stat()) {
                 $task->start_date = $site->start_line;
                 $task->end_date = $site->deadline;
 
@@ -1408,7 +1427,7 @@ class SiteController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['to']!='')
+        if ($form_data['to'] != '')
             $form_data['to'] = $form_data['to'].' 23:59:59';
 
         $v = \Validator::make($form_data, [
@@ -1422,8 +1441,7 @@ class SiteController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', 'Sucedió un error al enviar el formulario!');
             return redirect()->back()->withErrors($v)->withInput();
         }
@@ -1432,7 +1450,7 @@ class SiteController extends Controller
 
         $sites = Site::where('assignment_id',$asg_id)->whereNotIn('status',[0, $last_stat]);
 
-        if(!empty($form_data['id']))
+        if (!empty($form_data['id']))
             $sites = $sites->where('id', $form_data['id']);
 
         $sites = $sites->get();
@@ -1442,20 +1460,20 @@ class SiteController extends Controller
         $from = Carbon::parse($form_data['from']);
         $to = Carbon::parse($form_data['to']);
 
-        if($type=='stipend'){
+        if ($type == 'stipend') {
             $requests_total = 0;
             $viatic_totals = 0;
             $additionals_total = 0;
 
-            foreach($sites as $site){
+            foreach ($sites as $site) {
                 $site->requests_number = 0;
                 $site->viatic_total = 0;
                 $site->additionals_total = 0;
 
-                foreach($site->stipend_requests as $stipend_request){
+                foreach ($site->stipend_requests as $stipend_request) {
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status=='Completed') {
                         $qty = $stipend_request->sites()->count();
 
                         $site->viatic_total += $stipend_request->total_amount/$qty;
@@ -1475,10 +1493,10 @@ class SiteController extends Controller
             $assignment->viatic_total = 0;
             $assignment->additionals_total = 0;
 
-            foreach($assignment->stipend_requests as $stipend_request){
+            foreach ($assignment->stipend_requests as $stipend_request) {
                 $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                     $assignment->viatic_total += $stipend_request->total_amount;
                     $assignment->additionals_total += $stipend_request->additional;
 
@@ -1493,18 +1511,16 @@ class SiteController extends Controller
             return View::make('app.site_expense_report', ['type' => $type, 'service' => $service, 'user' => $user,
                 'sites' => $sites, 'from' => $from, 'to' => $to, 'asg_id' => $asg_id, 'assignment' => $assignment,
                 'form_data' => $form_data]);
-        }
-        elseif($type=='stipend_per_tech'){
+        } elseif($type == 'stipend_per_tech') {
             $employees = collect();
 
             $parent = Site::find($form_data['id']);
 
-            foreach($sites as $site){
-                foreach($site->stipend_requests as $stipend_request){
-                    if($employees->contains('id',$stipend_request->employee_id)){
+            foreach ($sites as $site) {
+                foreach ($site->stipend_requests as $stipend_request) {
+                    if ($employees->contains('id',$stipend_request->employee_id)) {
                         $employee = $employees->where('id', $stipend_request->employee_id)->first();
-                    }
-                    else{
+                    } else {
                         $employee = $stipend_request->employee;
 
                         $employee->requests_number = 0;
@@ -1516,7 +1532,7 @@ class SiteController extends Controller
 
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status=='Completed') {
                         $qty = $stipend_request->sites()->count();
 
                         $employee->viatic_total += $stipend_request->total_amount/$qty;
@@ -1530,16 +1546,14 @@ class SiteController extends Controller
             return View::make('app.site_expense_report_per_tech', ['type' => $type, 'service' => $service,
                 'user' => $user, 'employees' => $employees, 'from' => $from, 'to' => $to, 'asg_id' => $asg_id,
                 'assignment' => $assignment, 'form_data' => $form_data, 'parent' => $parent]);
-        }
-        elseif($type=='stipend_per_tech_empty_asg'){
+        } elseif($type == 'stipend_per_tech_empty_asg') {
             $employees = collect();
 
-            foreach($assignment->stipend_requests as $stipend_request){
-                if($stipend_request->sites()->count()==0&&$stipend_request->status=='Completed'){
-                    if($employees->contains('id',$stipend_request->employee_id)){
+            foreach ($assignment->stipend_requests as $stipend_request) {
+                if ($stipend_request->sites()->count() == 0 && $stipend_request->status == 'Completed') {
+                    if ($employees->contains('id',$stipend_request->employee_id)) {
                         $employee = $employees->where('id', $stipend_request->employee_id)->first();
-                    }
-                    else{
+                    } else {
                         $employee = $stipend_request->employee;
 
                         $employee->requests_number = 0;
@@ -1551,7 +1565,7 @@ class SiteController extends Controller
 
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                         $employee->viatic_total += $stipend_request->total_amount;
                         $employee->additionals_total += $stipend_request->additional;
 
@@ -1563,8 +1577,7 @@ class SiteController extends Controller
             return View::make('app.site_expense_report_per_tech', ['type' => $type, 'service' => $service,
                 'user' => $user, 'employees' => $employees, 'from' => $from, 'to' => $to, 'asg_id' => $asg_id,
                 'assignment' => $assignment, 'form_data' => $form_data, 'parent' => 0]);
-        }
-        else{
+        } else {
             Session::flash('message', 'No se reconocen los parámetros necesarios para generar el reporte!');
             return redirect()->back();
         }
@@ -1587,13 +1600,13 @@ class SiteController extends Controller
         $area = Input::get('area');
         $assignment_id = Input::get('assignment_id');
 
-        if($id!='')
+        if ($id != '')
             $sites = $sites->where('id', $id);
-        if($client!='')
+        if ($client != '')
             $sites = $sites->where('client', $client);
-        if($area!='')
+        if ($area != '')
             $sites = $sites->where('type', $area);
-        if($assignment_id!='')
+        if ($assignment_id != '')
             $sites = $sites->where('assignment_id', $assignment_id);
 
         $sites = $sites->get();
@@ -1603,20 +1616,20 @@ class SiteController extends Controller
         $from = Carbon::parse($from);
         $to = Carbon::parse($to);
 
-        if($type=='stipend'){
+        if ($type == 'stipend') {
             $requests_total = 0;
             $viatic_totals = 0;
             $additionals_total = 0;
 
-            foreach($sites as $site){
+            foreach ($sites as $site) {
                 $site->requests_number = 0;
                 $site->viatic_total = 0;
                 $site->additionals_total = 0;
 
-                foreach($site->stipend_requests as $stipend_request){
+                foreach ($site->stipend_requests as $stipend_request) {
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                         $qty = $stipend_request->sites()->count();
 
                         $site->viatic_total += $stipend_request->total_amount/$qty;
@@ -1636,10 +1649,10 @@ class SiteController extends Controller
             $assignment->viatic_total = 0;
             $assignment->additionals_total = 0;
 
-            foreach($assignment->stipend_requests as $stipend_request){
+            foreach ($assignment->stipend_requests as $stipend_request) {
                 $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                     $assignment->viatic_total += $stipend_request->total_amount;
                     $assignment->additionals_total += $stipend_request->additional;
 
@@ -1655,8 +1668,7 @@ class SiteController extends Controller
             $excel_name = 'Reporte de gastos - sitios';
             $sheet_name = 'Sitios';
 
-            foreach($sites as $site)
-            {
+            foreach ($sites as $site) {
                 $sheet_content->prepend(
                     [   'Sitio'         => $site->name,
                         '# Solicitudes' => $site->requests_number,
@@ -1676,15 +1688,14 @@ class SiteController extends Controller
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
-        elseif($type=='stipend_per_tech'){
+        elseif ($type == 'stipend_per_tech') {
             $employees = collect();
 
-            foreach($sites as $site){
-                foreach($site->stipend_requests as $stipend_request){
-                    if($employees->contains('id',$stipend_request->employee_id)){
+            foreach ($sites as $site) {
+                foreach ($site->stipend_requests as $stipend_request) {
+                    if ($employees->contains('id',$stipend_request->employee_id)) {
                         $employee = $employees->where('id', $stipend_request->employee_id)->first();
-                    }
-                    else{
+                    } else {
                         $employee = $stipend_request->employee;
 
                         $employee->requests_number = 0;
@@ -1696,7 +1707,7 @@ class SiteController extends Controller
 
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                         $qty = $stipend_request->sites()->count();
 
                         $employee->viatic_total += $stipend_request->total_amount/$qty;
@@ -1711,9 +1722,8 @@ class SiteController extends Controller
             $excel_name = 'Reporte de gastos - sitios por tecnico';
             $sheet_name = 'Gastos por tecnico-sitio';
 
-            foreach($employees as $employee)
-            {
-                if($employee->requests_number>0){
+            foreach ($employees as $employee) {
+                if ($employee->requests_number > 0) {
                     $sheet_content->prepend(
                         [   'Empleado'      => $employee->first_name.' '.$employee->last_name,
                             '# Solicitudes' => $employee->requests_number,
@@ -1725,16 +1735,14 @@ class SiteController extends Controller
             }
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
-        }
-        elseif($type=='stipend_per_tech_empty_asg'){
+        } elseif ($type == 'stipend_per_tech_empty_asg') {
             $employees = collect();
 
-            foreach($assignment->stipend_requests as $stipend_request){
-                if($stipend_request->sites()->count()==0&&$stipend_request->status=='Completed'){
-                    if($employees->contains('id',$stipend_request->employee_id)){
+            foreach ($assignment->stipend_requests as $stipend_request) {
+                if ($stipend_request->sites()->count() == 0 && $stipend_request->status == 'Completed') {
+                    if ($employees->contains('id',$stipend_request->employee_id)) {
                         $employee = $employees->where('id', $stipend_request->employee_id)->first();
-                    }
-                    else{
+                    } else {
                         $employee = $stipend_request->employee;
 
                         $employee->requests_number = 0;
@@ -1746,7 +1754,7 @@ class SiteController extends Controller
 
                     $stipend_request->date_from = Carbon::parse($stipend_request->date_from);
 
-                    if($stipend_request->date_from->between($from, $to)&&$stipend_request->status=='Completed'){
+                    if ($stipend_request->date_from->between($from, $to) && $stipend_request->status == 'Completed') {
                         $employee->viatic_total += $stipend_request->total_amount;
                         $employee->additionals_total += $stipend_request->additional;
 
@@ -1759,9 +1767,8 @@ class SiteController extends Controller
             $excel_name = 'Reporte de gastos - sitios por tecnico';
             $sheet_name = 'Gastos por tecnico-sitio';
 
-            foreach($employees as $employee)
-            {
-                if($employee->requests_number>0){
+            foreach ($employees as $employee) {
+                if ($employee->requests_number > 0) {
                     $sheet_content->prepend(
                         [   'Empleado'      => $employee->first_name.' '.$employee->last_name,
                             '# Solicitudes' => $employee->requests_number,
@@ -1773,8 +1780,7 @@ class SiteController extends Controller
             }
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
-        }
-        else{
+        } else {
             Session::flash('message', 'No se reconocen los parámetros necesarios para generar el reporte!');
             return redirect()->back();
         }
@@ -1802,7 +1808,7 @@ class SiteController extends Controller
 
         $assignment = Assignment::find($id);
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'No se encontró la asignación solicitada!, revise la dirección e intente de nuevo por favor');
             return redirect()->back();
         }
@@ -1810,11 +1816,10 @@ class SiteController extends Controller
         $interval = Input::get('interval');
         $mode = Input::get('mode');
 
-        if($interval=='exec'){
+        if ($interval == 'exec') {
             $assignment->start_date = Carbon::parse($assignment->start_date)->format('Y-m-d');
             $assignment->end_date = Carbon::parse($assignment->end_date)->format('Y-m-d');
-        }
-        elseif($interval=='asg'){
+        } elseif ($interval == 'asg') {
             $assignment->start_line = Carbon::parse($assignment->start_line)->format('Y-m-d');
             $assignment->deadline = Carbon::parse($assignment->deadline)->format('Y-m-d');
         }
@@ -1831,8 +1836,8 @@ class SiteController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['mode']=='set'){
-            $form_data['to'] = $form_data['to']!='' ? $form_data['to'].' 23:59:59' : '';
+        if ($form_data['mode'] == 'set') {
+            $form_data['to'] = $form_data['to'] != '' ? $form_data['to'].' 23:59:59' : '';
 
             $v = \Validator::make($form_data, [
                 'from'                  => 'required|date',
@@ -1844,8 +1849,7 @@ class SiteController extends Controller
                     'after'                     => 'La fecha "Hasta" debe ser posterior a la fecha "Desde"!',
                 ]
             );
-        }
-        else{
+        } else {
             $v = \Validator::make($form_data, [
                 'diff_days'                  => 'required|numeric',
             ],
@@ -1856,15 +1860,14 @@ class SiteController extends Controller
             );
         }
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', 'Sucedió un error al enviar el formulario!');
             return redirect()->back()->withErrors($v)->withInput();
         }
 
         $assignment = Assignment::find($id);
 
-        if(!$assignment){
+        if (!$assignment) {
             Session::flash('message', 'No se encontró la asignación referenciada! revise la dirección e intente de nuevo por favor');
             return redirect()->back();
         }
@@ -1872,107 +1875,102 @@ class SiteController extends Controller
         $mode = $form_data['mode'];
         $interval = $form_data['interval'];
 
-        if($mode=='set'){
+        if ($mode == 'set') {
             $from = $form_data['from'];
             $to = $form_data['to'];
 
-            if($interval=='exec'){
+            if ($interval == 'exec') {
                 $assignment->start_date = $from;
                 $assignment->end_date = $to;
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
+                foreach ($assignment->sites as $site) {
                     $site->start_date = $from;
                     $site->end_date = $to;
 
                     $site->save();
                 }
-            }
-            elseif($interval=='asg'){
+            } elseif ($interval == 'asg') {
                 $assignment->start_line = $from;
                 $assignment->deadline = $to;
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
+                foreach ($assignment->sites as $site) {
                     $site->start_line = $from;
                     $site->deadline = $to;
 
                     $site->save();
                 }
             }
-        }
-        elseif($mode=='add'){
+        } elseif ($mode == 'add') {
             $diff_days = $form_data['diff_days'];
 
-            if($interval=='exec'){
-                if($assignment->start_date!='0000-00-00 00:00:00')
+            if ($interval == 'exec') {
+                if ($assignment->start_date != '0000-00-00 00:00:00')
                     $assignment->start_date = Carbon::parse($assignment->start_date)->addDays($diff_days);
-                if($assignment->edn_date!='0000-00-00 00:00:00')
+                if ($assignment->edn_date != '0000-00-00 00:00:00')
                     $assignment->end_date = Carbon::parse($assignment->end_date)->addDays($diff_days);
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
-                    if($site->start_date!='0000-00-00 00:00:00')
+                foreach ($assignment->sites as $site) {
+                    if ($site->start_date != '0000-00-00 00:00:00')
                         $site->start_date = Carbon::parse($site->start_date)->addDays($diff_days);
-                    if($site->end_date!='0000-00-00 00:00:00')
+                    if ($site->end_date != '0000-00-00 00:00:00')
                         $site->end_date = Carbon::parse($site->end_date)->addDays($diff_days);
 
                     $site->save();
                 }
-            }
-            elseif($interval=='asg'){
-                if($assignment->start_line!='0000-00-00 00:00:00')
+            } elseif($interval == 'asg') {
+                if ($assignment->start_line != '0000-00-00 00:00:00')
                     $assignment->start_line = Carbon::parse($assignment->start_line)->addDays($diff_days);
-                if($assignment->deadline!='0000-00-00 00:00:00')
+                if ($assignment->deadline != '0000-00-00 00:00:00')
                     $assignment->deadline = Carbon::parse($assignment->deadline)->addDays($diff_days);
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
-                    if($site->start_line!='0000-00-00 00:00:00')
+                foreach ($assignment->sites as $site) {
+                    if ($site->start_line != '0000-00-00 00:00:00')
                         $site->start_line = Carbon::parse($site->start_line)->addDays($diff_days);
-                    if($site->deadline!='0000-00-00 00:00:00')
+                    if ($site->deadline != '0000-00-00 00:00:00')
                         $site->deadline = Carbon::parse($site->deadline)->addDays($diff_days);
 
                     $site->save();
                 }
             }
-        }
-        elseif($mode=='sub'){
+        } elseif ($mode == 'sub') {
             $diff_days = $form_data['diff_days'];
 
-            if($interval=='exec'){
-                if($assignment->start_date!='0000-00-00 00:00:00')
+            if ($interval == 'exec') {
+                if ($assignment->start_date != '0000-00-00 00:00:00')
                     $assignment->start_date = Carbon::parse($assignment->start_date)->subDays($diff_days);
-                if($assignment->end_date!='0000-00-00 00:00:00')
+                if ($assignment->end_date != '0000-00-00 00:00:00')
                     $assignment->end_date = Carbon::parse($assignment->end_date)->subDays($diff_days);
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
-                    if($site->start_date!='0000-00-00 00:00:00')
+                foreach ($assignment->sites as $site) {
+                    if ($site->start_date != '0000-00-00 00:00:00')
                         $site->start_date = Carbon::parse($site->start_date)->subDays($diff_days);
-                    if($site->end_Date!='0000-00-00 00:00:00')
+                    if ($site->end_Date != '0000-00-00 00:00:00')
                         $site->end_date = Carbon::parse($site->end_date)->subDays($diff_days);
 
                     $site->save();
                 }
-            }
-            elseif($interval=='asg'){
-                if($assignment->start_line!='0000-00-00 00:00:00')
+            } elseif ($interval == 'asg') {
+                if ($assignment->start_line != '0000-00-00 00:00:00')
                     $assignment->start_line = Carbon::parse($assignment->start_line)->subDays($diff_days);
-                if($assignment->deadline!='0000-00-00 00:00:00')
+                if ($assignment->deadline != '0000-00-00 00:00:00')
                     $assignment->deadline = Carbon::parse($assignment->deadline)->subDays($diff_days);
 
                 $assignment->save();
 
-                foreach($assignment->sites as $site){
-                    if($site->start_line!='0000-00-00 00:00:00')
+                foreach ($assignment->sites as $site) {
+                    if ($site->start_line != '0000-00-00 00:00:00')
                         $site->start_line = Carbon::parse($site->start_line)->subDays($diff_days);
-                    if($site->deadline!='0000-00-00 00:00:00')
+                    if ($site->deadline != '0000-00-00 00:00:00')
                         $site->deadline = Carbon::parse($site->deadline)->subDays($diff_days);
 
                     $site->save();
@@ -1981,7 +1979,7 @@ class SiteController extends Controller
         }
 
         Session::flash('message', "Fechas actualizadas correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('SiteController@sites_per_project', ['id' => $assignment->id]);

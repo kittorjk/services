@@ -150,6 +150,14 @@
                                     <th width="25%">Estado:</th>
                                     <td width="25%">{{ $site->statuses($site->status) }}</td>
                                 </tr>
+                                @if($site->du_id != '' || $site->isdp_account != '')
+                                    <tr>
+                                        <th>DU ID:</th>
+                                        <td>{{ $site->du_id }}</td>
+                                        <th width="25%">Cuenta de ISDP:</th>
+                                        <td width="25%">{{ $site->isdp_account }}</td>
+                                    </tr>
+                                @endif
                                 <tr><td colspan="4"></td></tr>
 
                                 <tr>
@@ -274,11 +282,13 @@
                                 <tr>
                                     <th colspan="4">
                                         Ordenes asociadas:
-                                        @if(!in_array($site->status,array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)))
+                                        {{--
+                                        @if(!in_array($site->status,array($site->last_stat(),0)))
                                             <a href="/join/site-to-order/{{ $site->id }}" class="pull-right">
                                                 <i class="fa fa-link"></i> Asociar una orden
                                             </a>
                                         @endif
+                                        --}}
                                     </th>
                                 </tr>
                                 <tr>
@@ -286,19 +296,46 @@
                                         <table width="100%">
                                             <thead>
                                             <tr>
-                                                <td width="4%"></td>
+                                                {{--<td width="4%"></td>--}}
                                                 <td width="25%">Orden</td>
                                                 <td>Monto asignado</td>
                                                 <td align="center">Cobrado</td>
                                             </tr>
                                             </thead>
                                             <tbody>
+                                            @if($site->order)
+                                                <tr>
+                                                    <td>
+                                                        <a href="/order/{{ $site->order->id }}">
+                                                            {{ $site->order->type.' - '.$site->order->code }}
+                                                        </a>
+                                                    </td>
+                                                    <td align="right">{{ $site->order->assigned_price.' Bs' }}</td>
+                                                    <td align="center">
+                                                        @if($site->order->status == 'Pendiente')
+                                                            <i
+                                                            @if(!in_array($site->status,
+                                                                array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)))
+                                                                onclick="flag_status(this,flag='site-to-order',
+                                                                    master_id='{{ $site->order->id }}',id='{{ $site->id }}');"
+                                                            @endif
+                                                            class="fa fa-square-o"
+                                                            title="{{ !in_array($site->status,
+                                                                array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)) ?
+                                                                'Marcar como cobrado' : 'Pendiente de cobro' }}"></i>
+                                                        @else
+                                                            <i class="fa fa-check-square-o" title="Cobrado" style="color:green;"></i>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                            {{--
                                             @foreach($site->orders as $order)
                                                 <tr>
                                                     <td>
                                                         @if($order->pivot->status==0&&
                                                             !in_array($site->status,
-                                                                array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)))
+                                                                array($site->last_stat(), 0)))
                                                             <a href="/detach/site/{{ 'st-'.$site->id }}/{{ $order->id }}"
                                                                style="color: red" title="Eliminar asociación">
                                                                 <i class="fa fa-times"></i>
@@ -315,13 +352,13 @@
                                                         @if($order->pivot->status==0)
                                                             <i
                                                             @if(!in_array($site->status,
-                                                                array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)))
+                                                                array($site->last_stat(),0)))
                                                                 onclick="flag_status(this,flag='site-to-order',
                                                                     master_id='{{ $order->id }}',id='{{ $site->id }}');"
                                                             @endif
                                                             class="fa fa-square-o"
                                                             title="{{ !in_array($site->status,
-                                                                array($site->last_stat()/*'Concluído'*/,0/*'No asignado'*/)) ?
+                                                                array($site->last_stat(),0)) ?
                                                                 'Marcar como cobrado' : 'No cobrado' }}"></i>
                                                         @else
                                                             <i class="fa fa-check-square-o" title="Cobrado" style="color:green;"></i>
@@ -329,6 +366,7 @@
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                            --}}
                                             </tbody>
                                         </table>
                                     </th>

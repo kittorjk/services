@@ -10,20 +10,20 @@ class Site extends Model
         'origin_name', 'latitude', 'longitude', 'destination_name', 'lat_destination', 'long_destination',
         'department', 'municipality', 'type_municipality', 'resp_id', 'contact_id', 'start_line', 'deadline',
         'start_date', 'end_date', 'percentage_completed', 'budget', 'vehicle_dev_cost', 'quote_price', 'executed_price',
-        'assigned_price', 'charged_price', 'observations', 'created_at'];
+        'assigned_price', 'charged_price', 'observations', 'du_id', 'isdp_account', 'order_id', 'created_at'];
 
     protected $touches = ['assignment'];
     
-    public function files(){
+    public function files() {
         return $this->morphMany('App\File','imageable');
     }
 
-    public function assignment(){
-        //Several sites can belong to a single assignment
+    public function assignment() {
+        // Several sites can belong to a single assignment
         return $this->belongsTo('App\Assignment');
     }
 
-    public function user(){
+    public function user() {
         return $this->belongsTo('App\User');
     }
     
@@ -32,12 +32,12 @@ class Site extends Model
         return $this->hasOne('App\RbsSiteValue');
     }
     */
-    public function rbs_char(){
+    public function rbs_char() {
         return $this->hasOne('App\RbsSiteCharacteristic');
     }
     
-    public function contact(){
-        //Several sites can be assigned a single contact person
+    public function contact() {
+        // Several sites can be assigned a single contact person
         return $this->belongsTo('App\Contact');
     }
     /*
@@ -46,26 +46,32 @@ class Site extends Model
     }
     */
 
-    public function tasks(){
+    public function tasks() {
         return $this->hasMany('App\Task');
     }
 
-    public function orders(){
+    public function order() {
+        return $this->belongsTo('App\Order', 'order_id', 'id');
+    }
+
+    /* Deshabilitado temporalmente, probando relación muchos a uno
+    public function orders() {
         return $this->belongsToMany('\App\Order','order_site','site_id','order_id')
             ->withPivot('assigned_amount','status','created_at','updated_at')
             ->withTimestamps();
     }
+    */
 
-    public function responsible(){
+    public function responsible() {
         return $this->belongsTo('App\User', 'resp_id', 'id');
     }
 
-    public function events(){
+    public function events() {
         //A site can have several events
         return $this->morphMany('App\Event','eventable');
     }
 
-    public function dead_intervals(){
+    public function dead_intervals() {
         //A Site can have several dead intervals
         return $this->morphMany('App\DeadInterval','relatable');
     }
@@ -78,7 +84,7 @@ class Site extends Model
     }
     */
 
-    public function stipend_requests(){
+    public function stipend_requests() {
         return $this->belongsToMany('App\StipendRequest', 'site_stipend_request', 'site_id',
             'stipend_request_id')
             ->withTimestamps();
@@ -98,7 +104,7 @@ class Site extends Model
         10 => 'Concluído',
     );
     
-    public function statuses($value){
+    public function statuses($value) {
         $status_options = Site::$status_options;
         
         return $status_options[$value];
@@ -119,7 +125,7 @@ class Site extends Model
         */
     }
 
-    public function status_number($value){
+    public function status_number($value) {
         $status_options = Site::$status_options;
         
         $status_keys = array_flip($status_options);
@@ -141,7 +147,7 @@ class Site extends Model
         */
     }
 
-    public function last_stat(){
+    public function last_stat() {
         $status_options = Site::$status_options;
         
         end($status_options);
