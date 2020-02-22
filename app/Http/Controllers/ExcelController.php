@@ -86,8 +86,7 @@ class ExcelController extends Controller
 
             $assignments = Assignment::all();
 
-            foreach($assignments as $assignment)
-            {
+            foreach ($assignments as $assignment) {
                 $sites = $assignment->sites;
                 
                 foreach($sites as $site) {
@@ -103,26 +102,29 @@ class ExcelController extends Controller
                             'Oficina'               => $assignment->branch,
                             'Estado de proyecto'    => $assignment->statuses($assignment->status),
                             'Estado de sitio'       => $site->statuses($site->status),
-                            'porcentaje de avance'  => number_format($assignment->percentage_completed,2).' %',
+                            'porcentaje de avance'  => number_format($assignment->percentage_completed, 2).' %',
                             'PM de proyecto'        => $assignment->responsible ? $assignment->responsible->name : '',
                             'PM de sitio'           => $site->responsible ? $site->responsible->name : ($assignment->responsible ? $assignment->responsible->name : ''),
-                            'Inicio cotización'     => $assignment->quote_from==0 ? '' :
-                                date_format(Carbon::parse($assignment->quote_from),'d-m-Y'),
-                            'Fin cotización'        => $assignment->quote_to==0 ? '' :
-                                date_format(Carbon::parse($assignment->quote_to),'d-m-Y'),
-                            'Plazo asignado de'     => $assignment->start_line==0 ? '' : date_format(Carbon::parse($assignment->start_line), 'd-m-Y'),
-                            'Plazo asignado a'      => $assignment->deadline==0 ? '' : date_format(Carbon::parse($assignment->deadline), 'd-m-Y'),
-                            'Inicio ejecución'      => $assignment->start_date==0 ? '' :
-                                date_format(Carbon::parse($assignment->start_date),'d-m-Y'),
-                            'Fin ejecución'         => $assignment->end_date==0 ? '' :
-                                date_format(Carbon::parse($assignment->end_date),'d-m-Y'),
-                            'Inicio cobro'          => $assignment->billing_from==0 ? '' :
-                                date_format(Carbon::parse($assignment->billing_from),'d-m-Y'),
-                            'Fin cobro'             => $assignment->billing_to==0 ? '' :
-                                date_format(Carbon::parse($assignment->billing_to),'d-m-Y'),
-                            'Creación'              => date_format($assignment->created_at,'d-m-Y'),
-                            'Última actualización'  => date_format($assignment->updated_at,'d-m-Y'),
-                        ]);    
+                            'DU ID'                 => $site->du_id,
+                            'Cuenta de ISDP'        => $site->isdp_account,
+                            'Orden'                 => $site->order ? $site->order->code : 'Sin asignar',
+                            'Inicio cotización'     => $assignment->quote_from == 0 ? '' :
+                                date_format(Carbon::parse($assignment->quote_from), 'd-m-Y'),
+                            'Fin cotización'        => $assignment->quote_to == 0 ? '' :
+                                date_format(Carbon::parse($assignment->quote_to), 'd-m-Y'),
+                            'Plazo asignado de'     => $assignment->start_line == 0 ? '' : date_format(Carbon::parse($assignment->start_line), 'd-m-Y'),
+                            'Plazo asignado a'      => $assignment->deadline == 0 ? '' : date_format(Carbon::parse($assignment->deadline), 'd-m-Y'),
+                            'Inicio ejecución'      => $assignment->start_date == 0 ? '' :
+                                date_format(Carbon::parse($assignment->start_date), 'd-m-Y'),
+                            'Fin ejecución'         => $assignment->end_date == 0 ? '' :
+                                date_format(Carbon::parse($assignment->end_date), 'd-m-Y'),
+                            'Inicio cobro'          => $assignment->billing_from == 0 ? '' :
+                                date_format(Carbon::parse($assignment->billing_from), 'd-m-Y'),
+                            'Fin cobro'             => $assignment->billing_to == 0 ? '' :
+                                date_format(Carbon::parse($assignment->billing_to), 'd-m-Y'),
+                            'Creación'              => date_format($assignment->created_at, 'd-m-Y'),
+                            'Última actualización'  => date_format($assignment->updated_at, 'd-m-Y'),
+                        ]);
                 }
             }
 
@@ -137,21 +139,19 @@ class ExcelController extends Controller
 
             $bills = Bill::all();
 
-            foreach($bills as $bill)
-            {
-                foreach($bill->orders as $order){
-
+            foreach ($bills as $bill) {
+                foreach ($bill->orders as $order) {
                     $sheet_content->prepend(
                         [   'Factura'               => $bill->code,
                             'Orden'                 => $order->type.' '.$order->code,
                             'Monto facturado'       => $order->pivot->charged_amount.' Bs',
-                            'Estado'                => $order->pivot->status==0 ? 'Pendiente' : 'Cobrado',
+                            'Estado'                => $order->pivot->status == 0 ? 'Pendiente' : 'Cobrado',
                             'Última modificación'   => date_format($order->pivot->updated_at,'d/m/Y'),
                         ]);
                 }
             }
 
-            $this->record_export('/bill','Full pivot table bill_order',0);
+            $this->record_export('/bill','Full pivot table bill_order', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -162,20 +162,19 @@ class ExcelController extends Controller
 
             $bills = Bill::all();
 
-            foreach($bills as $bill)
-            {
+            foreach ($bills as $bill) {
                 $sheet_content->prepend(
                     [   'Número de factura'     => $bill->code,
                         'Fecha de emisión'      => Carbon::parse($bill->date_issued)->format('d/m/Y'),
-                        'Monto facturado'       => number_format($bill->billed_price,2).' Bs',
-                        'Estado'                => $bill->status==0 ? 'Pendiente' : 'Cobrada' ,
-                        'Fecha de cobro'        => $bill->status==1 ?
+                        'Monto facturado'       => number_format($bill->billed_price, 2).' Bs',
+                        'Estado'                => $bill->status == 0 ? 'Pendiente' : 'Cobrada' ,
+                        'Fecha de cobro'        => $bill->status == 1 ?
                             Carbon::parse($bill->date_charged)->format('d/m/Y') : '',
                         'Información adicional' => $bill->detail,
                     ]);
             }
 
-            $this->record_export('/bill','Full table',0);
+            $this->record_export('/bill','Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -197,8 +196,7 @@ class ExcelController extends Controller
 
             $calibrations = Calibration::all();
 
-            foreach($calibrations as $calibration)
-            {
+            foreach ($calibrations as $calibration) {
                 $sheet_content->prepend(
                     [   'ID'                    => $calibration->id,
                         'ID Usuario'            => $calibration->user_id,
@@ -207,10 +205,10 @@ class ExcelController extends Controller
                         'Equipo'                => $calibration->device->type.' '.$calibration->device->model.
                             ' - Serial: '.$calibration->device->serial,
                         'Fecha ingreso calibración' => Carbon::parse($calibration->date_in)->format('d/m/Y'),
-                        'Fecha salida calibración' => $calibration->completed==1 ?
+                        'Fecha salida calibración' => $calibration->completed == 1 ?
                             Carbon::parse($calibration->date_out)->format('d/m/Y') : '',
                         'Detalle'               => wordwrap($calibration->detail, 70, "\n", false),
-                        'Estado'                => $calibration->completed==1 ? 'Finalizado' : 'En calibración',
+                        'Estado'                => $calibration->completed == 1 ? 'Finalizado' : 'En calibración',
                         'Fecha creación registro' => date_format($calibration->created_at,'d/m/Y'),
                         'Última modificación'   => date_format($calibration->updated_at,'d/m/Y'),
                     ]);
@@ -252,8 +250,7 @@ class ExcelController extends Controller
 
             $i = 1;
 
-            foreach($contacts as $contact)
-            {
+            foreach ($contacts as $contact) {
                 $sheet_content->push(
                     [   '#'                     => $i,
                         'Nombre'                => $contact->name,
@@ -267,7 +264,7 @@ class ExcelController extends Controller
                 $i++;
             }
 
-            $this->record_export('/contact','Full table',0);
+            $this->record_export('/contact','Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -327,8 +324,7 @@ class ExcelController extends Controller
 
             $lines = CorpLine::all();
 
-            foreach($lines as $line)
-            {
+            foreach ($lines as $line) {
                 $sheet_content->prepend(
                     [   'Nro'                   => $line->id,
                         'Número'                => $line->number,
@@ -336,17 +332,17 @@ class ExcelController extends Controller
                         'Tecnología'            => $line->technology,
                         'Código PIN'            => $line->pin,
                         'Código PUK'            => $line->puk,
-                        'Consumo promedio'      => $line->avg_consumption!=0 ? $line->avg_consumption : '',
-                        'Crédito asignado'      => $line->credit_assigned!=0 ? $line->credit_assigned : '',
+                        'Consumo promedio'      => $line->avg_consumption != 0 ? $line->avg_consumption : '',
+                        'Crédito asignado'      => $line->credit_assigned != 0 ? $line->credit_assigned : '',
                         'Estado'                => $line->status,
                         'Responsable'           => $line->responsible ? $line->responsible->name : '',
                         'Observaciones'         => $line->observations,
-                        'Fecha de registro'     => date_format($line->created_at,'d-m-Y h:i:s'),
-                        'Última modificación'   => date_format($line->updated_at,'d-m-Y h:i:s')
+                        'Fecha de registro'     => date_format($line->created_at, 'd-m-Y h:i:s'),
+                        'Última modificación'   => date_format($line->updated_at, 'd-m-Y h:i:s')
                     ]);
             }
 
-            $this->record_export('/corporate_line','Full table',0);
+            $this->record_export('/corporate_line','Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -357,16 +353,15 @@ class ExcelController extends Controller
 
             $dead_intervals = DeadInterval::all();
 
-            foreach($dead_intervals as $dead_interval)
-            {
+            foreach ($dead_intervals as $dead_interval) {
                 $sheet_content->prepend(
                     [   'ID'                    => $dead_interval->id,
                         'Responsable'           => $dead_interval->user ? $dead_interval->user->name : '',
-                        'Desde'                 => date_format(Carbon::parse($dead_interval->date_from),'d/m/Y'),
-                        'Hasta'                 => date_format(Carbon::parse($dead_interval->date_to),'d/m/Y'),
+                        'Desde'                 => date_format(Carbon::parse($dead_interval->date_from), 'd/m/Y'),
+                        'Hasta'                 => date_format(Carbon::parse($dead_interval->date_to), 'd/m/Y'),
                         'Total en días'         => $dead_interval->total_days,
                         'Motivo'                => wordwrap($dead_interval->reason, 70, "\n", false),
-                        'Estado'                => $dead_interval->closed==0 ? 'Activo' : 'Cerrado',
+                        'Estado'                => $dead_interval->closed == 0 ? 'Activo' : 'Cerrado',
                         'Morph_id'              => $dead_interval->relatable_id,
                         'Morph_type'            => $dead_interval->relatable_type,
                         'Fecha creación registro' => date_format($dead_interval->created_at,'d/m/Y'),
@@ -374,7 +369,7 @@ class ExcelController extends Controller
                     ]);
             }
 
-            $this->record_export('/dead_interval?assig_id=id','Full table for dead intervals',0);
+            $this->record_export('/dead_interval?assig_id=id','Full table for dead intervals', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -385,8 +380,7 @@ class ExcelController extends Controller
 
             $device_histories = DeviceHistory::all();
 
-            foreach($device_histories as $history)
-            {
+            foreach ($device_histories as $history) {
                 $sheet_content->prepend(
                     [   'ID'                    => $history->id,
                         'ID equipo'             => $history->device_id,
@@ -1038,6 +1032,9 @@ class ExcelController extends Controller
                         //date_format($site->end_date,'d-m-Y'),
                         '% Avance'              => number_format($site->percentage_completed,2).'%',
                         'Observaciones'         => $site->observations,
+                        'DU ID'                 => $site->du_id,
+                        'Cuenta de ISDP'        => $site->isdp_account,
+                        'Orden'                 => $site->order ? $site->order->code : 'Sin asignar'
                     ]);
             }
 
