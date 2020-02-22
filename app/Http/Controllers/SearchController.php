@@ -98,30 +98,40 @@ class SearchController extends Controller
                     ->orderBy('id')->paginate(20);
             }
             else {
-                if($parameter=='resp_name'){
+                if ($parameter == 'resp_name') {
                     $assignments = Assignment::join('users', 'assignments.resp_id', '=', 'users.id')
                         ->select('assignments.*')
                         ->where('users.name', 'like', "%$search_term%")
                         ->orderBy('assignments.id')->paginate(20);
-                }
-                elseif($parameter=='contact_name'){
+                } elseif ($parameter == 'contact_name') {
                     $assignments = Assignment::join('contacts', 'assignments.contact_id', '=', 'contacts.id')
                         ->select('assignments.*')
                         ->where('contacts.name', 'like', "%$search_term%")
                         ->orderBy('assignments.id')->paginate(20);
-                }
-                elseif($parameter=='project_name'){
+                } elseif ($parameter == 'project_name') {
                     $assignments = Assignment::join('projects', 'assignments.project_id', '=', 'projects.id')
                         ->select('assignments.*')
                         ->where('projects.name', 'like', "%$search_term%")
                         ->orderBy('assignments.id')->paginate(20);
-                }
-                elseif($parameter=='site_name'){
+                } elseif ($parameter == 'site_name') {
                     $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
                         $query->where('name', 'like', "%$search_term%");
                     })->orderBy('id')->paginate(20);
-                }
-                else{
+                } else if ($parameter == 'du_id') {
+                    $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
+                        $query->where('du_id', 'like', "%$search_term%");
+                    })->orderBy('id')->paginate(20);
+                } else if ($parameter == 'isdp_account') {
+                    $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
+                        $query->where('isdp_account', 'like', "%$search_term%");
+                    })->orderBy('id')->paginate(20);
+                } else if ($parameter == 'order_code') {
+                    $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
+                        $query->whereHas('order', function ($query2) use($search_term) {
+                            $query2->where('code', 'like', "%$search_term%");
+                        });
+                    })->orderBy('id')->paginate(20);
+                } else {
                     $assignments = Assignment::where("$parameter", 'like', "%$search_term%")
                         ->orderBy('id')->paginate(20);
                 }
@@ -146,7 +156,7 @@ class SearchController extends Controller
                 }
 
                 /* Add general progress values for key items */
-                if($assignment->type=='Fibra óptica'){
+                if ($assignment->type == 'Fibra óptica') {
                     $assignment->cable_projected = $assignment->cable_executed = $assignment->cable_percentage = 0;
                     $assignment->splice_projected = 0;
                     $assignment->splice_executed = 0;
@@ -158,25 +168,22 @@ class SearchController extends Controller
                     $assignment->meassures_executed = 0;
                     $assignment->meassures_percentage = 0;
 
-                    foreach($assignment->sites as $site){
-                        foreach($site->tasks as $task){
-                            if($task->status>0/*'No asignado'*/){
+                    foreach ($assignment->sites as $site) {
+                        foreach ($site->tasks as $task) {
+                            if ($task->status > 0/*'No asignado'*/) {
                                 if ((stripos($task->name, 'tendido')!==FALSE&&stripos($task->name, 'cable')!==FALSE)||
                                     stripos($task->name, 'lineal')!==FALSE){
                                     $assignment->cable_projected += $task->total_expected;
                                     $assignment->cable_executed += $task->progress;
-                                }
-                                elseif(stripos($task->name, 'empalme')!==FALSE&&stripos($task->name, 'ejecución')!==FALSE){
+                                } elseif(stripos($task->name, 'empalme')!==FALSE&&stripos($task->name, 'ejecución')!==FALSE){
                                     $assignment->splice_projected += $task->total_expected;
                                     $assignment->splice_executed += $task->progress;
-                                }
-                                elseif(stripos($task->name, 'poste')!==FALSE&&(stripos($task->name, 'madera')!==FALSE||
+                                } elseif(stripos($task->name, 'poste')!==FALSE&&(stripos($task->name, 'madera')!==FALSE||
                                         stripos($task->name, 'prfv')!==FALSE||stripos($task->name, 'hormig')!==FALSE)&&
                                     stripos($task->name, 'traslado')===FALSE){
                                     $assignment->posts_projected += $task->total_expected;
                                     $assignment->posts_executed += $task->progress;
-                                }
-                                elseif(stripos($task->name, 'medida')!==FALSE){
+                                } elseif(stripos($task->name, 'medida')!==FALSE){
                                     $assignment->meassures_projected += $task->total_expected;
                                     $assignment->meassures_executed += $task->progress;
                                 }
@@ -214,17 +221,15 @@ class SearchController extends Controller
             return View::make('app.bill_brief', ['bills' => $bills, 'service' => $service, 'user' => $user]);
         }
 
-        elseif($table=='branches'){
-            if($has_date){
+        elseif ($table == 'branches') {
+            if ($has_date) {
                 $branches = Branch::whereBetween('created_at', [$from, $to])->orderBy('name')->paginate(20);
-            }
-            elseif($parameter=='head_name'){
+            } elseif ($parameter == 'head_name') {
                 $branches = Branch::join('employees', 'branches.head_id', '=', 'employees.id')
                     ->select('branches.*')
                     ->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$search_term%")
                     ->orderBy('branches.name')->paginate(20);
-            }
-            else{
+            } else {
                 $branches = Branch::where("$parameter", 'like', "%$search_term%")->orderBy('name')->paginate(20);
             }
 
@@ -237,21 +242,19 @@ class SearchController extends Controller
                 $calibrations = Calibration::whereBetween('date_in', [$from, $to])->paginate(20);
             }
             else {
-                if($parameter=='type'||$parameter=='model'||$parameter=='serial'){
+                if ($parameter == 'type' || $parameter == 'model' || $parameter == 'serial') {
                     $calibrations = Calibration::join('devices','calibrations.device_id','=','devices.id')
                         ->select('calibrations.*')
                         ->where("devices.$parameter",'like',"%$search_term%")
                         ->orderBy('created_at', 'desc')->paginate(20);
-                }
-                elseif($parameter=='completed'){
-                    if(similar_text($search_term,'En calibración'))
+                } elseif($parameter == 'completed') {
+                    if (similar_text($search_term,'En calibración'))
                         $calibrations = Calibration::where('completed', 0)->paginate(20);
-                    elseif(similar_text($search_term,'Finalizado'))
+                    elseif (similar_text($search_term,'Finalizado'))
                         $calibrations = Calibration::where('completed', 1)->paginate(20);
                     else
                         $calibrations = Calibration::where('completed', '>', 1)->paginate(20);
-                }
-                else{
+                } else {
                     $calibrations = Calibration::where("$parameter", 'like', "%$search_term%")->paginate(20);
                 }
             }
@@ -262,7 +265,7 @@ class SearchController extends Controller
 
         elseif ($table == 'cites') {
 
-            if (($user->area=='Gerencia General'&&$user->priv_level==3)||$user->priv_level==4) {
+            if (($user->area == 'Gerencia General' && $user->priv_level == 3) || $user->priv_level == 4) {
                 if ($has_date) {
                     $cites = Cite::whereBetween('created_at', [$from, $to]);
                         //->where('num_cite', '>', '0')
@@ -1162,45 +1165,47 @@ class SearchController extends Controller
             $assignment_info = Assignment::find($id);
 
             if ($has_date) {
-                if(!$assignment_info){
+                if (!$assignment_info) {
                     $sites = Site::whereBetween('start_date', [$from, $to])->orderBy('id')->paginate(20);
-                }
-                else{
+                } else {
                     $sites = Site::whereBetween('start_date', [$from, $to])
                         ->where('assignment_id', $id)
                         ->orderBy('id')->paginate(20);
                 }
-            }
-            else {
-                if(!$assignment_info){
-                    if($parameter=='resp_name'){
+            } else {
+                if (!$assignment_info) {
+                    if ($parameter == 'resp_name') {
                         $sites = Site::join('users', 'sites.resp_id', '=', 'users.id')->select('sites.*')
                             ->where('users.name', 'like', "%$search_term%")
                             ->orderBy('sites.id')->paginate(20);
-                    }
-                    elseif($parameter=='contact_name'){
+                    } elseif($parameter == 'contact_name') {
                         $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')->select('sites.*')
                             ->where('contacts.name', 'like', "%$search_term%")
                             ->orderBy('sites.id')->paginate(20);
-                    }
-                    else{
+                    } else if ($parameter == 'order_code') {
+                        $sites = Site::whereHas('order', function ($query) use($search_term) {
+                            $query->where('code', 'like', "%$search_term%");
+                        })->orderBy('id')->paginate(20);
+                    } else {
                         $sites = Site::where("$parameter", 'like', "%$search_term%")->orderBy('id')->paginate(20);
                     }
-                }
-                else{
-                    if($parameter=='resp_name'){
+                } else {
+                    if ($parameter == 'resp_name') {
                         $sites = Site::join('users', 'sites.resp_id', '=', 'users.id')->select('sites.*')
                             ->where('users.name', 'like', "%$search_term%")
                             ->where('sites.assignment_id', $id)
                             ->orderBy('sites.id')->paginate(20);
-                    }
-                    elseif($parameter=='contact_name'){
+                    } elseif ($parameter == 'contact_name') {
                         $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')->select('sites.*')
                             ->where('contacts.name', 'like', "%$search_term%")
                             ->where('sites.assignment_id', $id)
                             ->orderBy('sites.id')->paginate(20);
-                    }
-                    else {
+                    } else if ($parameter == 'order_code') {
+                        $sites = Site::whereHas('order', function ($query) use($search_term) {
+                            $query->where('code', 'like', "%$search_term%");
+                        })->where('assignment_id', $id)
+                        ->orderBy('id')->paginate(20);
+                    } else {
                         $sites = Site::where("$parameter", 'like', "%$search_term%")
                             ->where('assignment_id', $id)
                             ->orderBy('id')->paginate(20);
@@ -1208,25 +1213,23 @@ class SearchController extends Controller
                 }
             }
 
-            foreach($sites as $site)
-            {
+            foreach ($sites as $site) {
                 $site->start_line = Carbon::parse($site->start_line);
                 $site->deadline = Carbon::parse($site->deadline);
                 $site->start_date = Carbon::parse($site->start_date);
                 $site->end_date = Carbon::parse($site->end_date);
 
-                if($site->assignment->type=='Fibra óptica'){
+                if( $site->assignment->type == 'Fibra óptica') {
                     $site->cable_projected = 0;
                     $site->cable_executed = 0;
                     $site->splice_projected = 0;
                     $site->splice_executed = 0;
 
-                    foreach($site->tasks as $task){
-                        if (stripos($task->name, 'tendido')!==FALSE&&stripos($task->name, 'cable')!==FALSE){
+                    foreach ($site->tasks as $task) {
+                        if (stripos($task->name, 'tendido') !== FALSE && stripos($task->name, 'cable') !== FALSE) {
                             $site->cable_projected += $task->total_expected;
                             $site->cable_executed += $task->progress;
-                        }
-                        elseif(stripos($task->name, 'empalme')!==FALSE&&stripos($task->name, 'ejecución')!==FALSE){
+                        } elseif (stripos($task->name, 'empalme') !== FALSE && stripos($task->name, 'ejecución') !== FALSE) {
                             $site->splice_projected += $task->total_expected;
                             $site->splice_executed += $task->progress;
                         }

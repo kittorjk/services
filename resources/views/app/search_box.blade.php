@@ -152,6 +152,9 @@
                                             <option value="status">Estado</option>
                                             <option value="resp_name">Responsable de ABROS</option>
                                             <option value="contact_name">Responsable del cliente</option>
+                                            <option value="du_id">DU ID</option>
+                                            <option value="isdp_account">Cuenta de ISDP</option>
+                                            <option value="order_code">Orden (PO)</option>
                                         @elseif ($table == 'assignments')
                                             <option value="code">Código interno</option>
                                             <option value="client_code">Código de cliente</option>
@@ -164,6 +167,9 @@
                                             <option value="resp_name">Responsable de ABROS</option>
                                             <option value="contact_name">Responsable del cliente</option>
                                             <option value="site_name">Contiene el sitio...</option>
+                                            <option value="du_id">DU ID de sitio</option>
+                                            <option value="isdp_account">Cuenta de ISDP de sitio</option>
+                                            <option value="order_code">Orden (PO) de sitio</option>
                                         @elseif ($table == 'invoices')
                                             <option value="oc_code">Código de OC</option>
                                             <option value="number">Número de factura</option>
