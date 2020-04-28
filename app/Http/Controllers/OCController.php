@@ -142,7 +142,8 @@ class OCController extends Controller
           
     $providers = $this->validProviderRecords();
 
-    $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
+    // $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
+    $percentages = OC::select('percentages')->whereNotIn('percentages', ['', '100-0-0', '0-20-80'])->groupBy('percentages')->get();
 
     return View::make('app.oc_form', ['oc' => 0, 'assignments' => $assignments, 'clients' => $clients,
         'pm_candidates' => $pm_candidates, 'providers' => $providers, 'percentages' => $percentages, 
@@ -356,7 +357,8 @@ class OCController extends Controller
           
     $providers = $this->validProviderRecords();
 
-    $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
+    // $percentages = OC::select('percentages')->where('percentages', '<>', '')->groupBy('percentages')->get();
+    $percentages = OC::select('percentages')->whereNotIn('percentages', ['', '100-0-0', '0-20-80'])->groupBy('percentages')->get();
 
     return View::make('app.oc_form', ['oc' => $oc, 'assignments' => $assignments, 'clients' => $clients,
         'providers' => $providers, 'pm_candidates' => $pm_candidates, 'percentages' => $percentages,
