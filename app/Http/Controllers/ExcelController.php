@@ -99,7 +99,7 @@ class ExcelController extends Controller
                             'Proyecto'              => $assignment->project ? $assignment->project->name : '',
                             'Cliente'               => $assignment->client,
                             'Área de trabajo'       => $assignment->type,
-                            'Oficina'               => $assignment->branch,
+                            'Oficina'               => $assignment->branch_record ? $assignment->branch_record->name : $assignment->branch,
                             'Estado de proyecto'    => $assignment->statuses($assignment->status),
                             'Estado de sitio'       => $site->statuses($site->status),
                             'porcentaje de avance'  => number_format($assignment->percentage_completed, 2).' %',
