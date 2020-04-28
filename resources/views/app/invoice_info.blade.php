@@ -97,7 +97,7 @@
                   </td>
                 </tr>
               @endforeach
-              @if ($invoice->status != 'Pagado')
+              @if ($invoice->status != 'Pagado' || $user->priv_level == 4)
                 <tr>
                   <th colspan="4" style="text-align: center">
                     <a href="/files/invoice/{{ $invoice->id }}">
