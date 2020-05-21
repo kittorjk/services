@@ -148,14 +148,22 @@ class SearchController extends Controller
                 $assignment->billing_from = Carbon::parse($assignment->billing_from);
                 $assignment->billing_to = Carbon::parse($assignment->billing_to);
 
-                foreach($assignment->guarantees as $guarantee){
+                foreach ($assignment->guarantees as $guarantee) {
                     $guarantee->expiration_date = Carbon::parse($guarantee->expiration_date)
                         ->hour(0)->minute(0)->second(0);
                     $guarantee->start_date = Carbon::parse($guarantee->start_date)
                         ->hour(0)->minute(0)->second(0);
                 }
 
+                foreach ($assignment->files as $file) {
+                    $file->created_at = Carbon::parse($file->created_at)->hour(0)->minute(0)->second(0);
+                }
+                
                 /* Add general progress values for key items */
+                $this->get_key_item_values($assignment);
+
+                /* Add general progress values for key items */
+                /* Obsolete
                 if ($assignment->type == 'Fibra óptica') {
                     $assignment->cable_projected = $assignment->cable_executed = $assignment->cable_percentage = 0;
                     $assignment->splice_projected = 0;
@@ -170,7 +178,7 @@ class SearchController extends Controller
 
                     foreach ($assignment->sites as $site) {
                         foreach ($site->tasks as $task) {
-                            if ($task->status > 0/*'No asignado'*/) {
+                            if ($task->status > 0) {
                                 if ((stripos($task->name, 'tendido')!==FALSE&&stripos($task->name, 'cable')!==FALSE)||
                                     stripos($task->name, 'lineal')!==FALSE){
                                     $assignment->cable_projected += $task->total_expected;
@@ -196,7 +204,7 @@ class SearchController extends Controller
                     $assignment->posts_percentage = $this->get_percentage($assignment->posts_executed, $assignment->posts_projected);
                     $assignment->meassures_percentage = $this->get_percentage($assignment->meassures_executed,
                         $assignment->meassures_projected);
-                }
+                }*/
             }
 
             $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
@@ -1669,11 +1677,89 @@ class SearchController extends Controller
         return redirect()->back(); //default redirection if no match is found
     }
 
+    // Too specific, should be moved to assignments
+    function get_key_item_values($assignment)
+    {
+        if($assignment->type=='Fibra óptica'){
+            $assignment->cable_projected = $assignment->cable_executed = $assignment->cable_percentage = 0;
+            $assignment->splice_projected = 0;
+            $assignment->splice_executed = 0;
+            $assignment->splice_percentage = 0;
+            $assignment->posts_projected = 0;
+            $assignment->posts_executed = 0;
+            $assignment->posts_percentage = 0;
+            $assignment->meassures_projected = 0;
+            $assignment->meassures_executed = 0;
+            $assignment->meassures_percentage = 0;
+
+            foreach($assignment->sites as $site){
+                if($site->status>0 /*'No asignado'*/){
+                    foreach($site->tasks as $task){
+                        $this->get_task_sum_values($task, $assignment);
+                    }
+                }
+            }
+
+            $assignment->cable_percentage = $this->get_percentage($assignment->cable_executed, $assignment->cable_projected);
+            $assignment->splice_percentage = $this->get_percentage($assignment->splice_executed, $assignment->splice_projected);
+            $assignment->posts_percentage = $this->get_percentage($assignment->posts_executed, $assignment->posts_projected);
+            $assignment->meassures_percentage = $this->get_percentage($assignment->meassures_executed,
+                $assignment->meassures_projected);
+        }
+    }
+
+    // Too specific, should be moved to assignments
+    function get_task_sum_values($task, $model)
+    {
+        if($task->status>0/*'No asignado'*/){
+            if($task->summary_category){
+                if($task->summary_category->cat_name=='fo_cable'){
+                    $model->cable_projected += $task->total_expected;
+                    $model->cable_executed += $task->progress;
+                }
+                elseif($task->summary_category->cat_name=='fo_splice'){
+                    $model->splice_projected += $task->total_expected;
+                    $model->splice_executed += $task->progress;
+                }
+                elseif($task->summary_category->cat_name=='fo_post'){
+                    $model->posts_projected += $task->total_expected;
+                    $model->posts_executed += $task->progress;
+                }
+                elseif($task->summary_category->cat_name=='fo_measure'){
+                    $model->meassures_projected += $task->total_expected;
+                    $model->meassures_executed += $task->progress;
+                }
+            }
+            
+            /*
+            if ((stripos($task->name, 'tendido')!==FALSE&&stripos($task->name, 'cable')!==FALSE)||
+                stripos($task->name, 'lineal')!==FALSE){
+                $model->cable_projected += $task->total_expected;
+                $model->cable_executed += $task->progress;
+            }
+            elseif(stripos($task->name, 'empalme')!==FALSE&&stripos($task->name, 'ejecución')!==FALSE){
+                $model->splice_projected += $task->total_expected;
+                $model->splice_executed += $task->progress;
+            }
+            elseif(stripos($task->name, 'poste')!==FALSE&&(stripos($task->name, 'madera')!==FALSE||
+                    stripos($task->name, 'prfv')!==FALSE||stripos($task->name, 'hormig')!==FALSE)&&
+                    stripos($task->name, 'traslado')===FALSE){
+                $model->posts_projected += $task->total_expected;
+                $model->posts_executed += $task->progress;
+            }
+            elseif(stripos($task->name, 'medida')!==FALSE){
+                $model->meassures_projected += $task->total_expected;
+                $model->meassures_executed += $task->progress;
+            }
+            */
+        }
+    }
+
     function get_percentage($numerator, $denominator)
     {
-        $denominator = $denominator==0 ? 1 : $denominator;
+        $denominator = $denominator == 0 ? 1 : $denominator;
 
-        $percentage = number_format(($numerator/$denominator)*100,2);
+        $percentage = number_format(($numerator / $denominator) * 100, 2);
 
         return $percentage;
     }
