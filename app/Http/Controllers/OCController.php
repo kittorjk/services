@@ -872,7 +872,8 @@ class OCController extends Controller
       //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
       $recipient = User::whereHas('action', function ($query) {
           $query->where('oc_apv_gg', 1);
-      })->where('priv_level','<','4')->first();
+      })->where('name', '<>', 'Administrador')->first();
+      //->where('priv_level','<','4')->first();
 
       $cc = $user->email;
       $approved = $oc->code; //'OC-'.str_pad($oc->id, 5, "0", STR_PAD_LEFT);
@@ -897,7 +898,8 @@ class OCController extends Controller
 
       $recipient = User::whereHas('action', function ($query) {
           $query->where('oc_apv_gg', 1);
-      })->where('priv_level','<','4')->first();
+      })->where('name', '<>', 'Administrador')->first();
+      //->where('priv_level','<','4')->first();
 
       $cc = $user->email;
       $data = array('recipient' => $recipient, 'approved' => $approved);
