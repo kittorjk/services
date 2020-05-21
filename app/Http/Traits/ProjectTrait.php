@@ -30,7 +30,7 @@ trait ProjectTrait {
 
     public function refresh_site($site)
     {
-        if($site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/){
+        if ($site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/) {
             //$total_tasks_progress = 0;
             //$total_tasks_expected = 0;
             $task_percentage = 0;
@@ -38,7 +38,7 @@ trait ProjectTrait {
             $total_executed = 0;
             $count = 0;
 
-            foreach($site->tasks as $task){
+            foreach ($site->tasks as $task) {
 
                 //$total_tasks_progress += $task->progress*$task->pondered_weight;
                 //$total_tasks_expected += $task->total_expected*$task->pondered_weight;
@@ -58,9 +58,12 @@ trait ProjectTrait {
 
             $site->executed_price = $total_executed;
 
+            //Deshabilitado temporalmente, probando relación uno a muchos
+            /*
             foreach ($site->orders as $order) {
                 $site->assigned_price += $order->pivot->assigned_amount;
             }
+            */
 
             $site->save();
         }
@@ -68,7 +71,7 @@ trait ProjectTrait {
 
     public function refresh_assignment($assignment)
     {
-        if($assignment->status!=$assignment->last_stat()/*'Concluído'*/&&$assignment->status!=0/*'No asignado'*/){
+        if ($assignment->status != $assignment->last_stat()/*'Concluído'*/ && $assignment->status != 0/*'No asignado'*/) {
             $site_percentage = 0;
             $total_quoted = 0;
             $total_executed = 0;
@@ -83,9 +86,12 @@ trait ProjectTrait {
                 $total_charged += $site->charged_price;
                 $count++;
 
+                //Deshabilitado temporalmente, probando relación uno a muchos
+                /*
                 foreach ($site->orders as $order) {
                     $site->assigned_price += $order->pivot->assigned_amount;
                 }
+                */
                 $total_assigned += $site->assigned_price;
             }
 
@@ -105,16 +111,15 @@ trait ProjectTrait {
 
     public function new_stat_task($task, $parent_new_stat)
     {
-        if($task->status!=$task->last_stat()/*'Concluído'*/&&$task->status!=0/*'No asignado'*/){
-
-            if($task->status<$parent_new_stat||$parent_new_stat==0){
+        if ($task->status != $task->last_stat()/*'Concluído'*/ && $task->status != 0/*'No asignado'*/) {
+            if ($task->status < $parent_new_stat || $parent_new_stat == 0) {
                 $task->status = $parent_new_stat;
 
                 $task->save();
 
-                if($task->status==$task->last_stat()||$task->status==0){
-                    foreach($task->activities as $activity){
-                        foreach($activity->files as $file){
+                if ($task->status == $task->last_stat() || $task->status == 0) {
+                    foreach ($task->activities as $activity) {
+                        foreach ($activity->files as $file) {
                             $this->blockFile($file);
                         }
                     }

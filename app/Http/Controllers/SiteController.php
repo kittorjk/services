@@ -783,7 +783,14 @@ class SiteController extends Controller
             return redirect()->back();
         }
 
+        /*
         if ($site->orders->count() > 0) {
+            Session::flash('message', 'Este sitio no puede ser borrado porque tiene asociada una orden de compra!');
+            return redirect()->back();
+        }
+        */
+
+        if ($site->order) {
             Session::flash('message', 'Este sitio no puede ser borrado porque tiene asociada una orden de compra!');
             return redirect()->back();
         }
