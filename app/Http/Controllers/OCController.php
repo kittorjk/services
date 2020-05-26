@@ -505,9 +505,14 @@ class OCController extends Controller
     if ($user->priv_level == 4) {
       $ocs = OC::whereIn('status', ['Aprobado Gerencia Tecnica', 'Creado'])->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
     } elseif ($user->action->oc_apv_gg /*$user->priv_level==3&&$user->area=='Gerencia General'*/) {
-      $ocs = OC::where('status', 'Aprobado Gerencia Tecnica')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      // $ocs = OC::where('status', 'Aprobado Gerencia Tecnica')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      $ocs = OC::where(function ($query) {
+        $query->where('status', 'Aprobado Gerencia Tecnica')->where('type', 'Servicio');
+      })->orwhere(function ($query2) {
+        $query2->where('status', 'Creado')->where('type', 'Compra de material');
+      })->orderBy('id','desc')->get();
     } elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
-      $ocs = OC::where('status', 'Creado')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      $ocs = OC::where('status', 'Creado')->where('type', 'Servicio')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
     } else {
       Session::flash('message', 'Usted no tiene permiso para ver la página solicitada!');
       return redirect()->back();

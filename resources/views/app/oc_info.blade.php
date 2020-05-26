@@ -451,8 +451,12 @@
                     {{-- @if((substr($oc->flags,0,4)=='0001' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
                         (substr($oc->flags,0,4)=='0011' && $user->area == 'Gerencia General' && $user->priv_level == 3) ||
                         ((substr($oc->flags,0,4)=='0011' || substr($oc->flags,0,4)=='0001') && $user->priv_level == 4)) --}}
-                    @if (($oc->status == 'Creado' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
+                    {{-- @if (($oc->status == 'Creado' && $user->area == 'Gerencia Tecnica' && $user->priv_level == 3) ||
                         ($oc->status == 'Aprobado Gerencia Tecnica' && $user->area == 'Gerencia General' && $user->priv_level == 3) ||
+                        (($oc->status =='Aprobado Gerencia Tecnica' || $oc->status == 'Creado') && $user->priv_level == 4)) --}}
+                    @if (($oc->status == 'Creado' && $user->action->oc_apv_tech && $oc->type == 'Servicio') ||
+                        ($oc->status == 'Creado' && $oc->type == 'Compra de material' && $user->action->oc_apv_gg) ||
+                        ($oc->status == 'Aprobado Gerencia Tecnica' && $user->action->oc_apv_gg) ||
                         (($oc->status =='Aprobado Gerencia Tecnica' || $oc->status == 'Creado') && $user->priv_level == 4))
                         
                       <div class="col-sm-12 mg10">

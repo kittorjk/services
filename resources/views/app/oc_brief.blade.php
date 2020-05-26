@@ -168,14 +168,14 @@
                 {{ 'Concluída' }}
               @elseif ($oc->status === 'Aprobado Gerencia General')
                 {{ 'Aprobada' }}
-              @elseif ($oc->status === 'Aprobado Gerencia Tecnica')
+              @elseif (($oc->status === 'Aprobado Gerencia Tecnica' && $oc->type == 'Servicio') || ($oc->status == 'Creado' && $oc->type == 'Compra de material'))
                 @if ($user->action->oc_apv_gg /*($user->priv_level==3&&$user->area=='Gerencia General')*/||
                     $user->priv_level == 4)
                   <a href="{{ '/approve_oc?code='.$oc->code }}">{{ 'Pendiente aprobación de G. General' }}</a>
                 @else
                   {{ 'Pendiente aprobación de G. General' }}
                 @endif
-              @elseif ($oc->status == 'Creado')
+              @elseif ($oc->status == 'Creado' && $oc->type == 'Servicio')
                 @if ($user->action->oc_apv_tech /*($user->priv_level==3&&$user->area=='Gerencia Tecnica')*/||
                     $user->priv_level == 4)
                   <a href="{{ '/approve_oc?code='.$oc->code }}">{{ 'Pendiente aprobación de G. Tecnica' }}</a>
