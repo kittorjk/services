@@ -151,7 +151,11 @@
             >
               {!! $oc->status != 'Anulado' ? $string_ok : $string_missing !!}
               &ensp;
-              {!! $oc->status == 'Aprobado Gerencia Tecnica' || $oc->status == 'Aprobado Gerencia General' ? $string_ok : $string_missing !!}
+              @if ($oc->type == 'Compra de material')
+                &emsp;
+              @else
+                {!! $oc->status == 'Aprobado Gerencia Tecnica' || $oc->status == 'Aprobado Gerencia General' ? $string_ok : $string_missing !!}
+              @endif
               &ensp;
               {!! $oc->status == 'Aprobado Gerencia General' ? $string_ok : $string_missing !!}
             </td>
