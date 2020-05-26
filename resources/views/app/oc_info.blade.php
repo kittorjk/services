@@ -334,19 +334,23 @@
                                             @endif
                                         @endforeach
                                         @if(!$original_exists)
+                                          @if ($user->id == $oc->user_id || $user->priv_level == 4)
                                             <a href="/files/oc_org/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @else
+                                            <em>{{ 'En espera de archivo' }}</em>
+                                          @endif
                                         @endif
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2">Documento firmado:</td>
+                                    <td colspan="2">Documento firmado por solicitante:</td>
                                     <td colspan="2">
                                         <?php $signed_exists = false; ?>
                                         @foreach($oc->files as $file)
                                             @if(substr(explode('_',$file->name)[2],0,3)=='sgn')
                                                 @include('app.info_document_options', array('file'=>$file))
                                                 
-                                                @if($file->status === 0 || $user->priv_level === 4)
+                                                @if(($file->status === 0 && $oc->status == 'Creado' && $user->id == $oc->user_id) || $user->priv_level === 4)
                                                     &emsp;
                                                     <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo"><i class="fa fa-refresh"></i> Reemplazar</a>
                                                 @endif
@@ -363,10 +367,72 @@
                                             @endif
                                         @endforeach
                                         @if(!$signed_exists)
+                                          @if ($user->id == $oc->user_id || $user->priv_level == 4)
                                             <a href="/files/oc_sgn/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @else
+                                            <em>{{ 'En espera de archivo' }}</em>
+                                          @endif
                                         @endif
                                     </td>
                                 </tr>
+                                @if ($oc->type != 'Compra de material' && $oc->status != 'Creado')
+                                <tr>
+                                    <td colspan="2">Documento firmado por G. Tecnica:</td>
+                                    <td colspan="2">
+                                        <?php $signed_tec_exists = false; ?>
+                                        @foreach($oc->files as $file)
+                                            @if (substr(explode('_',$file->name)[2],0,4) == 'gtec')
+                                                @include('app.info_document_options', array('file'=>$file))
+                                                
+                                                @if (($file->status === 0 && $oc->status == 'Aprobado Gerencia Tecnica' && $user->action->oc_apv_tech) || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @endif
+
+                                                <?php $signed_tec_exists = true; ?>
+                                            @endif
+                                        @endforeach
+                                        @if (!$signed_tec_exists)
+                                          @if ($user->action->oc_apv_tech)
+                                            <a href="/files/oc_gtec/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @else
+                                            <em>{{ 'En espera de archivo' }}</em>
+                                          @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
+                                @if ($oc->status == 'Aprobado Gerencia General')
+                                <tr>
+                                    <td colspan="2">Documento firmado por G. General:</td>
+                                    <td colspan="2">
+                                        <?php $signed_gg_exists = false; ?>
+                                        @foreach($oc->files as $file)
+                                            @if (substr(explode('_',$file->name)[2],0,2) == 'gg')
+                                                @include('app.info_document_options', array('file'=>$file))
+                                                
+                                                @if (($file->status === 0 && $oc->status == 'Aprobado Gerencia General' && $user->action->oc_apv_gg) || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @endif
+
+                                                <?php $signed_gg_exists = true; ?>
+                                            @endif
+                                        @endforeach
+                                        @if (!$signed_gg_exists)
+                                          @if ($user->action->oc_apv_gg)
+                                            <a href="/files/oc_gg/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @else
+                                            <em>{{ 'En espera de archivo' }}</em>
+                                          @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
                             @else
                                 <tr><td colspan="4"></td></tr>
                                 <tr>

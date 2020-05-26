@@ -525,7 +525,7 @@ class OCController extends Controller
     //$service = Session::get('service');
 
     if (!Hash::check(Request::input('password'), $user->password)) {
-      Session::flash('message', "Contraseña incorrecta, intente de nuevo por favor");
+      Session::flash('message', "Contraseña incorrecta, permiso denegado");
       return redirect()->back();
     }
       
@@ -540,7 +540,23 @@ class OCController extends Controller
       if (!empty($results[$i])) {
         $oc = OC::find($results[$i]);
 
-        if ($user->priv_level == 4 || $user->action->oc_apv_gg /*($user->priv_level==3&&$user->area=='Gerencia General')*/) {
+        $signed_org_exists = false;
+        $signed_gtec_exists = false;
+        $signed_gg_exists = false;
+        $valid_to_update = false;
+        
+        foreach ($oc->files as $file) {
+          if (substr(explode('_', $file->name)[2],0,3) == 'sgn')
+            $signed_org_exists = true;
+          if (substr(explode('_', $file->name)[2],0,4) == 'gtec')
+            $signed_gtec_exists = true;
+          if (substr(explode('_', $file->name)[2],0,2) == 'gg')
+            $signed_gg_exists = true;
+        }
+
+        if ($user->priv_level == 4 ||
+          ($user->action->oc_apv_gg && (($signed_gtec_exists && $oc->type == 'Servicio' && $oc->status == 'Aprobado Gerencia Tecnica') ||
+            ($signed_org_exists && $oc->type != 'Servicio' && ($oc->status == 'Creado' || $oc->status == 'Aprobado Gerencia Tecnica')))) /*($user->priv_level==3&&$user->area=='Gerencia General')*/) {
           /*
           if ($oc->flags[1] == 0 && $oc->flags[2] == 0)
               $oc->flags = str_pad($oc->flags+1100000, 8, "0", STR_PAD_LEFT);
@@ -556,20 +572,23 @@ class OCController extends Controller
 
           $oc->auth_ceo_date = Carbon::now();
           $oc->auth_ceo_code = $this->generateCode();
-        } elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
+          $valid_to_update = true;
+        } elseif ($user->action->oc_apv_tech && $signed_org_exists && ($oc->type == 'Servicio' && $oc->status == 'Creado') /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
           // $oc->flags = str_pad($oc->flags+100000, 8, "0", STR_PAD_LEFT);
           $oc->status = 'Aprobado Gerencia Tecnica';
 
           $oc->auth_tec_date = Carbon::now();
           $oc->auth_tec_code = $this->generateCode();
+          $valid_to_update = true;
         }
 
-        $oc->save();
-        $approved .= ($approved == "" ? '' : ', ').$oc->code;
-        $num_approved++;
-
-        /* A new event is recorded to register the approval of the OC */
-        $this->add_event('approve', $oc, $comments);
+        if ($valid_to_update) {
+          $oc->save();
+          $approved .= ($approved == "" ? '' : ', ').$oc->code;
+          $num_approved++;
+          /* A new event is recorded to register the approval of the OC */
+          $this->add_event('approve', $oc, $comments);
+        }
       }
     }
 
@@ -581,7 +600,7 @@ class OCController extends Controller
     }
 
     if ($num_approved == 0)
-      $message = "No seleccionó ninguna Orden";
+      $message = "No se aprobó ninguna Orden de Compra, asegúrese de que el archivo firmado está disponible";
     elseif ($num_approved == 1)
       $message = "La orden $approved ha sido aprobada";
     else

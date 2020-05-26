@@ -112,11 +112,16 @@
           <th width="10%">Fecha</th>
           <th width="30%">Concepto</th>
           <th width="20%">Proveedor</th>
-          <th width="15%">Cliente</th>
-          <th>Estado</th>
+          <th width="8%">Cliente</th>
+          <th width="8%">Estado</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
+        <?php
+          $string_ok = "<i class=\"glyphicon glyphicon-ok\" style=\"color:green\"></i>";
+          $string_missing = "<i class=\"glyphicon glyphicon-ok\" style=\"color:lightgray\"></i>";
+        ?>
         @foreach ($ocs as $oc)
           <tr>
             <td>
@@ -141,6 +146,15 @@
             </td>
             <td>{{ $oc->provider }}</td>
             <td>{{ $oc->client }}</td>
+            <td align="center"
+              title="{{ $oc->payment_status == 'Concluido' ? 'Concluída' : $oc->status }}"
+            >
+              {!! $oc->status != 'Anulado' ? $string_ok : $string_missing !!}
+              &ensp;
+              {!! $oc->status == 'Aprobado Gerencia Tecnica' || $oc->status == 'Aprobado Gerencia General' ? $string_ok : $string_missing !!}
+              &ensp;
+              {!! $oc->status == 'Aprobado Gerencia General' ? $string_ok : $string_missing !!}
+            </td>
             <td>
               @if ($oc->status == 'Anulado')
                 {{ 'Anulada' }}

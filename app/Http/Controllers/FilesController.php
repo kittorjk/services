@@ -1442,7 +1442,7 @@ class FilesController extends Controller
             }
         }
 
-        if ($type == 'oc_org' || $type == 'oc_sgn') {
+        if ($type == 'oc_org' || $type == 'oc_sgn' || $type == 'oc_gtec' || $type == 'oc_gg') {
             $oc = OC::find($id);
 
             if ($type == 'oc_org') {
@@ -1484,10 +1484,14 @@ class FilesController extends Controller
             //$FileDescription = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
 
-            if($type=='oc_org')
+            if ($type == 'oc_org')
                 $FileName = 'OC_' . $oc->id . '_org.' . strtolower($FileType);
-            elseif($type=='oc_sgn')
+            elseif ($type == 'oc_sgn')
                 $FileName = 'OC_' . $oc->id . '_sgn.' . strtolower($FileType);
+            elseif ($type == 'oc_gtec')
+                $FileName = 'OC_' . $oc->id . '_gtec.' . strtolower($FileType);
+            elseif ($type == 'oc_gg')
+                $FileName = 'OC_' . $oc->id . '_gg.' . strtolower($FileType);
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
