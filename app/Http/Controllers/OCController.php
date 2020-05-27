@@ -890,13 +890,22 @@ class OCController extends Controller
     $recipient = $user; //Temporary assigned to avoid empty collection errors
     $cc = '';
 
+    $gg_approver = User::whereHas('action', function ($query) {
+      $query->where('oc_apv_gg', 1);
+    })->where('name', '<>', 'Administrador')->first();
+
+    $gtech_approver = User::whereHas('action', function ($query) {
+      $query->where('oc_apv_tech', 1);
+    })->where('name','<>','Administrador')->first();
+
     if ($type == 'new' && $oc->status == 'Aprobado Gerencia Tecnica') {
       $oc = OC::find($oc->id); //Retrieve code
 
+      $recipient = $gg_approver;
       //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
-      $recipient = User::whereHas('action', function ($query) {
-          $query->where('oc_apv_gg', 1);
-      })->where('name', '<>', 'Administrador')->first();
+      //$recipient = User::whereHas('action', function ($query) {
+      //    $query->where('oc_apv_gg', 1);
+      //})->where('name', '<>', 'Administrador')->first();
       //->where('priv_level','<','4')->first();
 
       $cc = $user->email;
@@ -907,9 +916,18 @@ class OCController extends Controller
       $subject = 'Ordenes de compra pendientes de aprobación';
     } elseif ($type == 'new' && $oc->status == 'Creado') {
       //$recipient = User::where('area','Gerencia Tecnica')->where('priv_level',3)->first();
-      $recipient = User::whereHas('action', function ($query) {
+      if ($oc->type == 'Servicio') {
+        $recipient = $gtech_approver;
+        /* $recipient = User::whereHas('action', function ($query) {
           $query->where('oc_apv_tech', 1);
-      })->where('priv_level','<','4')->first();
+        })->where('priv_level','<>','Administrador')->first(); */
+      } else {
+        // In case of purchase of materials OC goes to GG directly
+        $recipient = $gg_approver;
+        /* $recipient = User::whereHas('action', function ($query) {
+          $query->where('oc_apv_gg', 1);
+        })->where('name', '<>', 'Administrador')->first(); */
+      }
 
       $cc = $user->email;
       $data = array('recipient' => $recipient, 'oc' => $oc);
@@ -920,9 +938,10 @@ class OCController extends Controller
       $approved = $oc; // In this case $oc is a string not a collection (see approve_action function)
       //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
 
-      $recipient = User::whereHas('action', function ($query) {
+      $recipient = $gg_approver;
+      /* $recipient = User::whereHas('action', function ($query) {
           $query->where('oc_apv_gg', 1);
-      })->where('name', '<>', 'Administrador')->first();
+      })->where('name', '<>', 'Administrador')->first(); */
       //->where('priv_level','<','4')->first();
 
       $cc = $user->email;
