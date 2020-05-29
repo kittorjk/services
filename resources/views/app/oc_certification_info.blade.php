@@ -132,7 +132,7 @@
                                     <td colspan="2">
                                         <?php $signed_file_exists = false; ?>
                                         @foreach($certificate->files as $file)
-                                            @if(substr($file->name,0,4)=='CTDF')
+                                            @if(substr($file->name,0,3) == 'CFD' || substr($file->name,0,4) == 'CTDF' /* old name */)
                                                 @include('app.info_document_options', array('file'=>$file))
                                                 {{--
                                                 <a href="/download/{{ $file->id }}">
