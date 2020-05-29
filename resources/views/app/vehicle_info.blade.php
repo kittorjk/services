@@ -24,6 +24,12 @@
         </ul>
     </div>
     <a href="{{ '/maintenance?vhc=true' }}" class="btn btn-primary"><i class="fa fa-wrench"></i> Vehículos en mantenimiento</a>
+    @if($user->priv_level>=2 || $user->work_type=='Transporte' || $user->work_type=='Director Regional')
+        <!--<a href="/search/vehicles/0" class="btn btn-primary"><i class="fa fa-search"></i> Buscar </a>-->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+            <i class="fa fa-search"></i> Buscar
+        </button>
+    @endif
 @endsection
 
 @section('content')
@@ -298,6 +304,11 @@
 
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'vehicles','id'=>0))
     </div>
 
 @endsection

@@ -24,6 +24,9 @@
             <li><a href="{{ '/employee/create' }}"><i class="fa fa-user-plus fa-fw"></i> Agregar empleado </a></li>
         </ul>
     </li>
+    <li>
+        <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+    </li>
 @endsection
 
 @section('content')
@@ -275,6 +278,11 @@
                 {{--@endif--}}
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'employees','id'=>0))
     </div>
 
 @endsection

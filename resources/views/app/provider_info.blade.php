@@ -14,6 +14,10 @@
       <li><a href="{{ '/provider/incomplete' }}"><i class="fa fa-list fa-fw"></i> Lista de registros incompletos </a></li>
     </ul>
   </li>
+  <li>
+    <!--<a href="/search/providers/0"><i class="fa fa-search"></i> BUSCAR </a>-->
+    <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+  </li>
 @endsection
 
 @section('content')
@@ -237,6 +241,11 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Search Modal -->
+<div id="searchBox" class="modal fade" role="dialog">
+  @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'providers','id'=>0))
 </div>
 
 @endsection

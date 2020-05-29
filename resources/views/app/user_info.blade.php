@@ -21,6 +21,10 @@
             <li><a href="{{ '/user/create' }}"><i class="fa fa-user-plus fa-fw"></i> Agregar usuario </a></li>
         </ul>
     </li>
+    <li>
+        <!--<a href="/search/users/0"><i class="fa fa-search"></i> BUSCAR </a>-->
+        <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+    </li>
 @endsection
 
 @section('content')
@@ -136,6 +140,11 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'users','id'=>0))
     </div>
 
 @endsection

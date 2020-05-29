@@ -43,6 +43,9 @@
             @endif
         </ul>
     </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+        <i class="fa fa-search"></i> Buscar
+    </button>
 @endsection
 
 @section('content')
@@ -147,6 +150,16 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @if($condition_record->vehicle)
+            @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'vehicle_conditions',
+                'id'=>$condition_record->vehicle->id))
+        @else
+            @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'vehicle_conditions','id'=>0))
+        @endif
     </div>
 
 @endsection

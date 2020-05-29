@@ -21,6 +21,9 @@
             <li><a href="{{ '/oc_certificate' }}"><i class="fa fa-bars"></i> Ver todo </a></li>
         </ul>
     </li>
+    <li>
+        <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+    </li>
 @endsection
 
 @section('content')
@@ -200,6 +203,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'oc_certificates','id'=>0))
     </div>
 
 @endsection

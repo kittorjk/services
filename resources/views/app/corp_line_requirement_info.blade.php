@@ -31,6 +31,9 @@
             @endif
         </ul>
     </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+        <i class="fa fa-search"></i> Buscar
+    </button>
 @endsection
 
 @section('content')
@@ -111,6 +114,11 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'corp_line_requirements','id'=>0))
     </div>
 
 @endsection

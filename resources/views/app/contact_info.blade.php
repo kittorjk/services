@@ -18,6 +18,9 @@
             <li><a href="{{ '/excel/contacts' }}"><i class="fa fa-file-excel-o"></i> Exportar a Excel </a></li>
         </ul>
     </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+        <i class="fa fa-search"></i> Buscar
+    </button>
 @endsection
 
 @section('content')
@@ -97,6 +100,11 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'contacts','id'=>0))
     </div>
 
 @endsection

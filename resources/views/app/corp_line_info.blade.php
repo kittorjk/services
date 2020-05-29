@@ -37,6 +37,11 @@
       @endif
     </ul>
   </div>
+  @if($user->priv_level >= 1)
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+      <i class="fa fa-search"></i> Buscar
+    </button>
+  @endif
 @endsection
 
 @section('content')
@@ -221,6 +226,11 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Search Modal -->
+  <div id="searchBox" class="modal fade" role="dialog">
+    @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'corp_lines','id'=>0))
   </div>
 
 @endsection

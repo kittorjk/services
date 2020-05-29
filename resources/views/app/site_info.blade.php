@@ -66,6 +66,12 @@
             @endif
         </ul>
     </div>
+
+    @if($user->priv_level>=2)
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+            <i class="fa fa-search"></i> Buscar
+        </button>
+    @endif
     
     <a href="{{ '/stipend_request?asg='.($site->assignment ? $site->assignment->id : 0) }}" class="btn btn-primary">
         <i class="fa fa-money"></i> Viáticos
@@ -599,6 +605,14 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchBox" class="modal fade" role="dialog">
+        @if($site->assignment)
+            @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'sites','id'=>$site->assignment->id))
+            {{-- @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'sites','id'=>0)) --}}
+        @endif
     </div>
 
 @endsection

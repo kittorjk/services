@@ -49,6 +49,11 @@
   <a href="{{ '/stipend_request' }}" class="btn btn-primary" title="Ver solicitudes de viáticos">
     <i class="fa fa-file"></i> Solicitudes
   </a>
+  @if($user->priv_level >= 2)
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
+      <i class="fa fa-search"></i> Buscar
+    </button>
+  @endif
 @endsection
 
 @section('content')
@@ -628,6 +633,11 @@
 <!-- Row Modal -->
 <div id="rowBox" class="modal fade" role="dialog">
     @include('app.rendicion_respaldo_modal', array('user' => $user, 'service' => $service, 'rendicion' => $rendicion, 'tipos_gasto' => $tipos_gasto))
+</div>
+
+ <!-- Search Modal -->
+<div id="searchBox" class="modal fade" role="dialog">
+  @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'rendicion_viaticos','id'=>0))
 </div>
 
 <form id="removeRow" action="{{ '/rendicion_respaldo' }}" method="post">

@@ -7,27 +7,31 @@
 @endsection
 
 @section('menu_options')
-    <li><a href="#">&ensp;<i class="fa fa-list-alt"></i> O.C.s <span class="caret"></span>&ensp;</a>
-        <ul class="sub-menu">
-            <li><a href="{{ '/oc' }}"><i class="fa fa-bars fa-fw"></i> Ver todo</a></li>
-            @if($user->action->oc_add)
-                <li><a href="{{ '/oc/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar O.C.</a></li>
-                <li>
-                    <a href="{{ '/oc/create?action=cmp' }}">
-                        <i class="fa fa-plus fa-fw"></i> Agregar O.C. complementaria
-                    </a>
-                </li>
-            @endif
-            <li><a href="{{ '/invoice/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar factura</a></li>
-        </ul>
-    </li>
-    @if($user->priv_level>=1/*($user->area=='Gerencia Tecnica'&&$user->priv_level==2)||$user->priv_level>=3*/)
-        <li><a href="{{ '/provider' }}">&ensp;<i class="fa fa-truck"></i> PROVEEDORES&ensp;</a></li>
-    @endif
-    @if($user->priv_level>=2)
-        <li><a href="{{ '/oc_certificate' }}">&ensp;<i class="fa fa-file-text-o"></i> CERTIFICADOS&ensp;</a></li>
-    @endif
-    <li><a href="{{ '/invoice' }}">&ensp;<i class="fa fa-money"></i> PAGOS&ensp;</a></li>
+  <li><a href="#">&ensp;<i class="fa fa-list-alt"></i> O.C.s <span class="caret"></span>&ensp;</a>
+      <ul class="sub-menu">
+          <li><a href="{{ '/oc' }}"><i class="fa fa-bars fa-fw"></i> Ver todo</a></li>
+          @if($user->action->oc_add)
+              <li><a href="{{ '/oc/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar O.C.</a></li>
+              <li>
+                  <a href="{{ '/oc/create?action=cmp' }}">
+                      <i class="fa fa-plus fa-fw"></i> Agregar O.C. complementaria
+                  </a>
+              </li>
+          @endif
+          <li><a href="{{ '/invoice/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar factura</a></li>
+      </ul>
+  </li>
+  @if($user->priv_level>=1/*($user->area=='Gerencia Tecnica'&&$user->priv_level==2)||$user->priv_level>=3*/)
+      <li><a href="{{ '/provider' }}">&ensp;<i class="fa fa-truck"></i> PROVEEDORES&ensp;</a></li>
+  @endif
+  @if($user->priv_level>=2)
+      <li><a href="{{ '/oc_certificate' }}">&ensp;<i class="fa fa-file-text-o"></i> CERTIFICADOS&ensp;</a></li>
+  @endif
+  <li><a href="{{ '/invoice' }}">&ensp;<i class="fa fa-money"></i> PAGOS&ensp;</a></li>
+  <li>
+    <!--<a href="/search/ocs/0"><i class="fa fa-search"></i> BUSCAR </a>-->
+    <a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a>
+  </li>
 @endsection
 
 @section('content')
@@ -704,15 +708,20 @@
 </div>
 
 <!-- Certification Modal -->
-@if($oc->certificates->count()>0)
-    <div id="certificationBox" class="modal fade" role="dialog">
-        @include('app.oc_certification_modal', array('user'=>$user,'service'=>$service,'oc'=>$oc))
-    </div>
+@if($oc->certificates->count() > 0)
+  <div id="certificationBox" class="modal fade" role="dialog">
+    @include('app.oc_certification_modal', array('user'=>$user,'service'=>$service,'oc'=>$oc))
+  </div>
 @endif
 
 <!-- Row Modal -->
 <div id="rowBox" class="modal fade" role="dialog">
-    @include('app.oc_row_modal', array('user'=>$user,'service'=>$service,'oc'=>$oc))
+  @include('app.oc_row_modal', array('user'=>$user,'service'=>$service,'oc'=>$oc))
+</div>
+
+<!-- Search Modal -->
+<div id="searchBox" class="modal fade" role="dialog">
+  @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'ocs','id'=>0))
 </div>
 
 <form id="removeRow" action="{{ '/oc_row' }}" method="post">
