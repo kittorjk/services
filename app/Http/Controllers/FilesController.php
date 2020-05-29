@@ -383,6 +383,8 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'ACF-'.str_pad($activity->id, 4, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
+            $FileDescriptor = '';
             //$FileDescription = $request->input('description');
             //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
@@ -395,7 +397,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$activity);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$activity);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$activity);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -465,8 +468,10 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path() . '/files/';
             $FileName = $name.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $filename_hint=='Otro' ? $request->input('other_description') : $request->input('description');
-            $FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -476,7 +481,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignment);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignment);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignment);
 
                 /*
                 if($filename_hint=='wty'){
@@ -520,8 +526,9 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'CBR-DVF'.str_pad($calibration->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -531,10 +538,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$calibration);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$calibration);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$calibration);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('calibration.index');
@@ -563,8 +571,9 @@ class FilesController extends Controller
             //$FileName = $cite->title.'-'.str_pad($cite->num_cite,3,"0",STR_PAD_LEFT).
             //    date_format($cite->created_at,'-Y').'.'.$FileType;
             $FileName = $cite->code.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -574,11 +583,12 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$cite);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$cite);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$cite);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 //en $FilePath el id para DB es $cite_id
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('cite.index');
@@ -603,9 +613,10 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'CLF-'.str_pad($line->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            //$FileOriginalName = $request->input('description');
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -615,10 +626,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$line);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$line);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$line);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('corporate_line.index');
@@ -693,21 +705,23 @@ class FilesController extends Controller
             $FileName = 'DIF-'.str_pad($dead_interval->id, 4, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
-            if(file_exists($FilePath.$FileName)) {
+            if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
                 return redirect()->back()->withInput();
             }
 
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
-            if($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$dead_interval);
+            if ($upload) {
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$dead_interval);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$dead_interval);
 
                 Session::flash('message', "El archivo ha sido almacenado en el sistema");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 elseif($dead_interval->relatable_type=='App\Assignment')
                     return redirect('/dead_interval?assig_id='.$dead_interval->relatable_id);
@@ -737,8 +751,9 @@ class FilesController extends Controller
             $FileName = 'DVF-'.str_pad($device->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -748,7 +763,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
 
                 /* insert new entry on device history table */
                 $this->add_history_record('device_file', $device, $file, $user);
@@ -780,8 +796,9 @@ class FilesController extends Controller
             $FileName = 'DVP-'.str_pad($device->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -800,18 +817,19 @@ class FilesController extends Controller
                 $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
 
                 /* Create a record for the file storage on DB */
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$device);
 
                 /* Create thumbnail of the image */
                 $this->create_thumbnail($newFile,$FileName);
 
-                if($request->input('main_pic')==1){
+                if ($request->input('main_pic') == 1) {
                     $device->main_pic_id = $file->id;
                     $device->save();
                 }
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('device.index');
@@ -837,8 +855,9 @@ class FilesController extends Controller
             $FileName = 'DRP-'.str_pad($driver->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -857,13 +876,14 @@ class FilesController extends Controller
                 $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
 
                 /* Create a record for the file storage on DB */
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
 
                 /* Create thumbnail of the image */
                 $this->create_thumbnail($newFile,$FileName);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('driver.index');
@@ -901,14 +921,17 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path().'/files/';
             $FileName = 'driver_form.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
                 $file = new File;
                 $file->name = $FileName;
+                $file->original_name = $FileOriginalName;
+                $file->descriptor = $FileDescriptor;
                 $file->path = $FilePath;
                 $file->type = strtolower($FileType);
                 $file->size = $FileSize;
@@ -920,7 +943,7 @@ class FilesController extends Controller
                 $file->save();
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('driver.index');
@@ -945,8 +968,9 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'DRFR-'.str_pad($driver->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -956,10 +980,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$driver);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('driver.index');
@@ -985,8 +1010,9 @@ class FilesController extends Controller
             $FileName = 'DFR-'.str_pad($report->id, 4, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -996,10 +1022,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect('/device_failure_report?dvc='.$report->device_id);
@@ -1025,8 +1052,9 @@ class FilesController extends Controller
             $FileName = 'EMP-'.str_pad($employee->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1045,7 +1073,8 @@ class FilesController extends Controller
                 $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
 
                 /* Create a record for the file storage on DB */
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$employee);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$employee);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$employee);
 
                 /* Create thumbnail of the image */
                 $this->create_thumbnail($newFile,$FileName);
@@ -1077,8 +1106,9 @@ class FilesController extends Controller
             $FileName = 'EV-'.str_pad($event->eventable_id, 4, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1088,7 +1118,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$event);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$event);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$event);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 /*return redirect()->action('EventController@show', ['id' => $event->project_id,
@@ -1142,14 +1173,17 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path() . '/files/';
             $FileName = 'Formato_CITE.' . strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
                 $file = new File;
                 $file->name = $FileName;
+                $file->original_name = $FileOriginalName;
+                $file->descriptor = $FileDescriptor;
                 $file->path = $FilePath;
                 $file->type = strtolower($FileType);
                 $file->size = $FileSize;
@@ -1161,7 +1195,7 @@ class FilesController extends Controller
                 $file->save();
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('cite.index');
@@ -1192,8 +1226,9 @@ class FilesController extends Controller
             $FileName = 'WTYF'.str_pad($guarantee->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1203,7 +1238,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$guarantee);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$guarantee);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$guarantee);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -1233,8 +1269,9 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'IEF-'.str_pad($invoice->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1244,7 +1281,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$invoice);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$invoice);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$invoice);
 
                 $invoice->status = 'Aprobado Gerencia General';
                 $invoice->save();
@@ -1276,8 +1314,9 @@ class FilesController extends Controller
             $FileName = 'LAF-'.str_pad($assignation->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1287,7 +1326,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignation);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignation);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$assignation);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -1318,8 +1358,9 @@ class FilesController extends Controller
             $FilePath = public_path() . '/files/';
             $FileName = 'MTR-'.str_pad($maintenance->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             /*
             $exito = 0;
@@ -1347,7 +1388,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$maintenance);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$maintenance);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$maintenance);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -1373,10 +1415,11 @@ class FilesController extends Controller
             $FileType = $newFile->getClientOriginalExtension();
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path().'/files/';
-            $FileName = 'CTDF-OC'.str_pad($certificate->id, 3, "0", STR_PAD_LEFT).'-'.
-                $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
-            $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileName = $certificate->code.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
+            $FileDescriptor = 'CTDF-OC'.str_pad($certificate->id, 3, "0", STR_PAD_LEFT).'-'.$current_date.'.'.strtolower($FileType);
+            
+            $FileDescription = $request->input('description') ?: '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1386,10 +1429,10 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$certificate);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$certificate);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('oc_certificate.index');
@@ -1417,8 +1460,9 @@ class FilesController extends Controller
             $FileName = 'CTD-BK-OC'.str_pad($certificate->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1428,7 +1472,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$certificate);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$certificate);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$certificate);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -1481,8 +1526,9 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path() . '/files/';
             $FileName = 'provisional'.$FileType;
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if ($type == 'oc_org')
                 $FileName = 'OC_' . $oc->id . '_org.' . strtolower($FileType);
@@ -1501,7 +1547,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$oc);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$oc);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$oc);
 
                 // Store updated amount to OC
                 $this->update_oc($file, $oc, $type, $newFile->getRealPath());
@@ -1533,8 +1580,9 @@ class FilesController extends Controller
             $FileName = 'OPP-'.str_pad($operator->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1553,13 +1601,14 @@ class FilesController extends Controller
                 $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
 
                 /* Create a record for the file storage on DB */
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
 
                 /* Create thumbnail of the image */
                 $this->create_thumbnail($newFile,$FileName);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('operator.index');
@@ -1584,8 +1633,9 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'OPFR-'.str_pad($operator->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
-            //$FileDescription = $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1595,7 +1645,8 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$operator);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if(Session::has('url'))
@@ -1612,7 +1663,7 @@ class FilesController extends Controller
             $order = Order::find($id);
             $filename_hint = $request->input('name_of_file');
 
-            if($filename_hint==''){
+            if ($filename_hint == '') {
                 Session::flash('message', "Seleccione el tipo de archivo que desea subir!");
                 return redirect()->back()->withInput();
             }
@@ -1647,10 +1698,12 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path() . '/files/';
             $FileName = $name.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
-            if($request->input('description')=='Orden original')
+            if ($request->input('description') == 'Orden original')
                 $FileDescription = $order->type.' original';
-            elseif($request->input('description')=='Orden firmada')
+            elseif($request->input('description') == 'Orden firmada')
                 $FileDescription = $order->type.' firmado';
             else
                 $FileDescription = $request->input('description');
@@ -1663,10 +1716,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$order);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$order);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$order);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('order.index');
@@ -1692,8 +1746,9 @@ class FilesController extends Controller
             $FileName = 'PRJ-'.str_pad($project->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1703,10 +1758,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$project);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$project);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$project);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('project.index');
@@ -1733,8 +1789,9 @@ class FilesController extends Controller
             $FileName = 'RRF-'.str_pad($respaldo->id, 5, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1744,10 +1801,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
+                // $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->action('RendicionRespaldoController@show', ['id' => $respaldo->rendicion->id]);
@@ -1799,9 +1857,11 @@ class FilesController extends Controller
                 $FileSize = $newFile->getClientSize() / 1024;
                 $FilePath = public_path() . '/files/';
                 $FileName = $update_file->name;
+                $FileOriginalName = $newFile->getClientOriginalName();
                 $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+                $FileDescriptor = '';
 
-                if($FileType=='jpg'||$FileType=='jpeg'||$FileType=='png'){
+                if ($FileType == 'jpg' || $FileType == 'jpeg' || $FileType == 'png') {
                     /* Fix orientation of the picture */
                     $image = Image::make($newFile->getRealPath());
                     $image->orientate();
@@ -1810,17 +1870,18 @@ class FilesController extends Controller
 
                     /* Check if the file's size changed with orientation command */
                     $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
-                }
-                else
+                } else
                     $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
                 if ($upload) {
-                    if($mime=='jpg'||$mime=='jpeg'||$mime=='png'){
+                    if ($mime == 'jpg' || $mime == 'jpeg' || $mime == 'png') {
                         /* Replace thumbnail of the image */
                         $this->replace_thumbnail($newFile, $FileName);
                     }
 
                     $update_file->name = $FileName;
+                    $update_file->original_name = $FileOriginalName;
+                    $update_file->descriptor = $FileDescriptor;
                     $update_file->path = $FilePath;
                     $update_file->type = strtolower($FileType);
                     $update_file->size = $FileSize;
@@ -1831,7 +1892,7 @@ class FilesController extends Controller
                     $update_file->save();
 
                     // Store updated amount to OC
-                    if(($update_file->type=='xls'||$update_file->type=='xlsx')&&
+                    if (($update_file->type=='xls'||$update_file->type=='xlsx') &&
                         $update_file->imageable_type=='App\OC')
                     {
                         $oc = OC::find($update_file->imageable_id);
@@ -1842,7 +1903,7 @@ class FilesController extends Controller
                         });
                     }
 
-                    if(strpos($update_file, 'VGI')!==false&&$update_file->imageable_type=='App\Vehicle'){
+                    if (strpos($update_file, 'VGI') !== false && $update_file->imageable_type == 'App\Vehicle') {
                         $vehicle = $update_file->imageable;
 
                         $vehicle->gas_inspection_exp = $request->input('exp_date');
@@ -1851,15 +1912,15 @@ class FilesController extends Controller
 
                     Session::flash('message', "El archivo $FileName ha sido reemplazado");
 
-                    if(Session::has('url'))
+                    if (Session::has('url'))
                         return redirect(Session::get('url'));
-                    elseif($update_file->imageable_type=='App\Assignment')
+                    elseif ($update_file->imageable_type=='App\Assignment')
                         return redirect()->action('AssignmentController@show', ['id'=>$update_file->imageable_id]);
-                    elseif($update_file->imageable_type=='App\Site')
+                    elseif ($update_file->imageable_type=='App\Site')
                         return redirect()->action('SiteController@show', ['id' => $update_file->imageable_id]);
-                    elseif($update_file->imageable_type=='App\Order')
+                    elseif ($update_file->imageable_type=='App\Order')
                         return redirect()->action('OrderController@show', ['id' => $update_file->imageable_id]);
-                    elseif($service=='project')
+                    elseif ($service=='project')
                         return redirect()->route('assignment.index');
                     //return redirect()->action('SiteController@index');
                     else
@@ -1877,24 +1938,22 @@ class FilesController extends Controller
 
             $filename_hint = $request->input('name_of_file');
 
-            if($filename_hint==''){
+            if ($filename_hint == '') {
                 Session::flash('message', "Seleccione el tipo de archivo que desea subir!");
                 return redirect()->back()->withInput();
             }
 
-            if($filename_hint=='asig'||$filename_hint=='qty_sgn'||$filename_hint=='cst_sgn'||$filename_hint=='qcc'){
+            if ($filename_hint == 'asig' || $filename_hint == 'qty_sgn' || $filename_hint == 'cst_sgn' || $filename_hint=='qcc') {
 
                 $v = $this->check_extension('pdf', $request->file());
 
                 $flash_message = "Tipo de archivo no soportado! el archivo debe ser PDF";
-            }
-            elseif($filename_hint=='ctz'||$filename_hint=='sch'||$filename_hint=='qty_org'||$filename_hint=='cst_org'){
+            } elseif($filename_hint == 'ctz' || $filename_hint == 'sch' || $filename_hint == 'qty_org' || $filename_hint == 'cst_org') {
 
                 $v = $this->check_extension('xls', $request->file());
 
                 $flash_message = "Tipo de archivo no soportado! el archivo debe ser EXCEL";
-            }
-            else{
+            } else {
                 //($filename_hint=='Otro')
                 $v = $this->check_extension('all', $request->file());
 
@@ -1929,8 +1988,10 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path() . '/files/';
             $FileName = $name.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $filename_hint=='Otro' ? $request->input('other_description') : $request->input('description');
             $FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1940,15 +2001,16 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$site);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$site);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$site);
 
-                if($filename_hint=='qcc'){
+                if ($filename_hint == 'qcc') {
                     /* send email */
                     $this->send_mail('qcc_site', $site, $user);
                 }
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->action('SiteController@sites_per_project', ['id' => $site->assignment_id]);
@@ -1973,7 +2035,9 @@ class FilesController extends Controller
             $FilePath = public_path().'/files/';
             $FileName = 'LCT-'.str_pad($tender->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -1983,10 +2047,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$tender);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$tender);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$tender);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('tender.index');
@@ -2018,8 +2083,9 @@ class FilesController extends Controller
                     $current_date.'.'.strtolower($FileType);
 
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -2029,19 +2095,20 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
 
                 /* insert new entry on vehicle history table */
                 // $this->add_history_record('vehicle_file', $vehicle, $file, $user);
                 $this->add_vhc_history_record($vehicle, $file, 'vehicle_file', $user, 'file');
 
-                if($type=='vhc_gas_inspection') {
+                if ($type == 'vhc_gas_inspection') {
                     $vehicle->gas_inspection_exp = $request->input('exp_date');
                     $vehicle->save();
                 }
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('vehicle.index');
@@ -2068,8 +2135,9 @@ class FilesController extends Controller
             $FileName = 'VHP-'.str_pad($vehicle->id, 3, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ? $FileDescription : $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath.$FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -2088,18 +2156,19 @@ class FilesController extends Controller
                 $FileSize = $FileSize!=($image->filesize()/1024) ? $image->filesize()/1024 : $FileSize;
 
                 /* Create a record for the file storage on DB */
-                $file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
+                //$file = $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
+                $file = $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$vehicle);
 
                 /* Create thumbnail of the image */
                 $this->create_thumbnail($newFile,$FileName);
 
-                if($request->input('main_pic')==1){
+                if ($request->input('main_pic') == 1) {
                     $vehicle->main_pic_id = $file->id;
                     $vehicle->save();
                 }
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('vehicle.index');
@@ -2125,8 +2194,9 @@ class FilesController extends Controller
             $FileName = 'VFR-'.str_pad($report->id, 4, "0", STR_PAD_LEFT).'-'.
                 $current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
-            //$FileDescription = $FileDescription ?: $newFile->getClientOriginalName();
+            $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
+            $FileDescriptor = '';
 
             if (file_exists($FilePath . $FileName)) {
                 Session::flash('message', "El archivo ya existe!");
@@ -2136,10 +2206,11 @@ class FilesController extends Controller
             $upload = \Storage::disk('local')->put($FileName, \File::get($newFile));
 
             if ($upload) {
-                $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
+                //$this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
+                $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$report);
 
                 Session::flash('message', "Archivo guardado con nombre $FileName");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect('/vehicle_failure_report?vhc='.$report->vehicle_id);
@@ -2490,12 +2561,14 @@ class FilesController extends Controller
         return $v;
     }
 
-    public function store_file_db($name,$path,$type,$size,$description,$model)
+    public function store_file_db($name,$original_name,$descriptor,$path,$type,$size,$description,$model)
     {
         $user = Session::get('user');
 
         $file = new File;
         $file->name = $name;
+        $file->original_name = $original_name;
+        $file->descriptor = $descriptor;
         $file->path = $path;
         $file->type = strtolower($type);
         $file->size = $size;
