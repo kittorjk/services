@@ -473,10 +473,12 @@ class AjaxController extends Controller
       $oc_id = Request::input('oc_id');
       $amount = Request::input('amount');
       $concept = Request::input('concept');
+      $cert = Request::input('cert');
       $message = "$oc_id";
 
       if ($oc_id) {
         $oc = OC::find($oc_id);
+        $certificate = OcCertification::find($cert);
 
         $part0 = "<tr><td>Monto asignado:</td><td style='color:green;'>".number_format($oc->oc_amount,2)." Bs</td></tr>";
 
@@ -503,9 +505,10 @@ class AjaxController extends Controller
           $message .= $part0;
         }
 
-        $message .= "<tr><td width='25%'>".$reference."</td>".$part1."<td width='15%' >Saldo:</td>".$part2."</tr>";
+        //$message .= "<tr><td width='25%'>".$reference."</td>".$part1."<td width='15%' >Saldo:</td>".$part2."</tr>";
 
         if ($concept) {
+          /*
           $percentages = explode('-', $oc->percentages);
 
           if ($concept == 'Adelanto')
@@ -516,22 +519,37 @@ class AjaxController extends Controller
             $concept_percentage = $percentages[2];
           else
             $concept_percentage = 0;
+          */
 
-          $part3 = "<td style='color:green;'>$concept_percentage %</td>";
+          $certificate_percentage = number_format(($certificate->amount/$oc->oc_amount) * 100 , 2);
+
+          $part3 = "<td style='color:green;'>$certificate_percentage %</td>";
 
           $current_percentage = number_format(($amount/$oc->oc_amount)*100,2);
+
+          $used = 0;
+          foreach ($certificate->invoices as $inv) {
+              $used = $used + $inv->amount;
+          }
+
+          $used_percentage = ($used / $certificate->amount) * 100;
+          $used_str = number_format($used_percentage, 2);
 
           /*
           $current_percentage = number_format(($amount/($oc->executed_amount!=0 ? $oc->executed_amount :
                       $oc->oc_amount))*100,2);
           */
 
-          if ($concept_percentage < $current_percentage)
+          if ($certificate->amount < ($amount + $used)) {
             $part4 = "<td style='color:red;'>$current_percentage %</td>";
-          else
+            $part5 = "<td style='color:red;'>$used_percentage %</td>";
+          } else {
             $part4 = "<td style='color:green;'>$current_percentage %</td>";
+            $part5 = "<td style='color:green;'>$used_percentage %</td>";
+          }
 
-          $message = $message."<tr><td>% acordado</td>".$part3."<td>% actual</td>".$part4."</tr>";
+          $message = $message."<tr><td>% de certificado</td>".$part3."<td></td><td></td></tr>";
+          $message = $message."<tr><td>% usado</td>".$part5."<td>% actual</td>".$part4."</tr>";
         }
 
         $message = $message."</table><p></p>";
@@ -546,8 +564,8 @@ class AjaxController extends Controller
     public function load_oc_amount_values(Request $request)
     {
         $oc_id = Request::input('oc_id');
-        $amount = Request::input('amount');
-        //$type_reception = Request::input('type_reception');
+        $amount = Request::input('amount') ?: 0;
+        $concept = Request::input('concept');
         $message = "Display content here";
 
         if ($oc_id) {
@@ -558,6 +576,9 @@ class AjaxController extends Controller
             $pending_certification = number_format($oc->oc_amount - $oc->executed_amount - $amount,2).' Bs';
             $paid_to_date = number_format($oc->payed_amount,2).' Bs';
             $balance = number_format($oc->executed_amount + $amount - $oc->payed_amount,2).' Bs';
+            //$current_percentage = $amount / ($oc->oc_amount != 0 ? $oc->oc_amount : 1);
+            $current_percentage_str = number_format(($amount / ($oc->oc_amount != 0 ? $oc->oc_amount : 1)) * 100, 2).' %';
+            $used_per_concept = 0;
 
             $part1 = "<td width='30%' style='color:green;'>$oc_amount</td>";
             
@@ -569,6 +590,29 @@ class AjaxController extends Controller
 
             $part2 = "<td width='30%' style='color:$color23;'>$certified_to_date</td>";
             $part3 = "<td width='30%' style='color:$color23;'>$pending_certification</td>";
+
+            foreach ($oc->certificates as $certification) {
+                if ($certification->type_reception == $concept) {
+                    $used_per_concept = $used_per_concept + $certification->amount;
+                }
+            }
+
+            $used_percentage = (($used_per_concept + $amount) / ($oc->oc_amount != 0 ? $oc->oc_amount : 1)) * 100;
+            $used_percentage_str = number_format($used_percentage, 2).' %';
+
+             // Validación de porcentajes de pago según OC
+            $percentages = explode('-', $oc->percentages);
+            
+            if (($concept == 'Adelanto' && $percentages[0] >= $used_percentage) ||
+                ($concept == 'Parcial' && $percentages[1] >= $used_percentage) ||
+                ($concept == 'Total' && $percentages[2] >= $used_percentage)) {
+                $color67 = 'green';
+            } else {
+                $color67 = 'red';
+            }
+
+            $part6 = "<td width='30%' style='color:$color67;'>$current_percentage_str</td>";
+            $part7 = "<td width='30%' style='color:$color67;'>$used_percentage_str</td>";
 
             if ($balance >= 0) {
                 $color45 = 'green';
@@ -582,6 +626,8 @@ class AjaxController extends Controller
             $message = "<br><table width='90%'>".
                 "<tr><td width='70%'>Monto asignado a OC</td>".$part1."</tr>".
                 "<tr><td width='70%'>Monto certificado a la fecha</td>".$part2."</tr>".
+                "<tr><td width='70%'>% actual</td>".$part6."</tr>".
+                "<tr><td width='70%'>% ".$concept." certificado</td>".$part7."</tr>".
                 "<tr><td width='70%'>Monto pendiente de certificación</td>".$part3."</tr>".
                 "<tr><td width='70%'>Monto cancelado a la fecha</td>".$part4."</tr>".
                 //"<tr><td width='70%'>Saldo por pagar</td>".$part5."</tr>".

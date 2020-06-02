@@ -49,10 +49,10 @@
 
                         <div class="col-lg-6 mg20">
                             <a href="#" onclick="history.back();" class="btn btn-warning">
-                                <i class="fa fa-arrow-circle-left"></i> Volver
+                                <i class="fa fa-arrow-left"></i> Volver
                             </a>
                             <a href="{{ '/oc_certificate' }}" class="btn btn-warning" title="Ir a la tabla de certificados de OC">
-                                <i class="fa fa-arrow-circle-up"></i> Certificados
+                                <i class="fa fa-arrow-up"></i> Certificados
                             </a>
                         </div>
 

@@ -149,13 +149,15 @@ class InvoiceController extends Controller
     if ((is_null($user)) || (!$user->id))
         return redirect()->route('root');
 
+    // 'oc_certification_id'    => 'required_unless:concept,Adelanto'
+
     $v = \Validator::make(Request::all(), [
         'oc_id'                  => 'required',
         'number'                 => 'required',
         'amount'                 => 'required',
         'date_issued'            => 'required',
         'concept'                => 'required',
-        'oc_certification_id'    => 'required_unless:concept,Adelanto'
+        'oc_certification_id'    => 'required'
     ],
         [
             'oc_id.required'             => 'Debe especificar la orden a la que pertenece la factura!',
@@ -164,7 +166,7 @@ class InvoiceController extends Controller
             'date_issued.required'       => 'Debe especificar la fecha de emisión de la factura!',
             'billed_price.required'      => 'Debe especificar el monto facturado!',
             'concept.required'           => 'Debe seleccionar el motivo de la factura!',
-            'oc_certification_id.required_unless' => 'Debe seleccionar un certificado si la factura no es por adelanto!'
+            'oc_certification_id.required' => 'Debe seleccionar el certificado al que corresponde la factura!'
         ]
     );
 
@@ -188,11 +190,18 @@ class InvoiceController extends Controller
       }
     */
 
+    if ($invoice->oc->certificates->count() == 0) {
+      Session::flash('message', "Debe emitir un certificado para la OC antes de agregar una factura!");
+      return redirect()->back()->withInput();
+    }
+
+    /*
     if ($invoice->concept != 'Adelanto' && $invoice->oc->executed_amount == 0) {
       Session::flash('message', "Debe especificar el monto ejecutado de la OC si la factura no es por adelanto!
           Por favor cargue un certificado de aceptación parcial o total");
       return redirect()->back()->withInput();
     }
+    */
 
     // Validación de porcentajes de pago según OC
     $percentages = explode('-', $invoice->oc->percentages);
@@ -215,34 +224,35 @@ class InvoiceController extends Controller
 
     $invoice->user_id = $user->id;
 
-    if ($invoice->concept != 'Adelanto') {
-      // Certificado firmado
-      $signed_file_exists = false;
-      foreach ($invoice->oc_certification->files as $file) {
-        if (substr($file->name, 0, 4) == 'CTDF') {
-          $signed_file_exists = true;
-        }
-      }
-
-      if (!$signed_file_exists) {
-        Session::flash('message', "El certificado seleccionado no cuenta con el archivo firmado en el sistema!");
-        return redirect()->back()->withInput();
-      }
-
-      // Facturas en certificado, no se toma en cuenta la factura actual
-      $existing_amount = 0;
-      foreach ($invoice->oc_certification->invoices as $inv) {
-        if ($inv->id != $invoice->id) {
-          $existing_amount += $inv->amount;
-        }
-      }
-
-      if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
-        Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
-        return redirect()->back()->withInput();
+    //if ($invoice->concept != 'Adelanto') {
+    // Validar Certificado firmado
+    $signed_file_exists = false;
+    foreach ($invoice->oc_certification->files as $file) {
+      if (substr($file->name, 0, 4) == 'CTDF' || substr($file->name, 0, 3) == 'CFD') {
+        $signed_file_exists = true;
       }
     }
 
+    if (!$signed_file_exists) {
+      Session::flash('message', "El certificado seleccionado no cuenta con el archivo firmado en el sistema!");
+      return redirect()->back()->withInput();
+    }
+
+    // Facturas en certificado, no se toma en cuenta la factura actual
+    $existing_amount = 0;
+    foreach ($invoice->oc_certification->invoices as $inv) {
+      if ($inv->id != $invoice->id) {
+        $existing_amount += $inv->amount;
+      }
+    }
+
+    if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
+      Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
+      return redirect()->back()->withInput();
+    }
+    //}
+
+    /*
     if ($invoice->concept == 'Adelanto') {
       foreach ($invoice->oc->invoices as $inv) {
         if ($inv->concept == 'Adelanto') {
@@ -251,6 +261,7 @@ class InvoiceController extends Controller
         }
       }
     }
+    */
 
     // Commented lines regarding approval, all invoices are now recorded as approved
     /*
@@ -408,19 +419,21 @@ class InvoiceController extends Controller
     if ((is_null($user)) || (!$user->id))
       return redirect()->route('root');
 
+    // 'oc_certification_id'    => 'required_unless:concept,Adelanto'
+
     $v = \Validator::make(Request::all(), [
         'number'                 => 'required',
         'amount'                 => 'required',
         'date_issued'            => 'required',
         'concept'                => 'required',
-        'oc_certification_id'    => 'required_unless:concept,Adelanto'
+        'oc_certification_id'    => 'required'
     ],
         [
             'number.required'               => 'Debe especificar el número de factura!',
             'amount.required'               => 'Debe especificar el monto de la factura!',
             'date_issued.required'          => 'Debe especificar la fecha de emisión de la factura!',
             'concept.required'              => 'Debe seleccionar el motivo de la factura!',
-            'oc_certification_id.required_unless' => 'Debe seleccionar un certificado si la factura no es por adelanto!'
+            'oc_certification_id.required'  => 'Debe seleccionar el certificado al que corresponde la factura!'
         ]
     );
 
@@ -451,13 +464,20 @@ class InvoiceController extends Controller
       }
       */
 
+      if ($invoice->oc->certificates->count() == 0) {
+        Session::flash('message', "Debe emitir un certificado para la OC antes de agregar una factura!");
+        return redirect()->back()->withInput();
+      }
+
+      /*
       if ($invoice->concept != 'Adelanto' && $invoice->oc->executed_amount == 0) {
         Session::flash('message', "Debe especificar el monto ejecutado de la OC si la factura no es por adelanto! 
             Por favor cargue un certificado de aceptación parcial o total");
         return redirect()->back()->withInput();
       }
+      */
 
-          // Validación de porcentajes de pago según OC
+      // Validación de porcentajes de pago según OC
       $percentages = explode('-', $invoice->oc->percentages);
       
       if (($invoice->concept == 'Adelanto' && $percentages[0] == 0) ||
@@ -468,21 +488,22 @@ class InvoiceController extends Controller
         return redirect()->back()->withInput();
       }
 
-      if ($invoice->concept != 'Adelanto') {
-        // Facturas en certificado, no se toma en cuenta la factura actual
-        $existing_amount = 0;
-        foreach ($invoice->oc_certification->invoices as $inv) {
-          if ($inv->id != $invoice->id) {
-            $existing_amount += $inv->amount;
-          }
-        }
-  
-        if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
-          Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
-          return redirect()->back()->withInput();
+      //if ($invoice->concept != 'Adelanto') {
+      // Facturas en certificado, no se toma en cuenta la factura actual
+      $existing_amount = 0;
+      foreach ($invoice->oc_certification->invoices as $inv) {
+        if ($inv->id != $invoice->id) {
+          $existing_amount += $inv->amount;
         }
       }
 
+      if (($existing_amount + $invoice->amount) > $invoice->oc_certification->amount) {
+        Session::flash('message', "El monto indicado excede el monto disponible para la certificación seleccionada!");
+        return redirect()->back()->withInput();
+      }
+      //}
+
+      /*
       if ($invoice->concept == 'Adelanto') {
         $count = 0;
         foreach ($invoice->oc->invoices as $inv) {
@@ -495,6 +516,7 @@ class InvoiceController extends Controller
           return redirect()->back()->withInput();
         }
       }
+      */
     }
 
     if ($old_invoice->number != $invoice->number) {
@@ -601,7 +623,7 @@ class InvoiceController extends Controller
       //if ($oc->flags[5] == 0)
       //  $oc->flags = str_pad($oc->flags+100, 8, "0", STR_PAD_LEFT);
       $oc->payment_status = 'Adelanto';
-      $oc->executed_amount += $invoice->amount;
+      //$oc->executed_amount += $invoice->amount;
     } elseif ($invoice->concept == 'Avance') {
       //if ($oc->flags[6] == 0)
       //  $oc->flags = str_pad($oc->flags+10, 8, "0", STR_PAD_LEFT);

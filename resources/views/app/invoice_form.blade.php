@@ -164,41 +164,51 @@
       }
     });
 
-    $(document).ready(function() {
-      $("#wait").hide();
-      $("#oc_values").hide();
-      $("#certification_select").hide();
-
-      if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
-        $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
-          concept: $("#concept").val() }, function(data) {
+    function show_oc_values() {
+      if ($("#oc_id").val() && $("#amount").val() && $("#concept").val() && $("#oc_certification_id").val()) {
+        $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(), concept: $("#concept").val(), cert: $("#oc_certification_id").val() },
+        function(data) {
           $("#oc_values").html(data).show();
         });
       }
+    }
+
+    $(document).ready(function() {
+      $("#wait").hide();
+      $("#oc_values").hide();
+      // $("#certification_select").hide();
+
+      show_oc_values();
 
       // Cargar certificados
       var ps_id = {!! json_encode($ps_id) !!};
       var oc_stored = {!! json_encode($invoice) !!};
       var oc_id_stored = oc_stored ? oc_stored.oc_id : null;
+
       $.post('/load_oc_certificates', { oc_id: $("oc_id").val() || ps_id || oc_id_stored }, function(data) {
         $("#oc_certification_id").html(data);
       });
 
+      /*
       if ($("#concept").val() === 'Avance' || $("#concept").val() === 'Entrega') {
         $("#certification_select").show();
       } else {
         $("#certification_select").hide();
       }
+      */
     });
 
     $("#oc_id").change(function () {
       $("#oc_id option:selected").each(function () {
+        /*
         if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
           $.post('/load_oc_values', { oc_id: $(this).val(), amount: $("#amount").val(),
             concept: $("#concept").val() }, function(data) {
             $("#oc_values").html(data).show();
           });
         }
+        */
+        show_oc_values();
 
         // Cargar certificados
         $.post('/load_oc_certificates', { oc_id: $(this).val() }, function(data) {
@@ -209,28 +219,42 @@
 
     $("#concept").change(function () {
       $("#concept option:selected").each(function () {
+        /*
         if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
           $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
             concept: $("#concept").val() }, function(data) {
             $("#oc_values").html(data).show();
           });
         }
+        */
+        show_oc_values();
 
+        /*
         if ($("#concept").val() === 'Avance' || $("#concept").val() === 'Entrega') {
           $("#certification_select").show();
         } else {
           $("#certification_select").hide();
         }
+        */
       });
     });
 
     $("#amount").keyup(function() {
+      /*
       if ($("#oc_id").val() && $("#amount").val() && $("#concept").val()) {
         $.post('/load_oc_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(),
           concept: $("#concept").val() }, function(data) {
           $("#oc_values").html(data);
         });
       }
+      */
+      show_oc_values();
+    });
+
+    $("#oc_certification_id").change(function () {
+      $("#oc_certification_id option:selected").each(function () {
+        show_oc_values();
+      });
     });
   </script>
 @endsection

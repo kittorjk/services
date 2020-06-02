@@ -131,8 +131,7 @@ class OcCertificationController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -151,21 +150,40 @@ class OcCertificationController extends Controller
         
         $prev_total = OcCertification::where('oc_id',$certificate->oc_id)->where('type_reception','Total')->get();
 
-        if($prev_total->count()>0){
+        if ($prev_total->count() > 0) {
             Session::flash('message', "Ésta OC ya tiene un certificado de aceptación total!");
             return redirect()->back()->withInput();
         }
 
-        if($certificate->type_reception=='Parcial'){
+        if ($certificate->type_reception != 'Total') {
             $prev_number = OcCertification::where('oc_id', $certificate->oc_id)->where('type_reception','Parcial')
                 ->orderBy('num_reception','desc')->first();
 
-            $certificate->num_reception = $prev_number&&$prev_number->num_reception!=0 ? $prev_number->num_reception+1 : 1;
+            $certificate->num_reception = $prev_number && $prev_number->num_reception != 0 ? $prev_number->num_reception + 1 : 1;
+        }
+
+        // Validar monto dentro de rango permitido según porcentajes de pago
+        $used_per_concept = 0;
+
+        foreach ($oc->certificates as $certification) {
+            if ($certification->type_reception == $certificate->type_reception) {
+                $used_per_concept = $used_per_concept + $certification->amount;
+            }
+        }
+
+        $used_percentage = (($used_per_concept + $certificate->amount) / ($oc->oc_amount != 0 ? $oc->oc_amount : 1)) * 100;
+
+        $percentages = explode('-', $oc->percentages);
+        
+        if (($certificate->type_reception == 'Adelanto' && $percentages[0] < $used_percentage) ||
+            ($certificate->type_reception == 'Parcial' && $percentages[1] < $used_percentage) ||
+            ($certificate->type_reception == 'Total' && $percentages[2] < $used_percentage)) {
+            Session::flash('message', "El monto especificado excede el porcentaje de pago permitido para este tipo de aceptación!");
+            return redirect()->back()->withInput();
         }
         
         //$certificate->amount = $oc->executed_amount!=0 ? $oc->executed_amount : $oc->oc_amount;
         $certificate->user_id = $user->id;
-
         $certificate->save();
 
         $this->fill_code_column();
@@ -174,7 +192,7 @@ class OcCertificationController extends Controller
         $oc->save();
         
         Session::flash('message', "El certificado fue agregado al sistema correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('oc_certificate.index');
@@ -261,8 +279,7 @@ class OcCertificationController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -275,28 +292,48 @@ class OcCertificationController extends Controller
         $oc = OC::find($certificate->oc_id);
         $oc->executed_amount = $oc->executed_amount - $old_amount + $certificate->amount;
 
-        if($oc->executed_amount > $oc->oc_amount){
+        if ($oc->executed_amount > $oc->oc_amount) {
             Session::flash('message', 'El monto total certificado excede el monto asignado a la OC!
                 Cree una OC complementaria para el excedente.');
             return redirect()->back()->withInput();
         }
 
-        if($certificate->type_reception=='Total'){
+        if ($certificate->type_reception == 'Total') {
             $prev_total = OcCertification::where('id','<>',$certificate->id)->where('oc_id',$certificate->oc_id)
                 ->where('type_reception','Total')->get();
 
-            if($prev_total->count()>0){
+            if ($prev_total->count() > 0) {
                 Session::flash('message', "Ésta OC ya tiene un certificado de aceptación total!");
                 return redirect()->back()->withInput();
             }
         }
 
-        if($certificate->type_reception=='Parcial'){
+        if ($certificate->type_reception != 'Total') {
             $prev_number = OcCertification::where('oc_id',$certificate->oc_id)->where('type_reception','Parcial')
                 ->orderBy('num_reception','desc')->first();
 
-            $certificate->num_reception = $prev_number&&$prev_number->num_reception!=0 ? $prev_number->num_reception+1 : 1;
+            $certificate->num_reception = $prev_number && $prev_number->num_reception != 0 ? $prev_number->num_reception + 1 : 1;
         }
+
+         // Validar monto dentro de rango permitido según porcentajes de pago
+         $used_per_concept = 0;
+
+         foreach ($oc->certificates as $certification) {
+             if ($certification->type_reception == $certificate->type_reception) {
+                 $used_per_concept = $used_per_concept + $certification->amount;
+             }
+         }
+ 
+         $used_percentage = (($used_per_concept + $certificate->amount) / ($oc->oc_amount != 0 ? $oc->oc_amount : 1)) * 100;
+ 
+         $percentages = explode('-', $oc->percentages);
+         
+         if (($certificate->type_reception == 'Adelanto' && $percentages[0] < $used_percentage) ||
+             ($certificate->type_reception == 'Parcial' && $percentages[1] < $used_percentage) ||
+             ($certificate->type_reception == 'Total' && $percentages[2] < $used_percentage)) {
+             Session::flash('message', "El monto especificado excede el porcentaje de pago permitido para este tipo de aceptación!");
+             return redirect()->back()->withInput();
+         }
         
         $certificate->save();
 
@@ -304,7 +341,7 @@ class OcCertificationController extends Controller
         $oc->save();
 
         Session::flash('message', "El certificado fue modificado correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('oc_certificate.index');
@@ -347,9 +384,9 @@ class OcCertificationController extends Controller
 
             $file_error = false;
 
-            foreach($certificate->files as $file){
+            foreach ($certificate->files as $file) {
                 $file_error = $this->removeFile($file);
-                if($file_error)
+                if ($file_error)
                     break;
             }
 
@@ -357,18 +394,16 @@ class OcCertificationController extends Controller
                 $certificate->delete();
 
                 Session::flash('message', "El certificado fiue eliminado del sistema correctamente");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->route('oc_certificate.index');
                     //return redirect()->route('oc.index');
-            }
-            else {
+            } else {
                 Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Error al ejecutar el borrado, no se encontró el registro solicitado.");
             return redirect()->back();
         }
@@ -387,7 +422,7 @@ class OcCertificationController extends Controller
         $certificate->save();
 
         Session::flash('message', "El certificado fue marcado como entregado en formato impreso al encargado administrativo");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('oc_certificate.index');
@@ -397,7 +432,7 @@ class OcCertificationController extends Controller
     {
         $certificates = OcCertification::where('code','')->get();
 
-        foreach($certificates as $certificate){
+        foreach ($certificates as $certificate) {
             $certificate->code = 'CFD-'.date_format($certificate->created_at,'ymd').'-'.
                 str_pad($certificate->id, 3, "0", STR_PAD_LEFT);
 

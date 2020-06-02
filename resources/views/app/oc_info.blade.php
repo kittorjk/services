@@ -61,10 +61,10 @@
 
                     <div class="col-lg-5 mg20">
                         <a href="#" onclick="history.back();" class="btn btn-warning">
-                            <i class="fa fa-arrow-circle-left"></i> Volver
+                            <i class="fa fa-arrow-left"></i> Volver
                         </a>
                         <a href="{{ '/oc' }}" class="btn btn-warning" title="Ir a la tabla de OCs">
-                            <i class="fa fa-arrow-circle-up"></i> OCs
+                            <i class="fa fa-arrow-up"></i> OCs
                         </a>
                     </div>
 
@@ -529,10 +529,29 @@
                 </div>
 
                 <div class="tab-pane fade" id="payments">
-                  <div class="col-lg-4 mg20">
+                  <div class="col-lg-5 mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning">
                       <i class="fa fa-arrow-left"></i> Volver
                     </a>
+                    <a href="{{ '/oc' }}" class="btn btn-warning" title="Ir a la tabla de OCs">
+                      <i class="fa fa-arrow-up"></i> OCs
+                    </a>
+                  </div>
+
+                  <div class="col-lg-7" align="right">
+                    @if ($oc->status <> 'Anulado')
+                      @if($user->action->oc_ctf_add /*$user->priv_level>=2*/)
+                        <a href="{{ '/oc_certificate/create?id='.$oc->id }}" class="btn btn-success"
+                              title="Agregar certificado de aceptación para ésta OC">
+                          <i class="fa fa-file-text-o"></i> Emitir certificado
+                        </a>
+                      @endif
+                      @if(empty($file_sgn)||$user->priv_level==4)
+                        <a href="/excel/oc/{{ $oc->id }}" class="btn btn-success" title="Descargar OC">
+                          <i class="fa fa-file-excel-o"></i> Descargar orden
+                        </a>
+                      @endif
+                    @endif
                   </div>
 
                   <div class="col-sm-12 mg10 mg-tp-px-10">

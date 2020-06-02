@@ -27,7 +27,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/oc' }}" class="btn btn-warning" title="Volver a la lista de OCs">
                         <i class="fa fa-arrow-up"></i>
@@ -87,14 +87,18 @@
                                                     <select required="required" class="form-control" name="type_reception"
                                                         id="type_reception">
                                                         <option value="" hidden>Seleccione el tipo de aceptación</option>
-                                                        <option value="Total"
-                                                                {{ ($certificate&&$certificate->type_reception=='Total')||
-                                                                    old('type_reception')=='Total' ?
-                                                                    'selected="selected"' : '' }}>Aceptación total</option>
+                                                        <option value="Adelanto"
+                                                                {{ ($certificate && $certificate->type_reception == 'Adelanto') ||
+                                                                    old('type_reception') == 'Adelanto' ?
+                                                                    'selected="selected"' : '' }}>Adelanto</option>
                                                         <option value="Parcial"
-                                                                {{ ($certificate&&$certificate->type_reception=='Parcial')||
-                                                                    old('type_reception')=='Parcial' ?
+                                                                {{ ($certificate && $certificate->type_reception == 'Parcial') ||
+                                                                    old('type_reception') == 'Parcial' ?
                                                                     'selected="selected"' : '' }}>Aceptación parcial</option>
+                                                        <option value="Total"
+                                                                {{ ($certificate && $certificate->type_reception == 'Total') ||
+                                                                    old('type_reception') == 'Total' ?
+                                                                    'selected="selected"' : '' }}>Aceptación total</option>
                                                     </select>
                                                 </div>
 
@@ -168,15 +172,24 @@
             }
         });
 
+        function show_oc_values() {
+            $.post('/load_oc_amount_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val(), concept: $("#type_reception").val() },
+            function(data) {
+                $("#oc_values").html(data).show();
+            });
+        }
+
         $(document).ready(function(){
             $("#wait").hide();
             $("#oc_values").hide();
 
-            $("#amount").keyup(function(){
-                $.post('/load_oc_amount_values', { oc_id: $("#oc_id").val(), amount: $("#amount").val() }, function(data){
-                    $("#oc_values").html(data).show();
-                });
+            $("#amount").keyup(function () {
+                show_oc_values();
             });
+
+            $("#type_reception").change(function () {
+                show_oc_values();
+            }).trigger('change');
         });
     </script>
 @endsection

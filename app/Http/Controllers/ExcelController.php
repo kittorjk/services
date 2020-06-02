@@ -2583,7 +2583,7 @@ class ExcelController extends Controller
                         //$reason .= $invoice->flags[0]==1 ? '' : ' (pendiente)';
                         
                     // if ($invoice->created_at <= $certificate->created_at) {
-                    if ($invoice->date_issued <= $certificate->date_acceptance) {
+                    if ($invoice->date_issued <= $certificate->date_acceptance || $invoice->oc_certification_id == $certificate->id) {
                         $sheetToChange->setCellValue('A'.$i, $i-31)
                             ->setCellValue('E'.$i, $reason)
                             ->setCellValue('Z'.$i, $invoice->number)
