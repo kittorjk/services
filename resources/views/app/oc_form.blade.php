@@ -2,6 +2,10 @@
 
 @section('header')
     @parent
+    <link rel="stylesheet" href="{{ asset("app/css/custom_autocomplete.css") }}">
+    <script src="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.27/jquery.autocomplete.js') }}"></script>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
 @section('content')
@@ -119,10 +123,11 @@
                                         -->--}}
 
                                         <div class="input-group" style="width: 100%">
-                                            <label for="provider_id" class="input-group-addon" style="width: 23%;text-align: left">
+                                            <label for="provider_name" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Proveedor <span class="pull-right">*</span>
                                             </label>
 
+                                            {{--
                                             <select required="required" class="form-control" name="provider_id" id="provider_id"
                                                     {{$oc && $oc->status == 'Anulado' ? 'disabled' : ''}}>
                                                 <option value="" hidden>Seleccione un proveedor de la lista</option>
@@ -133,6 +138,12 @@
                                                                 '' }}>{{$provider->prov_name}}</option>
                                                 @endforeach
                                             </select>
+                                            --}}
+
+                                            <input required="required" type="text" class="form-control" name="provider_name"
+                                                    id="provider_name" {{$oc && $oc->status == 'Anulado' ? 'disabled' : ''}}
+                                                    value="{{ $oc && $oc->provider_record ? $oc->provider_record->prov_name : old('provider_name') }}"
+                                                    placeholder="Proveedor">
                                         </div>
 
                                         <div class="input-group" style="width: 100%">
@@ -369,6 +380,12 @@
     <script src="{{ asset('app/js/prevent_enter_form_submit.js') }}"></script> {{-- Avoid submitting form on enter press --}}
     <script src="{{ asset('app/js/prevent_multiple_submissions.js') }}"></script>
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         /*
         var $proy_name = $('#proy_name'), $other_proy_name = $('#other_proy_name');
         $proy_name.change(function () {
@@ -417,5 +434,13 @@
                 //$confirm_pass.attr('disabled', 'disabled').hide();
             }
         }).trigger('click');
+
+        $('#provider_name').autocomplete({
+            type: 'post',
+            serviceUrl: '/autocomplete/providers',
+            dataType: 'JSON'
+        });
+
+        //onSelect: check_existence
     </script>
 @endsection

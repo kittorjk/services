@@ -163,7 +163,7 @@ class OCController extends Controller
       return redirect()->route('root');
 
     //Retrieve the value of the hidden field
-    if(isset($_POST["oc_token"]))
+    if (isset($_POST["oc_token"]))
       $secret = $_POST["oc_token"];
     else {
       Session::flash('message', 'Oops! Sucedió un error al enviar el formulario, intente de nuevo por favor');
@@ -188,7 +188,8 @@ class OCController extends Controller
         //'proy_name'               => 'required',
         //'other_proy_name'         => 'required_if:proy_name,Otro',
         'proy_concept'            => 'required',
-        'provider_id'             => 'required',
+        'provider_name'           => 'required',
+        //'provider_id'             => 'required',
         'type'                    => 'required',
         'oc_amount'               => 'required',
         'percentages'             => 'required',
@@ -202,7 +203,8 @@ class OCController extends Controller
             //'proy_name.required'              => 'Debe especificar un nombre de proyecto!',
             //'other_proy_name.required_if'     => 'Debe especificar un proyecto!',
             'proy_concept.required'           => 'Debe especificar el concepto de la OC!',
-            'provider_id.required'            => 'Debe especificar el proveedor para la OC!',
+            'provider_name.required'          => 'Debe especificar el proveedor para la OC!',
+            //'provider_id.required'            => 'Debe especificar el proveedor para la OC!',
             'type.required'                   => 'Debe especificar el tipo de orden!',
             'oc_amount.required'              => 'Debe especificar un monto para la OC!',
             'percentages.required'            => 'Debe especificar los porcentajes de pago!',
@@ -229,7 +231,7 @@ class OCController extends Controller
       return redirect()->back()->withInput();
     }
 
-    $oc->percentages = $oc->percentages=="Otro" ? Request::input('other_percentages') : $oc->percentages;
+    $oc->percentages = $oc->percentages == "Otro" ? Request::input('other_percentages') : $oc->percentages;
       
     if (!empty($oc->percentages)) {
       $exploded_percentages = explode('-', $oc->percentages);
@@ -239,8 +241,14 @@ class OCController extends Controller
       }
     }
 
-    $provider = Provider::find($oc->provider_id);
+    //$provider = Provider::find($oc->provider_id);
+    $provider = Provider::where('prov_name', Request::input('provider_name'))->first();
+    if (!$provider) {
+      Session::flash('message', "El proveedor especificado no existe en el sistema!");
+      return redirect()->back()->withInput();
+    }
     $oc->provider = $provider->prov_name;
+    $oc->provider_id = $provider->id;
       
     $oc->user_id = $user->id;
 
@@ -389,6 +397,7 @@ class OCController extends Controller
           //'proy_name'          => 'required',
           //'other_proy_name'    => 'required_if:proy_name,Otro',
           'proy_concept'       => 'required',
+          'provider_name'      => 'required',
           'type'               => 'required',
           'oc_amount'          => 'required',
           'executed_amount'    => 'numeric',
@@ -402,6 +411,7 @@ class OCController extends Controller
               //'proy_name.required'           => 'Debe especificar un nombre de proyecto!',
               //'other_proy_name.required_if'  => 'Debe especificar un proyecto!',
               'proy_concept.required'        => 'Debe especificar el concepto de la OC!',
+              'provider_name.required'       => 'Debe especificar el proveedor de la OC!',
               'type.required'                => 'Debe especificar el tipo de orden!',
               'oc_amount.required'           => 'Debe especificar un monto para la OC!',
               'executed_amount.numeric'      => 'El monto ejecutado debe contener sólo números',
@@ -422,7 +432,7 @@ class OCController extends Controller
     $assignment = Assignment::find($oc->assignment_id);
     $oc->proy_name = $assignment->name;
 
-    //$oc->proy_name = $oc->proy_name=="Otro" ? Request::input('other_proy_name') : $oc->proy_name;
+    //$oc->proy_name = $oc->proy_name == "Otro" ? Request::input('other_proy_name') : $oc->proy_name;
     $oc->client = $oc->client == "Otro" ? Request::input('other_client') : $oc->client;
       
     if ($oc->oc_amount <= 0) {
@@ -446,8 +456,15 @@ class OCController extends Controller
       }
     }
 
-    $provider = Provider::find($oc->provider_id);
-    $oc->provider = $provider ? $provider->prov_name : 'N/E';
+    //$provider = Provider::find($oc->provider_id);
+    $provider = Provider::where('prov_name', Request::input('provider_name'))->first();
+    if (!$provider) {
+      Session::flash('message', "El proveedor especificado no existe en el sistema!");
+      return redirect()->back()->withInput();
+    }
+    //$oc->provider = $provider ? $provider->prov_name : 'N/E';
+    $oc->provider = $provider->prov_name;
+    $oc->provider_id = $provider->id;
 
     if ($oc->status == 'Anulado') {
       foreach ($oc->files as $file) {
@@ -469,7 +486,7 @@ class OCController extends Controller
     $oc->save();
 
     Session::flash('message', "Datos actualizados correctamente");
-    if(Session::has('url'))
+    if (Session::has('url'))
       return redirect(Session::get('url'));
     else
       return redirect()->route('oc.index');
