@@ -23,7 +23,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="javascript:history.back()" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="/activity/{{ $selector[1] }}" class="btn btn-warning" title="Volver a resumen de actividades">
                         <i class="fa fa-arrow-up"></i>
@@ -176,35 +176,32 @@
             }
         });
 
-        function check_existence(){
-
-            var resp_name=$('#responsible_name').val();
-            if(resp_name.length >0){
-                $.post('/check_existence', { resp_name: resp_name }, function(data){
+        function check_existence() {
+            var resp_name = $('#responsible_name').val();
+            if (resp_name.length > 0) {
+                $.post('/check_existence', { value: resp_name }, function(data) {
                     $("#result").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#responsible_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#responsible_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#result").hide();
                 $('#responsible_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#wait").hide();
             $("#result").hide();
             $('#responsible_name').focusout(check_existence);
 
             $("#task_values").hide();
 
-            $("#progress").keyup(function(){
-                $.post('/load_task_values', { task_id: $("#task_id").val(), progress: $("#progress").val() }, function(data){
+            $("#progress").keyup(function() {
+                $.post('/load_task_values', { task_id: $("#task_id").val(), progress: $("#progress").val() }, function(data) {
                     $("#task_values").html(data).show();
                 });
             });

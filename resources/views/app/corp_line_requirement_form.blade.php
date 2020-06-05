@@ -30,7 +30,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/line_requirement' }}" class="btn btn-warning" title="Volver a requerimientos">
                         <i class="fa fa-arrow-up"></i>
@@ -113,28 +113,25 @@
             }
         });
 
-        function check_existence(){
+        function check_existence() {
+            var for_name = $('#for_name').val();
 
-            var for_name=$('#for_name').val();
-
-            if(for_name.length >0){
-                $.post('/check_existence', { resp_name: for_name }, function(data){
+            if (for_name.length > 0) {
+                $.post('/check_existence', { value: for_name }, function(data) {
                     $("#for_check").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#for_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#for_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#for_check").hide();
                 $('#for_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#wait").hide();
             $("#for_check").hide();
             $('#for_name').focusout(check_existence);

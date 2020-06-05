@@ -27,7 +27,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="javascript:history.back()" {{-- onclick="history.back();" --}} class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/assignment' }}" class="btn btn-warning" title="Volver a asignaciones">
                         <i class="fa fa-arrow-up"></i>
@@ -550,27 +550,25 @@
         });
         */
 
-        function check_existence(){
+        function check_existence() {
             /* $.get('/ajax', function(data){ alert(data); }); */
-            var resp_name=$('#resp_name').val();
-            if(resp_name.length >0){
-                $.post('/check_existence', { resp_name: resp_name }, function(data){
+            var resp_name = $('#resp_name').val();
+            if (resp_name.length > 0) {
+                $.post('/check_existence', { value: resp_name }, function(data) {
                     $("#resultado").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#resp_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#resp_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#resultado").hide();
                 $('#resp_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             var project_id_field = $("#project_id")/*, type = $("#type"), type_container = $('#type_container')*/;
 
             $("#wait").hide();
@@ -658,7 +656,7 @@
         }
         */
 
-        function dynamic_status_change(c){
+        function dynamic_status_change(c) {
 
             var /*$status = $('#status'),*/ $quote_dates = $('#quote_dates'), $execution_dates = $('#execution_dates'),
                     $execution_dates_assigned = $('#execution_dates_assigned');

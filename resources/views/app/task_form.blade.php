@@ -20,7 +20,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="/task/{{ $site->id }}" class="btn btn-warning" title="Volver a lista de items">
                         <i class="fa fa-arrow-up"></i>
@@ -349,26 +349,24 @@
             }
         });
 
-        function check_existence(){
+        function check_existence() {
             var resp_name=$('#resp_name').val();
-            if(resp_name.length >0){
-                $.post('/check_existence', { resp_name: resp_name }, function(data){
+            if (resp_name.length > 0) {
+                $.post('/check_existence', { value: resp_name }, function(data) {
                     $("#resultado").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#resp_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#resp_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#resultado").hide();
                 $('#resp_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#wait").hide();
             $("#resultado").hide();
             $('#resp_name').focusout(check_existence);

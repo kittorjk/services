@@ -28,6 +28,7 @@ use App\OcCertification;
 use App\Operator;
 use App\Order;
 use App\Project;
+use App\Provider;
 use App\Site;
 use App\Task;
 use App\TechGroup;
@@ -121,7 +122,7 @@ class AjaxController extends Controller
 
     public function check_existence(Request $request)
     {
-        $data = Request::input('resp_name');
+        $data = Request::input('value');
         $message = "";
         $status = "";
 
@@ -907,30 +908,26 @@ class AjaxController extends Controller
                 $suggestions[] = $result->name;
                 //$suggestions = json_encode(array('suggestions'=>array(array('value'=>$result->name))));
             }
-        }
-        if ($table == 'contacts') {
+        } else if ($table == 'contacts') {
             $results = Contact::where('name','like','%'.$term.'%')->get();
 
             foreach ($results as $result) {
                 $suggestions[] = $result->name;
             }
-        }
-        if ($table == 'materials') {
+        } else if ($table == 'materials') {
             $results = Material::where('name','like','%'.$term.'%')->get();
 
             foreach ($results as $result) {
                 $suggestions[] = $result->name;
             }
-        }
-        if ($table == 'technicians') {
+        } else if ($table == 'technicians') {
             $results = User::where('name','like','%'.$term.'%')->where('role', 'Técnico')
                 ->where('status', 'Activo')->get(); //only active users
 
             foreach ($results as $result) {
                 $suggestions[] = $result->name;
             }
-        }
-        if ($table == 'rbs_sites') {
+        } else if ($table == 'rbs_sites') {
             $last_stat = Site::first()->last_stat();
             
             $results = Site::join('assignments', 'sites.assignment_id', '=', 'assignments.id')
@@ -943,8 +940,7 @@ class AjaxController extends Controller
             foreach($results as $result){
                 $suggestions[] = $result->name.' - '.$result->code;
             }
-        }
-        if ($table == 'employees') {
+        } else if ($table == 'employees') {
             $results = Employee::where(function ($query) use($term){
                     $query->where('first_name','like','%'.$term.'%')->orwhere('last_name', 'like', "%$term%");
                 })->where('active', 1)
@@ -953,13 +949,20 @@ class AjaxController extends Controller
             foreach ($results as $result) {
                 $suggestions[] = $result->first_name.' '.$result->last_name;
             }
-        }
-        if ($table == 'orders') {
+        } else if ($table == 'orders') {
             $results = Order::where('code','like','%'.$term.'%')->get();
 
             foreach ($results as $result) {
                 $suggestions[] = $result->code;
             }
+        } else if ($table == 'providers') {
+            $results = Provider::where('prov_name','like','%'.$term.'%')->get();
+
+            foreach ($results as $result) {
+                $suggestions[] = $result->prov_name;
+            }
+        } else {
+            $suggestions[] = 'No se han encontrado coincidencias';
         }
 
         if (Request::ajax()) {

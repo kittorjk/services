@@ -30,7 +30,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/line_assignation' }}" class="btn btn-warning" title="Volver a resumen de asignación de líneas">
                         <i class="fa fa-arrow-up"></i>
@@ -89,8 +89,8 @@
                                                     <option value="" hidden>Seleccione una línea corporativa</option>
                                                     @foreach($lines as $line)
                                                         <option value="{{ $line->id }}"
-                                                                {{ ($assignation&&$assignation->corp_line_id==$line->id)||
-                                                                     ($ln&&$ln==$line->id)||(old('corp_line_id')==$line->id) ?
+                                                                {{ ($assignation && $assignation->corp_line_id == $line->id) ||
+                                                                     ($ln && $ln == $line->id) || (old('corp_line_id') == $line->id) ?
                                                                      'selected="selected"' : '' }}
                                                         >{{ $line->number }}</option>
                                                     @endforeach
@@ -176,27 +176,25 @@
             }
         });
 
-        function check_existence(){
+        function check_existence() {
             var resp_after_name = $('#resp_after_name').val();
 
-            if(resp_after_name.length >0){
-                $.post('/check_existence', { resp_name: resp_after_name }, function(data){
+            if (resp_after_name.length > 0) {
+                $.post('/check_existence', { value: resp_after_name }, function(data) {
                     $("#result").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#resp_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#resp_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#result").hide();
                 $('#resp_container').removeClass("has-warning").removeClass("has-success");
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#wait").hide();
             $("#result").hide();
             $('#resp_after_name').focusout(check_existence);
@@ -212,17 +210,16 @@
 
         $('#corp_line_requirement_id').change(load_responsible);
 
-        function load_responsible(){
+        function load_responsible() {
             var id = $('#corp_line_requirement_id').val(), resp_after_name = $('#resp_after_name');
 
-            $.post('/load_name/line_assignation_form', { query_id: id }, function(data){
+            $.post('/load_name/line_assignation_form', { query_id: id }, function(data) {
                 resp_after_name.val(data);
             });
 
-            if(id===0){
+            if (id === 0) {
                 resp_after_name.removeAttr('readonly');
-            }
-            else{
+            } else {
                 resp_after_name.attr('readonly', 'readonly');
             }
         }

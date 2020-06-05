@@ -30,7 +30,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/device_requirement' }}" class="btn btn-warning" title="Volver a resumen de requerimientos">
                         <i class="fa fa-arrow-up"></i>
@@ -255,38 +255,33 @@
             });
         }
 
-        function check_existence(){
+        function check_existence() {
+            var from_name = $('#from_name').val(), for_name=$('#for_name').val();
 
-            var from_name=$('#from_name').val(), for_name=$('#for_name').val();
-
-            if(from_name.length >0){
-                $.post('/check_existence', { resp_name: from_name }, function(data){
+            if (from_name.length > 0) {
+                $.post('/check_existence', { value: from_name }, function(data) {
                     $("#from_check").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#from_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status === "success") {
                         $('#from_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#from_check").hide();
                 $('#from_container').removeClass("has-warning").removeClass("has-success");
             }
 
-            if(for_name.length >0){
-                $.post('/check_existence', { resp_name: for_name }, function(data){
+            if (for_name.length > 0) {
+                $.post('/check_existence', { value: for_name }, function(data) {
                     $("#for_check").html(data.message).show();
-                    if(data.status==="warning"){
+                    if (data.status === "warning") {
                         $('#for_container').addClass("has-warning").removeClass("has-success");
-                    }
-                    else if(data.status==="success"){
+                    } else if (data.status==="success") {
                         $('#for_container').addClass("has-success").removeClass("has-warning");
                     }
                 });
-            }
-            else{
+            } else {
                 $("#for_check").hide();
                 $('#for_container').removeClass("has-warning").removeClass("has-success");
             }

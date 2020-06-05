@@ -466,8 +466,8 @@
 
         function check_existence() {
             var resp_name=$('#resp_name').val();
-            if (resp_name.length >0) {
-                $.post('/check_existence', { resp_name: resp_name }, function(data){
+            if (resp_name.length > 0) {
+                $.post('/check_existence', { value: resp_name }, function(data) {
                     $("#resultado").html(data.message).show();
                     if (data.status === "warning") {
                         $('#resp_container').addClass("has-warning").removeClass("has-success");
