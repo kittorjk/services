@@ -105,9 +105,9 @@ class UserController extends Controller
                 'name'          => 'required',
                 'full_name'     => 'required',
                 'branch_id'     => 'required',
+                'area'          => 'required',
                 'phone'         => 'numeric|digits_between:7,8',
                 'email'         => 'required|email',
-                'area'          => 'required',
                 'work_type'     => 'required',
                 'cost'          => 'numeric',
             ],
@@ -115,11 +115,11 @@ class UserController extends Controller
                     'name.required'         => 'Debe especificar el nombre que será visible del usuario en el sistema!',
                     'full_name.required'    => 'Debe especificar el nombre completo del usuario!',
                     'branch_id.required'    => 'Debe especificar la oficina en la que desempeña sus funciones este usuario!',
+                    'area.required'         => 'Debe especificar el área a que pertenece el nuevo usuario',
                     'phone.numeric'         => 'El campo de teléfono sólo puede contener números!',
                     'phone.digits_between'  => 'Número de teléfono no válido!',
                     'email.required'        => 'Debe especificar el correo electrónico del nuevo usuario',
                     'email.email'           => 'Debe introducir un correo electrónico válido',
-                    'area.required'         => 'Debe especificar el área a que pertenece el nuevo usuario',
                     'work_type.required'    => 'Debe especificar el área a que pertenece el nuevo usuario',
                     'cost.numeric'          => 'El campo "Salario" contine caracteres no válidos!',
                 ]
@@ -144,7 +144,7 @@ class UserController extends Controller
         $pass_to_hash = $add_user->password;
         $add_user->password = Hash::make($pass_to_hash);
 
-        $add_user->cost_day = $add_user->cost>0 ? $add_user->cost/22 : 0;
+        $add_user->cost_day = $add_user->cost > 0 ? ($add_user->cost / 22) : 0;
 
         $add_user->status = 'Activo';
         
@@ -282,7 +282,7 @@ class UserController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if (Request::input('login') != $user->login && $user->priv_level != 4) {
+        if (Request::input('login') != $user->login /*&& $user->priv_level != 4*/) {
             $v = \Validator::make(Request::all(), [
                 'login'         => 'required|unique:users',
             ]);
