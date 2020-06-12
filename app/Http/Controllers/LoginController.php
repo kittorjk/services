@@ -63,7 +63,7 @@ class LoginController extends Controller
             return redirect()->route('root');
         }
         
-        if ($user->status=='Retirado') {
+        if ($user->status == 'Retirado') {
             Session::flash('message', "Ésta cuenta ha sido deshabilitada, ya no puede acceder a este sitio");
             // return redirect()->route($service.'.index');
             return redirect()->route('root');
@@ -105,10 +105,10 @@ class LoginController extends Controller
     {
         $user = Session::get('user');
 
-        if($user){
+        if ($user) {
             $open_sessions = ClientSession::where('status', 0)->where('user_id', $user->id)->get();
 
-            foreach($open_sessions as $open_session){
+            foreach ($open_sessions as $open_session) {
                 $open_session->status = 1;
                 $open_session->save();
             }
@@ -143,22 +143,22 @@ class LoginController extends Controller
         $login = Request::input('login');
         
         $v = \Validator::make(Request::all(), [
-            'login'         => 'required',
+            'login'         => 'required|exists:users,login',
         ],
             [
                 'login.required'    => 'Debe especificar el nombre de usuario del que desea reestablecer la contraseña!',
+                'login.exists'      => 'El usuario especificado no existe en el sistema!',
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
 
         $user = User::where('login',$login)->first();
 
-        if ($user->email) {
+        if ($user && $user->email) {
             $new_password = $this->generatePass();
             $user->password = Hash::make($new_password);
 
@@ -195,11 +195,9 @@ class LoginController extends Controller
                 Session::flash('message', 'Por favor revise su bandeja de correo electrónico');
             else
                 Session::flash('message', 'El reestablecimiento de contraseña no se completó correctamente,
-                comuníquese con el administrador');
-        }
-        else {
-            Session::flash('message', 'El reestablecimiento de contraseña para este usuario no se completó,
-             comuníquese con el administrador');
+                    comuníquese con el administrador');
+        } else {
+            Session::flash('message', 'El reestablecimiento de contraseña no se completó, por favor comuníquese con el administrador');
         }
 
         return redirect('/'.$return);
