@@ -282,7 +282,9 @@ class UserController extends Controller
             return redirect()->back()->withInput();
         }
 
-        if (Request::input('login') != $user->login /*&& $user->priv_level != 4*/) {
+        $modify_user = User::find($id);
+
+        if (Request::input('login') != $modify_user->login /*&& $user->priv_level != 4*/) {
             $v = \Validator::make(Request::all(), [
                 'login'         => 'required|unique:users',
             ]);
@@ -292,8 +294,7 @@ class UserController extends Controller
                 return redirect()->back()->withInput();
             }
         }
-
-        $modify_user = User::find($id);
+        
         $modify_user->fill(Request::all());
         
         if ($user->priv_level == 4) {
