@@ -59,6 +59,7 @@ use App\VhcFailureReport;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SearchController extends Controller
 {
@@ -92,53 +93,93 @@ class SearchController extends Controller
         $has_date = Request::has('fecha_desde');
 
         if ($table == 'assignments') {
+            $columns = Schema::getColumnListing('assignments');
 
             if ($has_date) {
                 $assignments = Assignment::whereBetween('start_date', [$from, $to])
                     ->orderBy('id')->paginate(20);
-            }
-            else {
-                if ($parameter == 'resp_name') {
+            } else {
+                if ($parameter == 'all') {
+                    $assignments = Assignment::join('users', 'assignments.resp_id', '=', 'users.id')
+                        ->join('contacts', 'assignments.contact_id', '=', 'contacts.id')
+                        ->join('projects', 'assignments.project_id', '=', 'projects.id')
+                        ->select('assignments.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            $query->where('users.name', 'like', "%$search_term%")
+                                ->orwhere('contacts.name', 'like', "%$search_term%")
+                                ->orwhere('projects.name', 'like', "%$search_term%");
+
+                            $query->orwhere(function($q1) use($search_term) {
+                                $q1->whereHas('sites', function ($q11) use($search_term) {
+                                    $q11->where('name', 'like', "%$search_term%");
+                                });
+                            });
+
+                            $query->orwhere(function($q2) use($search_term) {
+                                $q2->whereHas('sites', function ($q22) use($search_term) {
+                                    $q22->where('du_id', 'like', "%$search_term%");
+                                });
+                            });
+
+                            $query->orwhere(function($q3) use($search_term) {
+                                $q3->whereHas('sites', function ($q33) use($search_term) {
+                                    $q33->where('isdp_account', 'like', "%$search_term%");
+                                });
+                            });
+                            
+                            $query->orwhere(function($q4) use($search_term) {
+                                $q4->whereHas('sites', function ($q44) use($search_term) {
+                                    $q44->where('code', 'like', "%$search_term%");
+                                });
+                            });
+                            
+                            foreach ($columns as $column) {
+                                $query->orwhere("assignments.$column", 'like', "%$search_term%");
+                            }
+                        })
+                        ->orderBy('assignments.id');
+                } elseif ($parameter == 'resp_name') {
                     $assignments = Assignment::join('users', 'assignments.resp_id', '=', 'users.id')
                         ->select('assignments.*')
                         ->where('users.name', 'like', "%$search_term%")
-                        ->orderBy('assignments.id')->paginate(20);
+                        ->orderBy('assignments.id');
                 } elseif ($parameter == 'contact_name') {
                     $assignments = Assignment::join('contacts', 'assignments.contact_id', '=', 'contacts.id')
                         ->select('assignments.*')
                         ->where('contacts.name', 'like', "%$search_term%")
-                        ->orderBy('assignments.id')->paginate(20);
+                        ->orderBy('assignments.id');
                 } elseif ($parameter == 'project_name') {
                     $assignments = Assignment::join('projects', 'assignments.project_id', '=', 'projects.id')
                         ->select('assignments.*')
                         ->where('projects.name', 'like', "%$search_term%")
-                        ->orderBy('assignments.id')->paginate(20);
+                        ->orderBy('assignments.id');
                 } elseif ($parameter == 'site_name') {
                     $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
                         $query->where('name', 'like', "%$search_term%");
-                    })->orderBy('id')->paginate(20);
+                    })->orderBy('id');
                 } else if ($parameter == 'du_id') {
                     $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
                         $query->where('du_id', 'like', "%$search_term%");
-                    })->orderBy('id')->paginate(20);
+                    })->orderBy('id');
                 } else if ($parameter == 'isdp_account') {
                     $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
                         $query->where('isdp_account', 'like', "%$search_term%");
-                    })->orderBy('id')->paginate(20);
+                    })->orderBy('id');
                 } else if ($parameter == 'order_code') {
                     $assignments = Assignment::whereHas('sites', function ($query) use($search_term) {
                         $query->whereHas('order', function ($query2) use($search_term) {
                             $query2->where('code', 'like', "%$search_term%");
                         });
-                    })->orderBy('id')->paginate(20);
+                    })->orderBy('id');
                 } else {
                     $assignments = Assignment::where("$parameter", 'like', "%$search_term%")
-                        ->orderBy('id')->paginate(20);
+                        ->orderBy('id');
                 }
             }
 
-            foreach($assignments as $assignment)
-            {
+            $assignments = $assignments->paginate(20);
+
+            foreach ($assignments as $assignment) {
                 $assignment->quote_from = Carbon::parse($assignment->quote_from);
                 $assignment->quote_to = Carbon::parse($assignment->quote_to);
                 $assignment->start_line = Carbon::parse($assignment->start_line);
@@ -214,15 +255,25 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'bills') {
+            $columns = Schema::getColumnListing('bills');
 
-            if ($has_date)
+            if ($has_date) {
                 $bills = Bill::whereBetween('created_at', [$from, $to]);
-            else
-                $bills = Bill::where("$parameter", 'like', "%$search_term%");
+            } else {
+                if ($parameter == 'all') {
+                    $bills = Bill::where(function($query) use($search_term, $columns) {
+                        foreach ($columns as $column) {
+                            $query->orwhere("$column", 'like', "%$search_term%");
+                        }
+                    });
+                } else {
+                    $bills = Bill::where("$parameter", 'like', "%$search_term%");
+                }
+            }
 
             $bills = $bills->orderBy('id', 'desc')->paginate(20);
 
-            foreach($bills as $bill){
+            foreach ($bills as $bill) {
                 $bill->date_issued = Carbon::parse($bill->date_issued)->hour(0)->minute(0)->second(0);
             }
 
@@ -230,81 +281,136 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'branches') {
+            $columns = Schema::getColumnListing('branches');
+
             if ($has_date) {
-                $branches = Branch::whereBetween('created_at', [$from, $to])->orderBy('name')->paginate(20);
-            } elseif ($parameter == 'head_name') {
-                $branches = Branch::join('employees', 'branches.head_id', '=', 'employees.id')
-                    ->select('branches.*')
-                    ->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$search_term%")
-                    ->orderBy('branches.name')->paginate(20);
+                $branches = Branch::whereBetween('created_at', [$from, $to])->orderBy('name');
             } else {
-                $branches = Branch::where("$parameter", 'like', "%$search_term%")->orderBy('name')->paginate(20);
+                if ($parameter == 'all') {
+                    $branches = Branch::leftJoin('employees', 'branches.head_id', '=', 'employees.id')
+                        ->select('branches.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            $query->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$search_term%");
+                            
+                            foreach ($columns as $column) {
+                                $query->orwhere("branches.$column", 'like', "%$search_term%");
+                            }
+                        })
+                        ->orderBy('branches.name');
+                } elseif ($parameter == 'head_name') {
+                    $branches = Branch::join('employees', 'branches.head_id', '=', 'employees.id')
+                        ->select('branches.*')
+                        ->where(DB::raw("CONCAT(`first_name`, ' ', `last_name`)"), 'like', "%$search_term%")
+                        ->orderBy('branches.name');
+                } else {
+                    $branches = Branch::where("$parameter", 'like', "%$search_term%")->orderBy('name');
+                }
             }
+
+            $branches = $branches->paginate(20);
 
             return View::make('app.branch_brief', ['branches' => $branches, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'calibrations') {
+            $columns = Schema::getColumnListing('calibrations');
+            $columns2 = Schema::getColumnListing('devices');
 
             if ($has_date) {
-                $calibrations = Calibration::whereBetween('date_in', [$from, $to])->paginate(20);
-            }
-            else {
-                if ($parameter == 'type' || $parameter == 'model' || $parameter == 'serial') {
+                $calibrations = Calibration::whereBetween('date_in', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $calibrations = Calibration::join('devices','calibrations.device_id','=','devices.id')
+                        ->select('calibrations.*')
+                        ->where(function($query) use($search_term, $columns, $columns2) {
+                            foreach ($columns2 as $col) {
+                                $query->orwhere("devices.$col",'like',"%$search_term%");
+                            }
+                            
+                            if (similar_text($search_term, 'En calibración'))
+                                $query->orwhere('calibrations.completed', 0);
+                            elseif (similar_text($search_term, 'Finalizado'))
+                                $query->orwhere('calibrations.completed', 1);
+                            
+                            foreach ($columns as $column) {
+                                $query->orwhere("calibrations.$column", 'like', "%$search_term%");
+                            }
+                        })
+                        ->orderBy('calibrations.created_at', 'desc');
+                } elseif ($parameter == 'type' || $parameter == 'model' || $parameter == 'serial') {
                     $calibrations = Calibration::join('devices','calibrations.device_id','=','devices.id')
                         ->select('calibrations.*')
                         ->where("devices.$parameter",'like',"%$search_term%")
-                        ->orderBy('created_at', 'desc')->paginate(20);
-                } elseif($parameter == 'completed') {
-                    if (similar_text($search_term,'En calibración'))
-                        $calibrations = Calibration::where('completed', 0)->paginate(20);
-                    elseif (similar_text($search_term,'Finalizado'))
-                        $calibrations = Calibration::where('completed', 1)->paginate(20);
+                        ->orderBy('calibrations.created_at', 'desc');
+                } elseif ($parameter == 'completed') {
+                    if (similar_text($search_term, 'En calibración'))
+                        $calibrations = Calibration::where('completed', 0);
+                    elseif (similar_text($search_term, 'Finalizado'))
+                        $calibrations = Calibration::where('completed', 1);
                     else
-                        $calibrations = Calibration::where('completed', '>', 1)->paginate(20);
+                        $calibrations = Calibration::where('completed', '>', 1);
                 } else {
-                    $calibrations = Calibration::where("$parameter", 'like', "%$search_term%")->paginate(20);
+                    $calibrations = Calibration::where("$parameter", 'like', "%$search_term%");
                 }
             }
+
+            $calibrations = $calibrations->paginate(20);
 
             return View::make('app.calibration_brief', ['calibrations' => $calibrations,
                 'service' => $service, 'user' => $user ]);
         }
 
         elseif ($table == 'cites') {
+            $columns = Schema::getColumnListing('cites');
 
             if (($user->area == 'Gerencia General' && $user->priv_level == 3) || $user->priv_level == 4) {
                 if ($has_date) {
                     $cites = Cite::whereBetween('created_at', [$from, $to]);
                         //->where('num_cite', '>', '0')
-                }
-                else {
-                    /*
-                    if ($parameter == 'codigo_cite') {
-                        $v = \Validator::make(Request::all(), [
-                            'buscar' => 'min:14|max:16|alpha_dash',
-                        ]);
-
-                        if ($v->fails()) {
-                            Session::flash('message', 'Introduzca un codigo de CITE válido!');
-                            return redirect()->back();
+                } else {
+                    if ($parameter == 'all') {
+                        $cites = Cite::query();
+    
+                        foreach ($columns as $column) {
+                            $cites->orWhere("$column", 'LIKE', '%' . $search_term . '%');
                         }
+                    } else {
+                        /*
+                        if ($parameter == 'codigo_cite') {
+                            $v = \Validator::make(Request::all(), [
+                                'buscar' => 'min:14|max:16|alpha_dash',
+                            ]);
 
-                        $array_buscar = explode('-', $buscar);
-                        $area_cite = $array_buscar[0] . '-' . $array_buscar[1];
-                        $cites = Cite::where('num_cite', $array_buscar[2])->whereYear('created_at','=',$array_buscar[3])
-                            ->where('title', $area_cite)
-                            ->paginate(20);
+                            if ($v->fails()) {
+                                Session::flash('message', 'Introduzca un codigo de CITE válido!');
+                                return redirect()->back();
+                            }
+
+                            $array_buscar = explode('-', $buscar);
+                            $area_cite = $array_buscar[0] . '-' . $array_buscar[1];
+                            $cites = Cite::where('num_cite', $array_buscar[2])->whereYear('created_at','=',$array_buscar[3])
+                                ->where('title', $area_cite)
+                                ->paginate(20);
+                        }
+                        */
+                        $cites = Cite::where("$parameter", 'like', "%$search_term%");
                     }
-                    */
-                    $cites = Cite::where("$parameter", 'like', "%$search_term%");
                 }
-            }
-            else {
-                if ($has_date)
+            } else {
+                if ($has_date) {
                     $cites = Cite::where('area', $user->area)->whereBetween('created_at', [$from, $to]);
-                else
-                    $cites = Cite::where('area', $user->area)->where("$parameter", 'like', "%$search_term%");
+                } else {
+                    if ($parameter == 'all') {
+                        $cites = Cite::where('area', $user->area)
+                            ->where(function($query) use($search_term, $columns) {
+                                foreach ($columns as $column) {
+                                    $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                                }
+                            });
+                    } else {
+                        $cites = Cite::where('area', $user->area)->where("$parameter", 'like', "%$search_term%");
+                    }
+                }
             }
 
             $cites = $cites->orderBy('created_at', 'desc')->paginate(20);
@@ -313,21 +419,43 @@ class SearchController extends Controller
         }
         
         elseif ($table === 'client_sessions') {
+            $columns = Schema::getColumnListing('client_sessions');
+
             if ($has_date) {
-                $sessions = ClientSession::whereBetween('created_at', [$from, $to])->orderBy('created_at')->paginate(20);
+                $sessions = ClientSession::whereBetween('created_at', [$from, $to])->orderBy('created_at');
             } else {
-                $sessions = ClientSession::where("$parameter", 'like', "%$search_term%")->orderBy('created_at')->paginate(20);
+                if ($parameter == 'all') {
+                    $sessions = ClientSession::query();
+
+                    foreach ($columns as $column) {
+                        $sessions->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $sessions = ClientSession::where("$parameter", 'like', "%$search_term%")->orderBy('created_at');
+                }
             }
+
+            $sessions = $sessions->paginate(20);
 
             return View::make('app.client_session_brief', ['records' => $sessions, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'contacts') {
+            $columns = Schema::getColumnListing('contacts');
 
-            if ($has_date)
+            if ($has_date) {
                 $contacts = Contact::whereBetween('created_at', [$from, $to]);
-            else
-                $contacts = Contact::where("$parameter", 'like', "%$search_term%");
+            } else {
+                if ($parameter == 'all') {
+                    $contacts = Contact::query();
+
+                    foreach ($columns as $column) {
+                        $contacts->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $contacts = Contact::where("$parameter", 'like', "%$search_term%");
+                }
+            }
 
             $contacts = $contacts->orderBy('name')->paginate(20);
 
@@ -352,30 +480,42 @@ class SearchController extends Controller
         */
 
         elseif ($table=='corp_line_assignations') {
+            $columns = Schema::getColumnListing('corp_line_assignations');
 
             if ($has_date) {
                 $assignations = CorpLineAssignation::whereBetween('created_at', [$from, $to])
                     ->orderBy('created_at', 'desc');
-            }
-            elseif($parameter=='line_number'){
+            } elseif ($parameter == 'all') {
+                $assignations = CorpLineAssignation::join('corp_lines','corp_line_assignations.corp_line_id','=','corp_lines.id')
+                    ->join('users', function ($join) {
+                        $join->on('users.id', '=', 'corp_line_assignations.resp_before_id')->orOn('users.id', '=', 'corp_line_assignations.resp_after_id');
+                    })
+                    ->select('corp_line_assignations.*')
+                    ->where(function($query) use($search_term, $columns) {
+                        $query->where('corp_lines.number', 'like', "%$search_term%")
+                            ->orwhere('users.name', 'like', "%$search_term%");
+                        
+                        foreach ($columns as $column) {
+                            $query->orWhere("corp_line_assignations.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                    })
+                    ->orderBy('corp_line_assignations.created_at', 'desc');
+            } elseif ($parameter == 'line_number') {
                 $assignations = CorpLineAssignation::join('corp_lines','corp_line_assignations.corp_line_id','=','corp_lines.id')
                     ->select('corp_line_assignations.*')
                     ->where('corp_lines.number', 'like', "%$search_term%")
                     ->orderBy('corp_line_assignations.created_at', 'desc');
-            }
-            elseif($parameter=='resp_before_name'){
+            } elseif ($parameter == 'resp_before_name') {
                 $assignations = CorpLineAssignation::join('users','corp_line_assignations.resp_before_id','=','users.id')
                     ->select('corp_line_assignations.*')
                     ->where('users.name', 'like', "%$search_term%")
                     ->orderBy('corp_line_assignations.created_at', 'desc');
-            }
-            elseif($parameter=='resp_after_name'){
+            } elseif($parameter == 'resp_after_name') {
                 $assignations = CorpLineAssignation::join('users','corp_line_assignations.resp_after_id','=','users.id')
                     ->select('corp_line_assignations.*')
                     ->where('users.name', 'like', "%$search_term%")
                     ->orderBy('corp_line_assignations.created_at', 'desc');
-            }
-            else {
+            } else {
                 $assignations = CorpLineAssignation::where("$parameter", 'like', "%$search_term%")
                     ->orderBy('created_at', 'desc');
             }
@@ -386,28 +526,38 @@ class SearchController extends Controller
                 'user' => $user]);
         }
 
-        elseif ($table == 'corp_line_requirements')
-        {
+        elseif ($table == 'corp_line_requirements') {
+            $columns = Schema::getColumnListing('corp_line_requirements');
+
             if ($has_date) {
                 $requirements = CorpLineRequirement::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='user_name'){
+            } else {
+                if ($parameter == 'all') {
+                    $requirements = CorpLineRequirement::join('users', function ($join) {
+                            $join->on('users.id', '=', 'corp_line_requirements.user_id')->orOn('users.id', '=', 'corp_line_requirements.for_id');
+                        })
+                        ->select('corp_line_requirements.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            $query->where('users.name', 'like', "%$search_term%");
+    
+                            foreach ($columns as $column) {
+                                $query->orWhere("corp_line_requirements.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } elseif ($parameter == 'user_name') {
                     $requirements = CorpLineRequirement::join('users','corp_line_requirements.user_id','=','users.id')
                         ->select('corp_line_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='person_for'){
+                } elseif($parameter == 'person_for') {
                     $requirements = CorpLineRequirement::join('users','corp_line_requirements.for_id','=','users.id')
                         ->select('corp_line_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                else{
+                } else {
                     $requirements = CorpLineRequirement::where("$parameter", 'like', "%$search_term%");
                 }
             }
 
-            if($user->priv_level<2){
+            if ($user->priv_level < 2) {
                 $requirements = $requirements->where(function ($query) use($user) {
                     $query->where('for_id', $user->id)->orwhere('user_id', '=', $user->id);
                 });
@@ -419,19 +569,29 @@ class SearchController extends Controller
                 'user' => $user]);
         }
 
-        elseif ($table=='corp_lines') {
+        elseif ($table == 'corp_lines') {
+            $columns = Schema::getColumnListing('corp_lines');
 
             if ($has_date) {
                 $lines = CorpLine::whereBetween('created_at', [$from, $to])
                     ->orderBy('number');
-            }
-            elseif($parameter=='responsible_name'){
+            } elseif ($parameter == 'all') {
+                $lines = CorpLine::join('users','corp_lines.responsible_id','=','users.id')
+                    ->select('corp_lines.*')
+                    ->where(function($query) use($search_term, $columns) {
+                        $query->where('users.name', 'like', "%$search_term%");
+
+                        foreach ($columns as $column) {
+                            $query->orWhere("corp_lines.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                    })
+                    ->orderBy('corp_lines.number');
+            } elseif ($parameter == 'responsible_name') {
                 $lines = CorpLine::join('users','corp_lines.responsible_id','=','users.id')
                     ->select('corp_lines.*')
                     ->where('users.name', 'like', "%$search_term%")
                     ->orderBy('corp_lines.number');
-            }
-            else {
+            } else {
                 $lines = CorpLine::where("$parameter", 'like', "%$search_term%")
                     ->orderBy('number');
             }
@@ -442,6 +602,7 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'dead_intervals_assig') {
+            $columns = Schema::getColumnListing('dead_intervals');
 
             $assignment = Assignment::find($id);
             $site = 0;
@@ -449,18 +610,26 @@ class SearchController extends Controller
             if ($has_date) {
                 $dead_intervals = DeadInterval::whereBetween('created_at', [$from, $to])
                     ->where('relatable_id',$assignment->id)
-                    ->where('relatable_type','App\Assignment')
-                    ->paginate(20);
-            }
-            else {
-                $dead_intervals = DeadInterval::where("$parameter", 'like', "%$search_term%")
-                    ->where('relatable_id',$assignment->id)
-                    ->where('relatable_type','App\Assignment')
-                    ->paginate(20);
+                    ->where('relatable_type','App\Assignment');
+            } else {
+                if ($parameter == 'all') {
+                    $dead_intervals = DeadInterval::where('relatable_id',$assignment->id)
+                        ->where('relatable_type','App\Assignment')
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } else {
+                    $dead_intervals = DeadInterval::where("$parameter", 'like', "%$search_term%")
+                        ->where('relatable_id',$assignment->id)
+                        ->where('relatable_type','App\Assignment');
+                }
             }
 
-            foreach($dead_intervals as $dead_interval)
-            {
+            $dead_intervals = $dead_intervals->paginate(20);
+
+            foreach ($dead_intervals as $dead_interval) {
                 $dead_interval->date_from = Carbon::parse($dead_interval->date_from);
                 $dead_interval->date_to = Carbon::parse($dead_interval->date_to);
             }
@@ -472,6 +641,7 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'dead_intervals_st') {
+            $columns = Schema::getColumnListing('dead_intervals');
 
             $site = Site::find($id);
             $assignment = 0;
@@ -479,18 +649,26 @@ class SearchController extends Controller
             if ($has_date) {
                 $dead_intervals = DeadInterval::whereBetween('created_at', [$from, $to])
                     ->where('relatable_id',$site->id)
-                    ->where('relatable_type','App\Site')
-                    ->paginate(20);
-            }
-            else {
-                $dead_intervals = DeadInterval::where("$parameter", 'like', "%$search_term%")
-                    ->where('relatable_id',$site->id)
-                    ->where('relatable_type','App\Site')
-                    ->paginate(20);
+                    ->where('relatable_type','App\Site');
+            } else {
+                if ($parameter == 'all') {
+                    $dead_intervals = DeadInterval::where('relatable_id',$site->id)
+                        ->where('relatable_type','App\Site')
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } else {
+                    $dead_intervals = DeadInterval::where("$parameter", 'like', "%$search_term%")
+                        ->where('relatable_id',$site->id)
+                        ->where('relatable_type','App\Site');
+                }
             }
 
-            foreach($dead_intervals as $dead_interval)
-            {
+            $dead_intervals = $dead_intervals->paginate(20);
+
+            foreach ($dead_intervals as $dead_interval) {
                 $dead_interval->date_from = Carbon::parse($dead_interval->date_from);
                 $dead_interval->date_to = Carbon::parse($dead_interval->date_to);
             }
@@ -502,61 +680,81 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'device_histories') {
+            $columns = Schema::getColumnListing('device_histories');
 
             $device = Device::find($id);
 
             if ($has_date) {
                 $device_histories = DeviceHistory::whereBetween('created_at', [$from, $to])
-                    ->where('device_id',$device->id)
-                    ->paginate(20);
+                    ->where('device_id',$device->id);
+            } else {
+                if ($parameter == 'all') {
+                    $device_histories = DeviceHistory::where('device_id',$device->id)
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } else {
+                    $device_histories = DeviceHistory::where("$parameter", 'like', "%$search_term%")
+                        ->where('device_id',$device->id);
+                }
             }
-            else {
-                $device_histories = DeviceHistory::where("$parameter", 'like', "%$search_term%")
-                    ->where('device_id',$device->id)
-                    ->paginate(20);
-            }
+
+            $device_histories = $device_histories->paginate(20);
 
             return View::make('app.device_history', ['device_histories' => $device_histories, 'device' => $device,
                 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'device_requirements') {
+            $columns = Schema::getColumnListing('device_requirements');
 
             if ($has_date) {
                 $requirements = DeviceRequirement::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='person_from'){
+            } else {
+                if ($parameter == 'all') {
+                    $requirements = DeviceRequirement::join('devices','device_requirements.device_id','=','devices.id')
+                        ->join('users', function ($join) {
+                            $join->on('users.id', '=', 'device_requirements.from_id')->orOn('users.id', '=', 'device_requirements.for_id');
+                        })
+                        ->select('device_requirements.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            $query->where('users.name', 'like', "%$search_term%")
+                                ->orwhere("devices.serial",'like',"%$search_term%")
+                                ->orwhere("devices.model",'like',"%$search_term%");
+    
+                            foreach ($columns as $column) {
+                                $query->orWhere("device_requirements.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } elseif ($parameter == 'person_from') {
                     $requirements = DeviceRequirement::join('users','device_requirements.from_id','=','users.id')
                         ->select('device_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='person_for'){
+                } elseif ($parameter == 'person_for') {
                     $requirements = DeviceRequirement::join('users','device_requirements.for_id','=','users.id')
                         ->select('device_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='serial'){
+                } elseif ($parameter == 'serial') {
                     $requirements = DeviceRequirement::join('devices','device_requirements.device_id','=','devices.id')
                         ->select('device_requirements.*')
                         ->where("devices.serial",'like',"%$search_term%");
-                }
-                elseif($parameter=='model'){
+                } elseif ($parameter == 'model') {
                     $requirements = DeviceRequirement::join('devices','device_requirements.device_id','=','devices.id')
                         ->select('device_requirements.*')
                         ->where("devices.model",'like',"%$search_term%");
-                }
-                else{
-                    $requirements = DeviceRequirement::where("$parameter",'like',"%$search_term%");
+                } else {
+                    $requirements = DeviceRequirement::where("$parameter", 'like', "%$search_term%");
                 }
             }
 
             $dvc = Input::get('dvc');
 
-            if(!is_null($dvc))
+            if (!is_null($dvc))
                 $requirements = $requirements->where('device_id', $dvc);
 
-            if(!(($user->priv_level>=2&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Almacén')){
+            if (!(($user->priv_level >= 2 && $user->area == 'Gerencia Tecnica') || $user->priv_level >= 3 || $user->work_type == 'Almacén')) {
                 $requirements = $requirements->where(function ($query) use($user) {
                     $query->where('for_id', $user->id)
                         ->orwhere('from_id', '=', $user->id);
@@ -570,18 +768,28 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'devices') {
+            $columns = Schema::getColumnListing('devices');
 
             if ($has_date) {
                 $devices = Device::whereBetween('created_at', [$from, $to])
                     ->orderBy('created_at', 'desc');
-            }
-            elseif($parameter=='responsible_name'){
+            } elseif ($parameter == 'all') {
+                $devices = Device::join('users', 'devices.responsible','=','users.id')
+                    ->select('devices.*')
+                    ->where(function($query) use($search_term, $columns) {
+                        $query->where('users.name', 'like', "%$search_term%");
+
+                        foreach ($columns as $column) {
+                            $query->orWhere("devices.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                    })
+                    ->orderBy('devices.created_at', 'desc');
+            } elseif ($parameter == 'responsible_name') {
                 $devices = Device::join('users', 'devices.responsible','=','users.id')
                     ->select('devices.*')
                     ->where('users.name','like',"%$search_term%")
                     ->orderBy('devices.created_at', 'desc');
-            }
-            else {
+            } else {
                 $devices = Device::where("$parameter", 'like', "%$search_term%")
                     ->orderBy('created_at', 'desc');
             }
@@ -589,8 +797,8 @@ class SearchController extends Controller
             Session::put('db_query', $devices->get());
             $devices = $devices->paginate(20);
 
-            foreach($devices as $device){
-                if($device->last_operator)
+            foreach ($devices as $device) {
+                if ($device->last_operator)
                     $device->last_operator->date = Carbon::parse($device->last_operator->date);
             }
 
@@ -598,156 +806,246 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'drivers') {
+            $columns = Schema::getColumnListing('drivers');
+            $columns2 = Schema::getColumnListing('vehicles');
 
             if ($has_date) {
                 $drivers = Driver::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='who_receives'){
+            } else {
+                if ($parameter == 'all') {
+                    $drivers = Driver::join('vehicles','drivers.vehicle_id','=','vehicles.id')
+                        ->join('users', function ($join) {
+                            $join->on('users.id', '=', 'drivers.who_receives')->orOn('users.id', '=', 'drivers.who_delivers');
+                        })
+                        ->select('drivers.*')
+                        ->where(function($query) use($search_term, $columns, $columns2) {
+                            $query->where('users.name', 'like', "%$search_term%");
+    
+                            foreach ($columns as $column) {
+                                $query->orWhere("drivers.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+
+                            foreach ($columns2 as $col) {
+                                $query->orwhere("vehicles.$col", 'like', "%$search_term%");
+                            }
+                        });
+                } elseif ($parameter == 'who_receives') {
                     $drivers = Driver::join('users','drivers.who_receives','=','users.id')
                         ->select('drivers.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='who_delivers'){
+                } elseif ($parameter == 'who_delivers') {
                     $drivers = Driver::join('users','drivers.who_delivers','=','users.id')
                         ->select('drivers.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                else{
+                } else {
                     $drivers = Driver::join('vehicles','drivers.vehicle_id','=','vehicles.id')
                         ->select('drivers.*')
                         ->where("vehicles.$parameter",'like',"%$search_term%");
                 }
             }
 
-            if ($user->priv_level>=2) {
-                $drivers = $drivers->orderBy('created_at', 'desc')->paginate(20);
-            }
-            else{
+            if ($user->priv_level >= 2) {
+                $drivers = $drivers->orderBy('created_at', 'desc');
+            } else {
                 $drivers = $drivers->where(function ($query) use($user) {
                     $query->where('drivers.user_id', $user->id)
                         ->orwhere('who_receives','=',$user->id)
                         ->orwhere('who_delivers','=',$user->id);})
-                    ->orderBy('created_at', 'desc')->paginate(20);
+                        ->orderBy('created_at', 'desc');
             }
+
+            $drivers = $drivers->paginate(20);
 
             return View::make('app.driver_brief', ['drivers' => $drivers, 'service' => $service, 'user' => $user]);
         }
 
-        elseif($table=='dvc_failure_reports'){
+        elseif ($table == 'dvc_failure_reports') {
+            $columns = Schema::getColumnListing('dvc_failure_reports');
             $device = Device::find($id);
 
-            if(!$device){
+            if (!$device) {
                 Session::flash('message', 'Sucedió un error al recuperar la información del servidor, revise la dirección
                  e intente de nuevo por favor');
                 return redirect()->back();
             }
 
-            if($has_date){
+            if ($has_date) {
                 $reports = DvcFailureReport::whereBetween('created_at', [$from, $to])
                     ->where('device_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
-            }
-            elseif($parameter=='user_name'){
+                    ->orderBy('created_at', 'desc');
+            } elseif ($parameter == 'all') {
                 $reports = DvcFailureReport::join('users', 'dvc_failure_reports.user_id', '=', 'users.id')
-                    ->select('device_failure_reports.*')
+                    ->select('dvc_failure_reports.*')
+                    ->where('dvc_failure_reports.device_id', $id)
+                    ->where(function($query) use($search_term, $columns) {
+                        $query->where('users.name', 'like', "%$search_term%");
+
+                        foreach ($columns as $column) {
+                            $query->orWhere("dvc_failure_reports.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                    })
+                    ->orderBy('dvc_failure_reports.created_at', 'desc');
+            } elseif ($parameter == 'user_name') {
+                $reports = DvcFailureReport::join('users', 'dvc_failure_reports.user_id', '=', 'users.id')
+                    ->select('dvc_failure_reports.*')
                     ->where('users.name', 'like', "%$search_term%")
                     ->where('dvc_failure_reports.device_id', $id)
-                    ->orderBy('dvc_failure_reports.created_at', 'desc')->paginate(20);
-            }
-            else{
+                    ->orderBy('dvc_failure_reports.created_at', 'desc');
+            } else {
                 $reports = DvcFailureReport::where("$parameter", 'like', "%$search_term%")
                     ->where('device_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
+                    ->orderBy('created_at', 'desc');
             }
+
+            $reports = $reports->paginate(20);
 
             return View::make('app.device_failure_report_brief', ['reports' => $reports, 'service' => $service,
                 'user' => $user, 'device' => $device]);
         }
 
         elseif ($table == 'emails') {
+            $columns = Schema::getColumnListing('emails');
 
-            if ($has_date)
+            if ($has_date) {
                 $emails = Email::whereBetween('created_at', [$from, $to]);
-            else
-                $emails = Email::where("$parameter", 'like', "%$search_term%");
+            } else {
+                if ($parameter == 'all') {
+                    $emails = Email::query();
+                    
+                    foreach ($columns as $column) {
+                        $emails->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $emails = Email::where("$parameter", 'like', "%$search_term%");
+                }
+            }
 
             $emails = $emails->orderBy('created_at','desc')->paginate(20);
 
             return View::make('app.email_brief', ['emails' => $emails, 'service' => $service, 'user' => $user]);
         }
 
-        elseif($table=='employees'){
-            if($has_date){
+        elseif ($table == 'employees') {
+            $columns = Schema::getColumnListing('employees');
+
+            if ($has_date) {
                 $employees = Employee::whereBetween('created_at', [$from, $to])
-                    ->orderBy('last_name', 'asc')->paginate(20);
+                    ->orderBy('last_name', 'asc');
+            } else {
+                if ($parameter == 'all') {
+                    $employees = Employee::query();
+                    
+                    foreach ($columns as $column) {
+                        $employees->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+
+                    $employees->orderBy('last_name', 'asc');
+                } else {
+                    $employees = Employee::where("$parameter", 'like', "%$search_term%")
+                        ->orderBy('last_name', 'asc');
+                }
             }
-            else{
-                $employees = Employee::where("$parameter", 'like', "%$search_term%")
-                    ->orderBy('last_name', 'asc')->paginate(20);
-            }
+
+            $employees = $employees->paginate(20);
 
             return View::make('app.employee_brief', ['employees' => $employees, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'events') {
+            $columns = Schema::getColumnListing('events');
 
-            $aux = explode('-',$id);
+            $aux = explode('-', $id);
+            //$type_info = $aux[0] == 'site' ? Site::find($aux[1]) : collect();
 
-            if ($has_date) {
-                $events = Event::whereBetween('date', [$from, $to])
-                    ->where('eventable_id',$aux[1])
-                    ->where('eventable_type','like',"%$aux[0]%")
-                    ->orderBy('number')->paginate(20);
-            }
-            else {
-                if($parameter=='responsible_name'){
-                    $events = Event::join('users', 'events.responsible_id', '=', 'users.id')
-                        ->select('events.*')
-                        ->where('users.name', 'like', "%$search_term%")
-                        ->where('eventable_id',$aux[1])
-                        ->where('eventable_type','like',"%$aux[0]%")
-                        ->orderBy('events.number')->paginate(20);
-                }
-                else{
-                    $events = Event::where("$parameter", 'like', "%$search_term%")
-                        ->where('eventable_id',$aux[1])
-                        ->where('eventable_type','like',"%$aux[0]%")
-                        ->orderBy('number')->paginate(20);
-                }
+            $type_info = collect();
+            $open = true;
+        
+            if ($aux[0] == 'site') {
+                $type_info = Site::find($aux[1]);
+                $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+            } elseif ($aux[0] == 'assignment') {
+                $type_info = Assignment::find($aux[1]);
+                $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+            } elseif ($aux[0] == 'task') {
+                $type_info = Task::find($aux[1]);
+                $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+            } elseif ($aux[0] == 'oc') {
+                $type_info = OC::find($aux[1]);
+            } elseif ($aux[0] == 'invoice') {
+                $type_info = Invoice::find($aux[1]);
             }
 
-            $type_info = $aux[0]=='site' ? Site::find($aux[1]) : collect();
-
-            if(!$type_info){
+            if (!$type_info) {
                 Session::flash('message', "No se encontró la página solicitada,
                     revise la dirección e intente de nuevo por favor");
                 return redirect()->back();
             }
 
-            foreach($events as $event)
-            {
+            if ($has_date) {
+                $events = Event::whereBetween('date', [$from, $to])
+                    ->where('eventable_id',$aux[1])
+                    ->where('eventable_type','like',"%$aux[0]%")
+                    ->orderBy('number');
+            } else {
+                if ($parameter == 'all') {
+                    $events = Event::join('users', 'events.responsible_id', '=', 'users.id')
+                        ->select('events.*')
+                        ->where('eventable_id',$aux[1])
+                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->where(function($query) use($search_term, $columns) {
+                            $query->where('users.name', 'like', "%$search_term%");
+
+                            foreach ($columns as $column) {
+                                $query->orWhere("events.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        })
+                        ->orderBy('events.number');
+                } elseif ($parameter == 'responsible_name') {
+                    $events = Event::join('users', 'events.responsible_id', '=', 'users.id')
+                        ->select('events.*')
+                        ->where('users.name', 'like', "%$search_term%")
+                        ->where('eventable_id',$aux[1])
+                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->orderBy('events.number');
+                } else {
+                    $events = Event::where("$parameter", 'like', "%$search_term%")
+                        ->where('eventable_id',$aux[1])
+                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->orderBy('number');
+                }
+            }
+
+            $events = $events->paginate(20);
+
+            foreach ($events as $event) {
                 $event->date = Carbon::parse($event->date);
             }
 
             $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
 
             return View::make('app.event_brief', ['type_info' => $type_info, 'events' => $events, 'type' => $aux[0],
-                'id' => $aux[1], 'service' => $service, 'current_date' => $current_date, 'user' => $user]);
+                'open' => $open, 'id' => $aux[1], 'service' => $service, 'current_date' => $current_date, 'user' => $user]);
         }
 
         elseif ($table == 'exported_files') {
+            $columns = Schema::getColumnListing('exported_files');
 
             if ($has_date) {
                 $records = ExportedFiles::whereBetween('created_at', [$from, $to])
                     ->orderBy('created_at', 'desc');
-            }
-            elseif($parameter=='name'){
-                $records = ExportedFiles::join('users', 'exported_files.user_id','=','users.id')
+            } elseif ($parameter == 'all') {
+                $records = ExportedFiles::join('users', 'exported_files.user_id', '=', 'users.id')
+                        ->select('exported_files.*')
+                        ->where('users.name','like',"%$search_term%");
+                    
+                foreach ($columns as $column) {
+                    $records->orWhere("exported_files.$column", 'LIKE', '%' . $search_term . '%');
+                }
+            } elseif ($parameter == 'name') {
+                $records = ExportedFiles::join('users', 'exported_files.user_id', '=', 'users.id')
                     ->select('exported_files.*')
                     ->where('users.name','like',"%$search_term%");
-            }
-            else {
+            } else {
                 $records = ExportedFiles::where("$parameter", 'like', "%$search_term%")
                     ->orderBy('created_at', 'desc');
             }
@@ -758,18 +1056,28 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'files') {
+            $columns = Schema::getColumnListing('files');
 
-            if ($has_date)
+            if ($has_date) {
                 $files = File::whereBetween('created_at', [$from, $to]);
-            elseif($parameter=='user_name'){
+            } elseif ($parameter == 'all') {
+                $files = File::join('users','files.user_id', '=', 'users.id')
+                        ->select('files.*')
+                        ->where('users.name','like',"%$search_term%");
+                    
+                foreach ($columns as $column) {
+                    $files->orWhere("files.$column", 'LIKE', '%' . $search_term . '%');
+                }
+            } elseif ($parameter == 'user_name') {
                 $uploaded_by = User::where('name', 'like', "%$search_term%")->first();
-                if($uploaded_by)
+
+                if ($uploaded_by)
                     $files = File::where('user_id', $uploaded_by->id);
                 else
                     $files = File::where('user_id', 0);
-            }
-            else
+            } else {
                 $files = File::where("$parameter", 'like', "%$search_term%");
+            }
 
             $files = $files->orderBy('created_at','desc')->paginate(20);
 
@@ -777,23 +1085,34 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'guarantees') {
+            $columns = Schema::getColumnListing('guarantees');
 
             if ($has_date) {
-                $guarantees = Guarantee::whereBetween('created_at', [$from, $to])->paginate(20);
-            }
-            /*
-            elseif($parameter=='assignment_name'){
-                $guarantees = Guarantee::join('assignments', 'guarantees.assignment_id','=','assignments.id')
-                    ->select('guarantees.*')
-                    ->where('assignments.name','like',"%$search_term%")
-                    ->paginate(20);
-            }
-            */
-            else {
-                $guarantees = Guarantee::where("$parameter", 'like', "%$search_term%")->paginate(20);
+                $guarantees = Guarantee::whereBetween('created_at', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $guarantees = Guarantee::query();
+                    
+                    foreach ($columns as $column) {
+                        $guarantees->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    /*
+                    elseif($parameter=='assignment_name'){
+                        $guarantees = Guarantee::join('assignments', 'guarantees.assignment_id','=','assignments.id')
+                            ->select('guarantees.*')
+                            ->where('assignments.name','like',"%$search_term%")
+                            ->paginate(20);
+                    }
+                    */
+                    
+                    $guarantees = Guarantee::where("$parameter", 'like', "%$search_term%");
+                }
             }
 
-            foreach($guarantees as $guarantee){
+            $guarantees = $guarantees->paginate(20);
+
+            foreach ($guarantees as $guarantee) {
                 $guarantee->start_date = Carbon::parse($guarantee->start_date);
                 $guarantee->expiration_date = Carbon::parse($guarantee->expiration_date);
             }
@@ -803,15 +1122,23 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'invoices') {
+            $columns = Schema::getColumnListing('invoices');
 
             if ($user->priv_level >= 3) {
                 if ($has_date) {
                     $invoices = Invoice::whereBetween('created_at', [$from, $to])
-                        ->orderBy('id', 'desc')->paginate(20);
-                }
-                else {
-                    if ($parameter == 'oc_code') {
-
+                        ->orderBy('id', 'desc');
+                } else {
+                    if ($parameter == 'all') {
+                        $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
+                            ->where('o_c_s.code','like',"%$search_term%")
+                            ->orwhere('o_c_s.provider','like',"%$search_term%");
+                        
+                        foreach ($columns as $column) {
+                            $invoices->orWhere("invoices.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                        $invoices->orderBy('invoices.id', 'desc');
+                    } elseif ($parameter == 'oc_code') {
                         /* Validation not required after adding code column to OCs
                         $v = \Validator::make(Request::all(), [
                             'buscar' => 'required|regex:[^(OC)-(\d{5})$]',
@@ -829,29 +1156,36 @@ class SearchController extends Controller
 
                         $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
                             ->where('o_c_s.code','like',"%$search_term%")
-                            ->orderBy('invoices.id', 'desc')->paginate(20);
-                    }
-                    elseif($parameter == 'provider'){
-
+                            ->orderBy('invoices.id', 'desc');
+                    } elseif ($parameter == 'provider') {
                         $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
                             ->where('o_c_s.provider','like',"%$search_term%")
-                            ->orderBy('invoices.id', 'desc')->paginate(20);
-
+                            ->orderBy('invoices.id', 'desc');
                     } else {
                         $invoices = Invoice::where("$parameter", 'like', "%$search_term%")
-                            ->orderBy('id', 'desc')->paginate(20);
+                            ->orderBy('id', 'desc');
                     }
                 }
-            }
-            else{
+            } else {
                 if ($has_date) {
                     $invoices = Invoice::whereBetween('created_at', [$from, $to])
                         ->where('user_id', $user->id)
-                        ->orderBy('id', 'desc')->paginate(20);
-                }
-                else {
-                    if ($parameter == 'oc_code') {
-
+                        ->orderBy('id', 'desc');
+                } else {
+                    if ($parameter == 'all') {
+                        $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
+                            ->where('invoices.user_id', $user->id)
+                            ->where(function($query) use($search_term, $columns) {
+                                $query->where('o_c_s.code','like',"%$search_term%")
+                                    ->orwhere('o_c_s.provider','like',"%$search_term%");
+                            
+                                foreach ($columns as $column) {
+                                    $query->orWhere("invoices.$column", 'LIKE', '%' . $search_term . '%');
+                                }
+                            });
+                        
+                        $invoices->orderBy('invoices.id', 'desc');
+                    } elseif ($parameter == 'oc_code') {
                         /* Validation not required after adding code column to OCs
                         $v = \Validator::make(Request::all(), [
                             'buscar' => 'required|regex:[^(OC)-(\d{5})$]',
@@ -871,26 +1205,24 @@ class SearchController extends Controller
                         $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
                             ->where('invoices.user_id', $user->id)
                             ->where('o_c_s.code','like',"%$search_term%")
-                            ->orderBy('invoices.id', 'desc')->paginate(20);
-                    }
-                    elseif($parameter == 'provider'){
-
+                            ->orderBy('invoices.id', 'desc');
+                    } elseif ($parameter == 'provider') {
                         $invoices = Invoice::join('o_c_s','invoices.oc_id','=','o_c_s.id')->select('invoices.*')
                             ->where('invoices.user_id', $user->id)
                             ->where('o_c_s.provider','like',"%$search_term%")
-                            ->orderBy('invoices.id', 'desc')->paginate(20);
-
-                    }
-                    else {
+                            ->orderBy('invoices.id', 'desc');
+                    } else {
                         $invoices = Invoice::where("$parameter", 'like', "%$search_term%")->where('user_id', $user->id)
-                            ->orderBy('id', 'desc')->paginate(20);
+                            ->orderBy('id', 'desc');
                     }
                 }
             }
 
-            foreach($invoices as $invoice){
+            $invoices = $invoices->paginate(20);
+
+            foreach ($invoices as $invoice) {
                 $invoice->date_issued = Carbon::parse($invoice->date_issued)->hour(0)->minute(0)->second(0);
-                if($invoice->transaction_date!='0000-00-00 00:00:00')
+                if ($invoice->transaction_date != '0000-00-00 00:00:00')
                     $invoice->transaction_date = Carbon::parse($invoice->transaction_date)->hour(0)->minute(0)->second(0);
             }
 
@@ -900,12 +1232,21 @@ class SearchController extends Controller
                 'inv_waiting_approval' => 0]);
         }
 
-        elseif ($table=='item_categories'){
+        elseif ($table == 'item_categories') {
+            $columns = Schema::getColumnListing('item_categories');
+
             if ($has_date) {
                 $categories = ItemCategory::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                $categories = ItemCategory::where("$parameter", 'like', "%$search_term%");
+            } else {
+                if ($parameter == 'all') {
+                    $categories = ItemCategory::query();
+                    
+                    foreach ($columns as $column) {
+                        $categories->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $categories = ItemCategory::where("$parameter", 'like', "%$search_term%");
+                }
             }
 
             $categories = $categories->orderBy('name')->paginate(20);
@@ -914,19 +1255,29 @@ class SearchController extends Controller
                 'user' => $user]);
         }
 
-        elseif ($table=='items'){
+        elseif ($table == 'items') {
+            $columns = Schema::getColumnListing('items');
             $category = ItemCategory::find($id);
 
-            if(!$category){
+            if (!$category) {
                 Session::flash('message', 'No se encontraron registros para la categoría solicitada!');
                 return redirect()->back();
             }
 
             if ($has_date) {
                 $items = $category->items()->whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                $items = $category->items()->where("$parameter", 'like', "%$search_term%");
+            } else {
+                if ($parameter == 'all') {
+                    $items = $category->items();
+                    
+                    $items->where(function($query) use($search_term, $columns) {
+                        foreach ($columns as $column) {
+                            $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                    });
+                } else {
+                    $items = $category->items()->where("$parameter", 'like', "%$search_term%");
+                }
             }
 
             $items = $items->orderBy('created_at')->paginate(20);
@@ -936,22 +1287,29 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'maintenances') {
+            $columns = Schema::getColumnListing('maintenances');
 
             if ($has_date) {
                 $maintenances = Maintenance::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='user_name'){
+            } else {
+                if ($parameter == 'all') {
                     $maintenances = Maintenance::join('users','maintenances.user_id','=','users.id')
                         ->select('maintenances.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                else{
+                    
+                    foreach ($columns as $column) {
+                        $maintenances->orWhere("maintenances.$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } elseif ($parameter == 'user_name') {
+                    $maintenances = Maintenance::join('users','maintenances.user_id','=','users.id')
+                        ->select('maintenances.*')
+                        ->where('users.name','like',"%$search_term%");
+                } else {
                     $maintenances = Maintenance::where("$parameter",'like',"%$search_term%");
                 }
             }
 
-            if ($user->priv_level>=2)
+            if ($user->priv_level >= 2)
                 $maintenances = $maintenances->orderBy('created_at', 'desc')->paginate(20);
             else
                 $maintenances = $maintenances->where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate(20);
@@ -961,68 +1319,95 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'oc_certificates') {
+            $columns = Schema::getColumnListing('oc_certifications');
 
             if ($has_date) {
-                $certificates = OcCertification::whereBetween('created_at', [$from, $to])->paginate(20);
+                $certificates = OcCertification::whereBetween('created_at', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $certificates = OcCertification::query();
+                        
+                    foreach ($columns as $column) {
+                        $certificates->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $certificates = OcCertification::where("$parameter", 'like', "%$search_term%");
+                }
             }
-            else {
-                $certificates = OcCertification::where("$parameter", 'like', "%$search_term%")->paginate(20);
-            }
+
+            $certificates = $certificates->paginate(20);
 
             return View::make('app.oc_certification_brief', ['certificates' => $certificates,
                 'service' => $service, 'user' => $user ]);
         }
 
         elseif ($table == 'ocs') {
+            //$columns = ['id', 'code', 'user_id'];
+            $columns = Schema::getColumnListing('o_c_s');
 
-            if ($user->priv_level>=2||($user->priv_level==1&&$user->area=='Gerencia General')) {
+            if ($user->priv_level >= 2 || ($user->priv_level == 1 && $user->area == 'Gerencia General')) {
                 if ($has_date) {
                     $ocs = OC::whereBetween('created_at', [$from, $to])->orderBy('id', 'desc');
-                }
-                else {
-                    if($parameter=='id'){
-                        $ocs = OC::where('id',$search_term)->orderBy('id', 'desc');
-                    }
-                    elseif ($parameter == 'pm_name') {
+                } else {
+                    if ($parameter == 'all') {
+                        //$ocs = OC::query();
+                        $ocs = OC::join('users', 'o_c_s.pm_id', '=', 'users.id')->select('o_c_s.*')
+                            ->where('users.name', 'like', "%$search_term%");
+                        
+                        foreach ($columns as $column) {
+                            $ocs->orWhere("o_c_s.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+                        $ocs->orderBy('o_c_s.id', 'desc');
+                    } elseif ($parameter == 'id') {
+                        $ocs = OC::where('id', $search_term)->orderBy('id', 'desc');
+                    } elseif ($parameter == 'pm_name') {
                         $ocs = OC::join('users', 'o_c_s.pm_id', '=', 'users.id')->select('o_c_s.*')
                             ->where('users.name', 'like', "%$search_term%")
                             ->orderBy('o_c_s.id', 'desc');
 
                         //$pm_id = User::select('id')->where('name', 'like', "%$search_term%")->first();
                         //$ocs = OC::where('pm_id', $pm_id)->orderBy('id', 'desc');
-                    }
-                    else {
+                    } else {
                         $ocs = OC::where("$parameter", 'like', "%$search_term%")->orderBy('id', 'desc');
                     }
                 }
                 //$files = File::where('imageable_type','App\OC');
-            }
-            else {
+            } else {
                 if ($has_date) {
                     $ocs = OC::whereBetween('created_at', [$from, $to])
-                        ->where(function($query) use($user){
+                        ->where(function($query) use($user) {
                             $query->where('user_id', $user->id)->orwhere('pm_id', '=', $user->id);
                         })->orderBy('id', 'desc');
-                }
-                else {
-                    if($parameter=='id'){
-                        $ocs = OC::where('id',$search_term)->where(function($query) use($user){
+                } else {
+                    if ($parameter == 'all') {
+                        $ocs = OC::join('users', 'o_c_s.pm_id', '=', 'users.id')->select('o_c_s.*')
+                            ->where(function($query) use($user) {
+                                $query->where('o_c_s.user_id', $user->id)->orwhere('o_c_s.pm_id', '=', $user->id);
+                            })
+                            ->where(function($query2) use($user, $columns, $search_term) {
+                                foreach ($columns as $column) {
+                                    $query2->orWhere("o_c_s.$column", 'LIKE', '%' . $search_term . '%');
+                                }
+                                $query2->orWhere('users.name', 'like', "%$search_term%");
+                            });
+                        
+                        $ocs->orderBy('o_c_s.id', 'desc');
+                    } elseif ($parameter == 'id') {
+                        $ocs = OC::where('id', $search_term)->where(function($query) use($user) {
                             $query->where('user_id', $user->id)->orwhere('pm_id', '=', $user->id);
                         })->orderBy('id', 'desc');
-                    }
-                    elseif ($parameter=='pm_name') {
+                    } elseif ($parameter == 'pm_name') {
                         $ocs = OC::join('users', 'o_c_s.pm_id', '=', 'users.id')->select('o_c_s.*')
                             ->where('users.name', 'like', "%$search_term%")
-                            ->where(function($query) use($user){
+                            ->where(function($query) use($user) {
                                 $query->where('o_c_s.user_id', $user->id)->orwhere('o_c_s.pm_id', '=', $user->id);
                             })
                             ->orderBy('o_c_s.id', 'desc');
 
                         //$pm_info = User::where('name', 'like', "%$search_term%")->first();
                         //$ocs = OC::where('user_id', $user->id)->where('pm_id', $pm_info->id)->orderBy('id', 'desc');
-                    }
-                    else {
-                        $ocs = OC::where("$parameter", 'like', "%$search_term%")->where(function($query) use($user){
+                    } else {
+                        $ocs = OC::where("$parameter", 'like', "%$search_term%")->where(function($query) use($user) {
                             $query->where('user_id', $user->id)->orwhere('pm_id', '=', $user->id);
                         })->orderBy('id', 'desc');
                     }
@@ -1041,36 +1426,53 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'operators') {
+            $columns = Schema::getColumnListing('operators');
+            $columns2 = Schema::getColumnListing('devices');
 
             if ($has_date) {
                 $operators = Operator::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='who_receives'){
+            } else {
+                if ($parameter == 'all') {
+                    $operators = Operator::join('devices','operators.device_id','=','devices.id')
+                        //->join('users','operators.who_delivers','=','users.id')
+                        //->join('users','operators.who_receives','=','users.id')
+                        ->join('users', function ($join) {
+                            $join->on('users.id', '=', 'operators.who_receives')->orOn('users.id', '=', 'operators.who_delivers');
+                        })
+                        ->select('operators.*');
+                        
+                    foreach ($columns as $column) {
+                        $operators->orWhere("operators.$column", 'LIKE', '%' . $search_term . '%');
+                    }
+
+                    $operators->orwhere('users.name','like',"%$search_term%");
+
+                    foreach ($columns2 as $col) {
+                        $operators->orwhere("devices.$col",'like',"%$search_term%");
+                    }
+                } elseif ($parameter == 'who_receives') {
                     $operators = Operator::join('users','operators.who_receives','=','users.id')
                         ->select('operators.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='who_delivers'){
+                } elseif ($parameter == 'who_delivers') {
                     $operators = Operator::join('users','operators.who_delivers','=','users.id')
                         ->select('operators.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                else{
+                } else {
                     $operators = Operator::join('devices','operators.device_id','=','devices.id')
                         ->select('operators.*')
                         ->where("devices.$parameter",'like',"%$search_term%");
                 }
             }
 
-            if ($user->priv_level>=2) {
+            if ($user->priv_level >= 2) {
                 $operators = $operators->orderBy('created_at', 'desc')->paginate(20);
-            }
-            else{
+            } else {
                 $operators = $operators->where(function ($query) use($user) {
                     $query->where('operators.user_id', $user->id)
                         ->orwhere('who_receives','=',$user->id)
-                        ->orwhere('who_delivers','=',$user->id);})
+                        ->orwhere('who_delivers','=',$user->id);
+                    })
                     ->orderBy('created_at', 'desc')->paginate(20);
             }
 
@@ -1078,14 +1480,23 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'orders') {
+            $columns = Schema::getColumnListing('orders');
 
             if ($has_date) {
-                $orders = Order::whereBetween('created_at', [$from, $to])
-                    ->orderBy('date_issued')->paginate(20);
+                $orders = Order::whereBetween('created_at', [$from, $to]);
             } else {
-                $orders = Order::where("$parameter", 'like', "%$search_term%")
-                    ->orderBy('date_issued')->paginate(20);
+                if ($parameter == 'all') {
+                    $orders = Order::query();
+                        
+                    foreach ($columns as $column) {
+                        $orders->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $orders = Order::where("$parameter", 'like', "%$search_term%");
+                }
             }
+
+            $orders = $orders->orderBy('date_issued')->paginate(20);
 
             $current_date = Carbon::now()->hour(0)->minute(0)->second(0);
             /*
@@ -1094,11 +1505,11 @@ class SearchController extends Controller
                 ->where('imageable_type', 'App\Order')
                 ->get();
             */
-            foreach($orders as $order){
+            foreach ($orders as $order) {
                 $order->date_issued = Carbon::parse($order->date_issued)->hour(0)->minute(0)->second(0);
                 $order->updated_at = Carbon::parse($order->updated_at)->hour(0)->minute(0)->second(0);
 
-                foreach($order->files as $file) {
+                foreach ($order->files as $file) {
                     $file->created_at = Carbon::parse($file->created_at)->hour(0)->minute(0)->second(0);
                 }
             }
@@ -1108,31 +1519,39 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'projects') {
+            $columns = Schema::getColumnListing('projects');
 
             if ($has_date) {
-                $projects = Project::whereBetween('created_at', [$from, $to])->paginate(20);
-            }
-            else {
-                $projects = Project::where("$parameter", 'like', "%$search_term%")->paginate(20);
+                $projects = Project::whereBetween('created_at', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $projects = Project::query();
+                        
+                    foreach ($columns as $column) {
+                        $projects->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $projects = Project::where("$parameter", 'like', "%$search_term%");
+                }
             }
 
+            $projects = $projects->paginate(20);
             $projects->ending = 0;
 
-            foreach($projects as $project){
-
-                if($project->application_deadline!='0000-00-00 00:00:00')
+            foreach ($projects as $project) {
+                if ($project->application_deadline != '0000-00-00 00:00:00')
                     $project->application_deadline = Carbon::parse($project->application_deadline)->setTime(0,0,0);
 
                 $project->valid_to = Carbon::parse($project->valid_to)->hour(0)->minute(0)->second(0);
 
-                foreach($project->guarantees as $guarantee){
+                foreach ($project->guarantees as $guarantee) {
                     $guarantee->expiration_date = Carbon::parse($guarantee->expiration_date)->setTime(0,0,0);
                     $guarantee->start_date = Carbon::parse($guarantee->start_date)->setTime(0,0,0);
                 }
 
-                if($project->status=='Activo'&&($project->user_id==$user->id||$user->priv_level>=3)){
-                    if(Carbon::now()->diffInDays($project->valid_to,false)<=5&&
-                        Carbon::now()->diffInDays($project->valid_to,false)>=0){
+                if ($project->status == 'Activo' && ($project->user_id == $user->id || $user->priv_level >= 3)) {
+                    if (Carbon::now()->diffInDays($project->valid_to,false) <= 5 &&
+                        Carbon::now()->diffInDays($project->valid_to,false) >= 0) {
                         $projects->ending++;
                     }
                 }
@@ -1142,12 +1561,20 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'providers') {
+            $columns = Schema::getColumnListing('providers');
 
             if ($has_date) {
-                $providers = Provider::whereBetween('created_at', [$from, $to])
-                    ->orderBy('prov_name')->paginate(20);
-            }
-            else {
+                $providers = Provider::whereBetween('created_at', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $providers = Provider::query();
+                        
+                    foreach ($columns as $column) {
+                        $providers->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $providers = Provider::where("$parameter", 'like', "%$search_term%");
+                }
                 /*
                 if ($parameter == 'nit') {
                     $v = \Validator::make(Request::all(), [
@@ -1160,66 +1587,109 @@ class SearchController extends Controller
                     }
                 }
                 */
-                $providers = Provider::where("$parameter", 'like', "%$search_term%")
-                    ->orderBy('prov_name')->paginate(20);
             }
 
-            return View::make('app.provider_brief', ['providers' => $providers, 'service' => $service,
-                'user' => $user]);
+            $providers = $providers->orderBy('prov_name')->paginate(20);
+
+            return View::make('app.provider_brief', ['providers' => $providers, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'sites') {
+            $columns = Schema::getColumnListing('sites');
 
             $assignment_info = Assignment::find($id);
 
             if ($has_date) {
                 if (!$assignment_info) {
-                    $sites = Site::whereBetween('start_date', [$from, $to])->orderBy('id')->paginate(20);
+                    $sites = Site::whereBetween('start_date', [$from, $to])->orderBy('id');
                 } else {
                     $sites = Site::whereBetween('start_date', [$from, $to])
                         ->where('assignment_id', $id)
-                        ->orderBy('id')->paginate(20);
+                        ->orderBy('id');
                 }
             } else {
                 if (!$assignment_info) {
-                    if ($parameter == 'resp_name') {
+                    if ($parameter == 'all') {
+                        $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')
+                            ->leftJoin('users', 'sites.resp_id', '=', 'users.id')
+                            //->join('users', function ($join) {
+                                //$join->on('users.id', '=', 'operators.who_receives')->orOn('users.id', '=', 'operators.who_delivers');
+                            //})
+                            ->select('sites.*');
+                            
+                        foreach ($columns as $column) {
+                            $sites->orWhere("sites.$column", 'LIKE', '%' . $search_term . '%');
+                        }
+    
+                        $sites->orwhere('users.name', 'like', "%$search_term%")
+                            ->orwhere('contacts.name', 'like', "%$search_term%")
+                            ->orwhere(function ($query) use($search_term) {
+                                $query->whereHas('order', function ($query2) use($search_term) {
+                                    $query2->where('code', 'like', "%$search_term%");
+                                });
+                            });
+
+                        $sites->orderBy('sites.id');
+                    } elseif ($parameter == 'resp_name') {
                         $sites = Site::join('users', 'sites.resp_id', '=', 'users.id')->select('sites.*')
                             ->where('users.name', 'like', "%$search_term%")
-                            ->orderBy('sites.id')->paginate(20);
+                            ->orderBy('sites.id');
                     } elseif($parameter == 'contact_name') {
                         $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')->select('sites.*')
                             ->where('contacts.name', 'like', "%$search_term%")
-                            ->orderBy('sites.id')->paginate(20);
-                    } else if ($parameter == 'order_code') {
+                            ->orderBy('sites.id');
+                    } elseif ($parameter == 'order_code') {
                         $sites = Site::whereHas('order', function ($query) use($search_term) {
                             $query->where('code', 'like', "%$search_term%");
-                        })->orderBy('id')->paginate(20);
+                        })->orderBy('id');
                     } else {
-                        $sites = Site::where("$parameter", 'like', "%$search_term%")->orderBy('id')->paginate(20);
+                        $sites = Site::where("$parameter", 'like', "%$search_term%")->orderBy('id');
                     }
                 } else {
-                    if ($parameter == 'resp_name') {
+                    if ($parameter == 'all') {
+                        $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')
+                            ->leftJoin('users', 'sites.resp_id', '=', 'users.id')
+                            ->select('sites.*')
+                            ->where('sites.assignment_id', $id)
+                            ->where(function ($query1) use($search_term, $columns) {
+                                foreach ($columns as $column) {
+                                    $query1->orWhere("sites.$column", 'LIKE', '%' . $search_term . '%');
+                                }
+            
+                                $query1->orwhere('users.name', 'like', "%$search_term%")
+                                    ->orwhere('contacts.name', 'like', "%$search_term%")
+                                    ->orwhere(function ($query) use($search_term) {
+                                        $query->whereHas('order', function ($query2) use($search_term) {
+                                            $query2->where('code', 'like', "%$search_term%");
+                                        });
+                                    });
+                            });
+
+                        $sites->orderBy('sites.id');
+                    } elseif ($parameter == 'resp_name') {
                         $sites = Site::join('users', 'sites.resp_id', '=', 'users.id')->select('sites.*')
                             ->where('users.name', 'like', "%$search_term%")
                             ->where('sites.assignment_id', $id)
-                            ->orderBy('sites.id')->paginate(20);
+                            ->orderBy('sites.id');
                     } elseif ($parameter == 'contact_name') {
                         $sites = Site::join('contacts', 'sites.contact_id', '=', 'contacts.id')->select('sites.*')
                             ->where('contacts.name', 'like', "%$search_term%")
                             ->where('sites.assignment_id', $id)
-                            ->orderBy('sites.id')->paginate(20);
-                    } else if ($parameter == 'order_code') {
+                            ->orderBy('sites.id');
+                    } elseif ($parameter == 'order_code') {
                         $sites = Site::whereHas('order', function ($query) use($search_term) {
                             $query->where('code', 'like', "%$search_term%");
                         })->where('assignment_id', $id)
-                        ->orderBy('id')->paginate(20);
+                        ->orderBy('id');
                     } else {
                         $sites = Site::where("$parameter", 'like', "%$search_term%")
                             ->where('assignment_id', $id)
-                            ->orderBy('id')->paginate(20);
+                            ->orderBy('id');
                     }
                 }
             }
+
+            $sites = $sites->paginate(20);
 
             foreach ($sites as $site) {
                 $site->start_line = Carbon::parse($site->start_line);
@@ -1227,7 +1697,7 @@ class SearchController extends Controller
                 $site->start_date = Carbon::parse($site->start_date);
                 $site->end_date = Carbon::parse($site->end_date);
 
-                if( $site->assignment->type == 'Fibra óptica') {
+                if ($site->assignment->type == 'Fibra óptica') {
                     $site->cable_projected = 0;
                     $site->cable_executed = 0;
                     $site->splice_projected = 0;
@@ -1252,6 +1722,8 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'stipend_requests') {
+            $columns = Schema::getColumnListing('stipend_requests');
+
             if ($id && $id != 0) {
                 $assignment = Assignment::find($id);
 
@@ -1265,20 +1737,32 @@ class SearchController extends Controller
             if ($has_date) {
                 $stipend_requests = StipendRequest::whereBetween('created_at', [$from, $to])
                     //->where('assignment_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
+                    ->orderBy('created_at', 'desc');
+            } else {
+                if ($parameter == 'all') {
+                    $stipend_requests = StipendRequest::join('employees', 'stipend_requests.employee_id', '=', 'employees.id')
+                        ->select('stipend_requests.*');
+                        
+                    foreach ($columns as $column) {
+                        $stipend_requests->orWhere("stipend_requests.$column", 'LIKE', '%' . $search_term . '%');
+                    }
+
+                    $stipend_requests->orwhere(DB::raw("CONCAT(TRIM(`first_name`), ' ', TRIM(`last_name`))"), 'like', "%$search_term%")
+                        ->orderBy('stipend_requests.created_at', 'desc');
+                } elseif ($parameter == 'employee_name') {
+                    $stipend_requests = StipendRequest::join('employees', 'stipend_requests.employee_id', '=', 'employees.id')
+                        ->select('stipend_requests.*')
+                        ->where(DB::raw("CONCAT(TRIM(`first_name`), ' ', TRIM(`last_name`))"), 'like', "%$search_term%")
+                        //->where('stipend_requests.assignment_id', $id)
+                        ->orderBy('stipend_requests.created_at', 'desc');
+                } else {
+                    $stipend_requests = StipendRequest::where("$parameter", 'like', "%$search_term%")
+                        //->where('assignment_id', $id)
+                        ->orderBy('created_at', 'desc');
+                }
             }
-            elseif ($parameter == 'employee_name') {
-                $stipend_requests = StipendRequest::join('employees', 'stipend_requests.employee_id', '=', 'employees.id')
-                    ->select('stipend_requests.*')
-                    ->where(DB::raw("CONCAT(TRIM(`first_name`), ' ', TRIM(`last_name`))"), 'like', "%$search_term%")
-                    //->where('stipend_requests.assignment_id', $id)
-                    ->orderBy('stipend_requests.created_at', 'desc')->paginate(20);
-            }
-            else {
-                $stipend_requests = StipendRequest::where("$parameter", 'like', "%$search_term%")
-                    //->where('assignment_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
-            }
+
+            $stipend_requests = $stipend_requests->paginate(20);
 
             foreach ($stipend_requests as $request) {
                 $request->date_from = Carbon::parse($request->date_from);
@@ -1293,10 +1777,11 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'tasks') {
+            $columns = Schema::getColumnListing('tasks');
 
             $site_info = Site::find($id);
 
-            if(!$site_info){
+            if (!$site_info) {
                 Session::flash('message', 'Sucedió un error al recuperar la información solicitada, revise la dirección 
                     e intente de nuevo por favor');
                 return redirect()->back();
@@ -1305,25 +1790,39 @@ class SearchController extends Controller
             if ($has_date) {
                 $tasks = Task::whereBetween('created_at', [$from, $to])
                     ->where('site_id', $id)
-                    ->orderBy('id')->paginate(20);
-            }
-            elseif($parameter=='client_code'){
-                $tasks = Task::join('items', 'tasks.item_id', '=', 'items.id')->select('tasks.*')
-                    ->where('items.client_code', 'like', "%$search_term%")
-                    ->where('tasks.site_id', $id)
-                    ->orderBy('tasks.id')->paginate(20);
-            }
-            else {
-                $tasks = Task::where("$parameter", 'like', "%$search_term%")
-                    ->where('site_id', $id)
-                    ->orderBy('id')->paginate(20);
+                    ->orderBy('id');
+            } else {
+                if ($parameter == 'all') {
+                    $tasks = Task::join('items', 'tasks.item_id', '=', 'items.id')
+                        ->select('tasks.*')
+                        ->where('tasks.site_id', $id)
+                        ->where(function ($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("tasks.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+        
+                            $query->orwhere('items.client_code', 'like', "%$search_term%");
+                        });
+
+                    $tasks->orderBy('tasks.id');
+                } elseif ($parameter == 'client_code') {
+                    $tasks = Task::join('items', 'tasks.item_id', '=', 'items.id')->select('tasks.*')
+                        ->where('items.client_code', 'like', "%$search_term%")
+                        ->where('tasks.site_id', $id)
+                        ->orderBy('tasks.id');
+                } else {
+                    $tasks = Task::where("$parameter", 'like', "%$search_term%")
+                        ->where('site_id', $id)
+                        ->orderBy('id');
+                }
             }
 
-            $last_stat = count(Task::$status_options)-1;
+            $tasks = $tasks->paginate(20);
+
+            $last_stat = count(Task::$status_options) - 1;
             //$tasks->count()>0 ? $tasks->first()->last_stat() : Task::first()->last_stat();
 
-            foreach($tasks as $task)
-            {
+            foreach ($tasks as $task) {
                 $task->start_date = Carbon::parse($task->start_date);
                 $task->end_date = Carbon::parse($task->end_date);
             }
@@ -1334,28 +1833,40 @@ class SearchController extends Controller
                 'service' => $service, 'current_date' => $current_date, 'user' => $user]);
         }
 
-        elseif($table=='tenders'){
-            if($has_date){
-                $tenders = Tender::whereBetween('created_at', [$from, $to])->orderBy('id', 'desc')->paginate(20);
+        elseif ($table == 'tenders') {
+            $columns = Schema::getColumnListing('tenders');
+
+            if ($has_date) {
+                $tenders = Tender::whereBetween('created_at', [$from, $to])->orderBy('id', 'desc');
+            } else {
+                if ($parameter == 'all') {
+                    $tenders = Tender::query();
+
+                    foreach ($columns as $column) {
+                        $tenders->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+
+                    $tenders->orderBy('id', 'desc');
+                } else {
+                    $tenders = Tender::where("$parameter", 'like', "%$search_term%")->orderBy('id', 'desc');
+                }
             }
-            else{
-                $tenders = Tender::where("$parameter", 'like', "%$search_term%")->orderBy('id', 'desc')->paginate(20);
-            }
+
+            $tenders = $tenders->paginate(20);
 
             $tenders->ending = 0;
             $tenders->ended = 0;
 
-            foreach($tenders as $tender){
-                if($tender->application_deadline!='0000-00-00 00:00:00'){
+            foreach ($tenders as $tender) {
+                if ($tender->application_deadline != '0000-00-00 00:00:00') {
                     $tender->application_deadline = Carbon::parse($tender->application_deadline)
                         ->setTime(0,0,0);
 
-                    if($tender->applied==0&&$tender->status=='Activo'){
-                        if(Carbon::now()->diffInDays($tender->application_deadline,false)<=5&&
-                            Carbon::now()->diffInDays($tender->application_deadline,false)>=0){
+                    if ($tender->applied == 0 && $tender->status == 'Activo') {
+                        if (Carbon::now()->diffInDays($tender->application_deadline,false) <= 5 &&
+                            Carbon::now()->diffInDays($tender->application_deadline,false) >= 0) {
                             $tenders->ending++;
-                        }
-                        elseif((Carbon::now()->diffInDays($tender->application_deadline,false)<0)){
+                        } elseif ((Carbon::now()->diffInDays($tender->application_deadline, false) < 0)) {
                             $tenders->ended++;
                         }
                     }
@@ -1366,31 +1877,55 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'users') {
+            $columns = Schema::getColumnListing('users');
 
-            if ($has_date)
-                $records = User::whereBetween('created_at', [$from, $to])->paginate(20);
-            else
-                $records = User::where("$parameter", 'like', "%$search_term%")->paginate(20);
+            if ($has_date) {
+                $records = User::whereBetween('created_at', [$from, $to]);
+            } else {
+                if ($parameter == 'all') {
+                    $records = User::query();
+
+                    foreach ($columns as $column) {
+                        $records->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                    }
+                } else {
+                    $records = User::where("$parameter", 'like', "%$search_term%");
+                }
+            }
+            
+            $records = $records->paginate(20);
 
             return View::make('app.user_brief', ['records' => $records, 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'vehicle_conditions') {
+            $columns = Schema::getColumnListing('vehicle_conditions');
 
             $vehicle_info = Vehicle::find($id);
 
             if ($has_date) {
                 $condition_records = VehicleCondition::whereBetween('created_at', [$from, $to])
                     ->where('vehicle_id', $id)
-                    ->orderBy('id')->paginate(20);
+                    ->orderBy('id');
             } else {
-                $condition_records = VehicleCondition::where("$parameter", 'like', "%$search_term%")
-                    ->where('vehicle_id', $id)
-                    ->orderBy('id')->paginate(20);
+                if ($parameter == 'all') {
+                    $condition_records = VehicleCondition::where('vehicle_id', $id)
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        })
+                        ->orderBy('id');
+                } else {
+                    $condition_records = VehicleCondition::where("$parameter", 'like', "%$search_term%")
+                        ->where('vehicle_id', $id)
+                        ->orderBy('id');
+                }
             }
 
-            foreach($condition_records as $condition_record)
-            {
+            $condition_records = $condition_records->paginate(20);
+
+            foreach ($condition_records as $condition_record) {
                 $condition_record->last_maintenance = Carbon::parse($condition_record->last_maintenance);
             }
 
@@ -1401,61 +1936,81 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'vehicle_histories') {
+            $columns = Schema::getColumnListing('vehicle_histories');
 
             $vehicle = Vehicle::find($id);
 
             if ($has_date) {
                 $vehicle_histories = VehicleHistory::whereBetween('created_at', [$from, $to])
-                    ->where('vehicle_id',$vehicle->id)
-                    ->paginate(20);
+                    ->where('vehicle_id',$vehicle->id);
+            } else {
+                if ($parameter == 'all') {
+                    $vehicle_histories = VehicleHistory::where('vehicle_id',$vehicle->id)
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("$column", 'LIKE', '%' . $search_term . '%');
+                            }
+                        });
+                } else {
+                    $vehicle_histories = VehicleHistory::where("$parameter", 'like', "%$search_term%")
+                        ->where('vehicle_id',$vehicle->id);
+                }
             }
-            else {
-                $vehicle_histories = VehicleHistory::where("$parameter", 'like', "%$search_term%")
-                    ->where('vehicle_id',$vehicle->id)
-                    ->paginate(20);
-            }
+
+            $vehicle_histories = $vehicle_histories->paginate(20);
 
             return View::make('app.vehicle_history', ['vehicle_histories' => $vehicle_histories, 'vehicle' => $vehicle,
                 'service' => $service, 'user' => $user]);
         }
 
         elseif ($table == 'vehicle_requirements') {
+            $columns = Schema::getColumnListing('vehicle_requirements');
 
             if ($has_date) {
                 $requirements = VehicleRequirement::whereBetween('created_at', [$from, $to]);
-            }
-            else {
-                if($parameter=='person_from'){
+            } else {
+                if ($parameter == 'all') {
+                    $requirements = VehicleRequirement::join('vehicles','vehicle_requirements.vehicle_id','=','vehicles.id')
+                        ->join('users', function ($join) {
+                            $join->on('users.id', '=', 'vehicle_requirements.from_id')->orOn('users.id', '=', 'vehicle_requirements.for_id');
+                        })
+                        ->select('vehicle_requirements.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orWhere("vehicle_requirements.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+        
+                            $query->orwhere('users.name','like',"%$search_term%")
+                                ->orwhere("vehicles.license_plate",'like',"%$search_term%")
+                                ->orwhere("vehicles.model",'like',"%$search_term%");
+                        });
+                } elseif ($parameter == 'person_from') {
                     $requirements = VehicleRequirement::join('users','vehicle_requirements.from_id','=','users.id')
                         ->select('vehicle_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='person_for'){
+                } elseif ($parameter == 'person_for') {
                     $requirements = VehicleRequirement::join('users','vehicle_requirements.for_id','=','users.id')
                         ->select('vehicle_requirements.*')
                         ->where('users.name','like',"%$search_term%");
-                }
-                elseif($parameter=='license_plate'){
+                } elseif ($parameter == 'license_plate') {
                     $requirements = VehicleRequirement::join('vehicles','vehicle_requirements.vehicle_id','=','vehicles.id')
                         ->select('vehicle_requirements.*')
                         ->where("vehicles.license_plate",'like',"%$search_term%");
-                }
-                elseif($parameter=='model'){
+                } elseif ($parameter == 'model') {
                     $requirements = VehicleRequirement::join('vehicles','vehicle_requirements.vehicle_id','=','vehicles.id')
                         ->select('vehicle_requirements.*')
                         ->where("vehicles.model",'like',"%$search_term%");
-                }
-                else{
+                } else {
                     $requirements = VehicleRequirement::where("$parameter",'like',"%$search_term%");
                 }
             }
 
             $vhc = Input::get('vhc');
 
-            if(!is_null($vhc))
+            if (!is_null($vhc))
                 $requirements = $requirements->where('vehicle_id', $vhc);
 
-            if(!(($user->priv_level>=2&&$user->area=='Gerencia Tecnica')||$user->priv_level>=3||$user->work_type=='Transporte')){
+            if (!(($user->priv_level >= 2 && $user->area == 'Gerencia Tecnica') || $user->priv_level >= 3 || $user->work_type == 'Transporte')) {
                 $requirements = $requirements->where(function ($query) use($user) {
                     $query->where('for_id', $user->id)
                         ->orwhere('from_id', '=', $user->id);
@@ -1469,20 +2024,32 @@ class SearchController extends Controller
         }
 
         elseif ($table == 'vehicles') {
+            $columns = Schema::getColumnListing('vehicles');
 
             if ($has_date) {
                 $vehicles = Vehicle::whereBetween('created_at', [$from, $to])
                     ->orderBy('created_at', 'desc');
-            }
-            elseif($parameter=='responsible_name'){
-                $vehicles = Vehicle::join('users', 'vehicles.responsible','=','users.id')
-                    ->select('vehicles.*')
-                    ->where('users.name','like',"%$search_term%")
-                    ->orderBy('vehicles.created_at', 'desc');
-            }
-            else {
-                $vehicles = Vehicle::where("$parameter", 'like', "%$search_term%")
-                    ->orderBy('created_at', 'desc');
+            } else {
+                if ($parameter == 'all') {
+                    $vehicles = Vehicle::join('users', 'vehicles.responsible','=','users.id')
+                        ->select('vehicles.*')
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orwhere("vehicles.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+        
+                            $query->orwhere('users.name','like',"%$search_term%");
+                        })
+                        ->orderBy('vehicles.created_at', 'desc');
+                } elseif ($parameter == 'responsible_name') {
+                    $vehicles = Vehicle::join('users', 'vehicles.responsible','=','users.id')
+                        ->select('vehicles.*')
+                        ->where('users.name','like',"%$search_term%")
+                        ->orderBy('vehicles.created_at', 'desc');
+                } else {
+                    $vehicles = Vehicle::where("$parameter", 'like', "%$search_term%")
+                        ->orderBy('created_at', 'desc');
+                }
             }
 
             Session::put('db_query', $vehicles->get());
@@ -1491,10 +2058,11 @@ class SearchController extends Controller
             return View::make('app.vehicle_brief', ['vehicles' => $vehicles, 'service' => $service, 'user' => $user]);
         }
 
-        elseif ($table == 'vhc_failure_reports'){
+        elseif ($table == 'vhc_failure_reports') {
+            $columns = Schema::getColumnListing('vhc_failure_reports');
             $vehicle = Vehicle::find($id);
 
-            if(!$vehicle){
+            if (!$vehicle) {
                 Session::flash('message', 'Sucedió un error al recuperar la información solicitada, revise la dirección 
                     e intente de nuevo por favor');
                 return redirect()->back();
@@ -1503,20 +2071,34 @@ class SearchController extends Controller
             if ($has_date) {
                 $reports = VhcFailureReport::whereBetween('created_at', [$from, $to])
                     ->where('vehicle_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
+                    ->orderBy('created_at', 'desc');
+            } else {
+                if ($parameter == 'all') {
+                    $reports = VhcFailureReport::join('users', 'vhc_failure_reports.user_id','=','users.id')
+                        ->select('vhc_failure_reports.*')
+                        ->where('vhc_failure_reports.vehicle_id', $id)
+                        ->where(function($query) use($search_term, $columns) {
+                            foreach ($columns as $column) {
+                                $query->orwhere("vhc_failure_reports.$column", 'LIKE', '%' . $search_term . '%');
+                            }
+        
+                            $query->orwhere('users.name', 'like', "%$search_term%");
+                        })
+                        ->orderBy('vhc_failure_reports.created_at', 'desc');
+                } elseif ($parameter == 'user_name') {
+                    $reports = VhcFailureReport::join('users', 'vhc_failure_reports.user_id', '=', 'users.id')
+                        ->select('vhc_failure_reports.*')
+                        ->where('users.name', 'like', "%$search_term%")
+                        ->where('vhc_failure_reports.vehicle_id', $id)
+                        ->orderBy('vhc_failure_reports.created_at', 'desc');
+                } else {
+                    $reports = VhcFailureReport::where("$parameter", 'like', "%$search_term%")
+                        ->where('vehicle_id', $id)
+                        ->orderBy('created_at', 'desc');
+                }
             }
-            elseif($parameter=='user_name'){
-                $reports = VhcFailureReport::join('users', 'vhc_failure_reports.user_id', '=', 'users.id')
-                    ->select('vhc_failure_reports.*')
-                    ->where('users.name', 'like', "%$search_term%")
-                    ->where('vhc_failure_reports.vehicle_id', $id)
-                    ->orderBy('vhc_failure_reports.created_at', 'desc')->paginate(20);
-            }
-            else {
-                $reports = VhcFailureReport::where("$parameter", 'like', "%$search_term%")
-                    ->where('vehicle_id', $id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
-            }
+
+            $reports = $reports->paginate(20);
 
             return View::make('app.vehicle_failure_report_brief', ['reports' => $reports, 'service' => $service,
                 'user' => $user, 'vehicle' => $vehicle]);
