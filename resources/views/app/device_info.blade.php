@@ -176,30 +176,6 @@
                                 @endforeach
 
                                 {{ !$exists_picture ? 'No se subieron imágenes de este equipo' : '' }}
-
-                                {{--
-                                <div id="picModal" class="pic_modal">
-                                    <span class="pic_close" id="pic_close">&times;</span>
-                                    <img class="pic_modal-content" id="pic_modal_content">
-                                    <div id="pic_caption"></div>
-                                </div>
-                                --}}
-
-                                <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog"
-                                     aria-labelledby="myModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-body">
-                                                <button type="button" class="close" data-dismiss="modal">
-                                                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                                                </button>
-                                                <img src="" class="imagepreview" style="height: 90%; max-width: 100%">
-                                            </div>
-                                            <div class="modal-footer captioned">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
 
@@ -258,6 +234,30 @@
                         @endif
                     </div>
                 @endif
+            </div>
+        </div>
+    </div>
+
+    {{--
+    <div id="picModal" class="pic_modal">
+        <span class="pic_close" id="pic_close">&times;</span>
+        <img class="pic_modal-content" id="pic_modal_content">
+        <div id="pic_caption"></div>
+    </div>
+    --}}
+
+    <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel" aria-hidden="true" align="center">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                    <img src="" class="imagepreview" style="height: 80%; max-width: 100%">
+                </div>
+                <div class="modal-footer captioned">
+                </div>
             </div>
         </div>
     </div>
