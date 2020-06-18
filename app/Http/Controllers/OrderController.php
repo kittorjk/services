@@ -33,7 +33,7 @@ class OrderController extends Controller
         if ((is_null($user)) || (!$user->id)) {
             return View('app.index', ['service' => 'project', 'user' => null]);
         }
-        if($user->acc_project==0)
+        if ($user->acc_project == 0)
             return redirect()->action('LoginController@logout', ['service' => 'project']);
 
         $service = Session::get('service');
@@ -42,7 +42,7 @@ class OrderController extends Controller
 
         $orders = Order::where('id','>',0);
 
-        if(!is_null($stat))
+        if (!is_null($stat))
             $orders = $orders->where('status', $stat);
 
         $orders = $orders->orderBy('date_issued')->paginate(20);
@@ -52,7 +52,7 @@ class OrderController extends Controller
             ->where('imageable_type', '=', 'App\Order')
             ->get();
         */
-        foreach($orders as $order){
+        foreach ($orders as $order) {
             /*
             if($order->charged_price>=$order->assigned_price){
                 $order->status = 'Cobrado';
@@ -76,7 +76,7 @@ class OrderController extends Controller
                 $order->save();
             }
             */
-            foreach($order->files as $file) {
+            foreach ($order->files as $file) {
                 $file->created_at = Carbon::parse($file->created_at)->hour(0)->minute(0)->second(0);
             }
         }
@@ -152,8 +152,7 @@ class OrderController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -163,42 +162,41 @@ class OrderController extends Controller
         if ($order->client == "Otro") {
             $order->client = Request::input('other_client');
             $order->type = Request::input('other_type');
-        }
-        else{
+        } else {
             $client_type = explode('-', Request::input('client'));
             $order->client = $client_type[0];
             $order->type = $client_type[1];
         }
 
-        if($order->payment_percentage=="Otro") {
+        if ($order->payment_percentage == "Otro") {
             $order->payment_percentage = Request::input('other_payment_percentage');
 
             $exploded_percentages = explode('-', $order->payment_percentage);
-            if(($exploded_percentages[0]+$exploded_percentages[1]+$exploded_percentages[2])!=100){
+            if (($exploded_percentages[0] + $exploded_percentages[1] + $exploded_percentages[2]) != 100) {
                 Session::flash('message', "Los porcentajes de pago deben sumar 100%!");
                 return redirect()->back()->withInput();
             }
         }
 
-        $order->number_of_sites = $order->number_of_sites=='' ? 1 : $order->number_of_sites;
+        $order->number_of_sites = $order->number_of_sites == '' ? 1 : $order->number_of_sites;
 
         $order->status = 'Pendiente';
         $order->user_id = $user->id;
 
         $dollar_to_bs = ServiceParameter::where('name','dollar_to_bs')->first(); //Convert dollars and store only Bs
 
-        if(Request::input('currency')=='$us'){
-            $order->assigned_price = $order->assigned_price*$dollar_to_bs->numeric_content;
+        if (Request::input('currency') == '$us') {
+            $order->assigned_price = $order->assigned_price * $dollar_to_bs->numeric_content;
         }
 
-        if(Request::input('currency_charged')=='$us'){
-            $order->charged_price = $order->charged_price*$dollar_to_bs->numeric_content;
+        if (Request::input('currency_charged') == '$us') {
+            $order->charged_price = $order->charged_price * $dollar_to_bs->numeric_content;
         }
 
         $order->save();
 
         Session::flash('message', "La orden de compra del cliente fue agregada al sistema");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('order.index');
@@ -321,60 +319,58 @@ class OrderController extends Controller
             ]
         );
         
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
 
         $order->fill(Request::all());
 
-        if($order->client == "Otro") {
+        if ($order->client == "Otro") {
             $order->client = Request::input('other_client');
             $order->type = Request::input('other_type');
-        }
-        else{
+        } else {
             $client_type = explode('-', Request::input('client'));
             $order->client = $client_type[0];
             $order->type = $client_type[1];
         }
 
-        if($order->payment_percentage == "Otro") {
+        if ($order->payment_percentage == "Otro") {
             $order->payment_percentage = Request::input('other_payment_percentage');
 
             $exploded_percentages = explode('-', $order->payment_percentage);
             
-            if(($exploded_percentages[0]+$exploded_percentages[1]+$exploded_percentages[2])!=100){
+            if (($exploded_percentages[0] + $exploded_percentages[1] + $exploded_percentages[2]) != 100) {
                 Session::flash('message', "Los porcentajes de pago deben sumar 100%!");
                 return redirect()->back()->withInput();
             }
         }
 
-        if($order->status=='Cobrado'||$order->status=='Anulado'){
-            if($order->status=='Cobrado')
+        if ($order->status == 'Cobrado' || $order->status == 'Anulado') {
+            if ($order->status == 'Cobrado')
                 $order->date_charged = Carbon::now();
 
-            foreach($order->files as $file){
+            foreach ($order->files as $file) {
                 $this->blockFile($file);
             }
         }
 
-        $order->number_of_sites = $order->number_of_sites=='' ? 1 : $order->number_of_sites;
+        $order->number_of_sites = $order->number_of_sites == '' ? 1 : $order->number_of_sites;
 
         $dollar_to_bs = ServiceParameter::where('name','dollar_to_bs')->first(); //Convert dollars and store only Bs
 
-        if(Request::input('currency')=='$us'){
-            $order->assigned_price = $order->assigned_price*$dollar_to_bs->numeric_content;
+        if (Request::input('currency') == '$us') {
+            $order->assigned_price = $order->assigned_price * $dollar_to_bs->numeric_content;
         }
 
-        if(Request::input('currency_charged')=='$us'){
-            $order->charged_price = $order->charged_price*$dollar_to_bs->numeric_content;
+        if (Request::input('currency_charged') == '$us') {
+            $order->charged_price = $order->charged_price * $dollar_to_bs->numeric_content;
         }
 
         $order->save();
 
         Session::flash('message', "Datos modificados correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('order.index');
@@ -429,21 +425,21 @@ class OrderController extends Controller
 
         $order = Order::find($id);
 
-        if($type=='ch'){
-            $order->status='Cobrado';
+        if ($type == 'ch') {
+            $order->status = 'Cobrado';
             $order->date_charged = Carbon::now();
-        }
-        elseif($type=='nl')
+        } elseif ($type == 'nl') {
             $order->status='Anulado';
+        }
 
         $order->save();
 
-        foreach($order->files as $file){
+        foreach ($order->files as $file) {
             $this->blockFile($file);
         }
 
         Session::flash('message', "La orden $order->type - $order->code fue marcada como $order->status");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->route('order.index');

@@ -36,7 +36,8 @@ class EventController extends Controller
         if ((is_null($user))||(!$user->id)) {
             return View('app.index', ['service' => 'project', 'user' => null]);
         }
-        if($user->acc_project==0)
+
+        if ($user->acc_project == 0)
             return redirect()->action('LoginController@logout', ['service' => 'project']);
 
         return redirect()->back();
@@ -83,39 +84,34 @@ class EventController extends Controller
         $type_info = collect();
         $open = true;
         
-        if($type=='site'){
+        if ($type == 'site') {
             $type_info = Site::find($id);
-            $open = $type_info&&($type_info->status!=$type_info->last_stat()&&$type_info->status!=0) ? true : false;
-        }
-        elseif($type=='assignment'){
+            $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+        } elseif ($type == 'assignment') {
             $type_info = Assignment::find($id);
-            $open = $type_info&&($type_info->status!=$type_info->last_stat()&&$type_info->status!=0) ? true : false;
-        }
-        elseif($type=='task'){
+            $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+        } elseif ($type == 'task') {
             $type_info = Task::find($id);
-            $open = $type_info&&($type_info->status!=$type_info->last_stat()&&$type_info->status!=0) ? true : false;
-        }
-        elseif($type=='oc'){
+            $open = $type_info && ($type_info->status != $type_info->last_stat() && $type_info->status != 0) ? true : false;
+        } elseif ($type == 'oc') {
             $type_info = OC::find($id);
-        }
-        elseif($type=='invoice'){
+        } elseif ($type == 'invoice') {
             $type_info = Invoice::find($id);
         }
         
-        if(!$type_info){
+        if (!$type_info) {
             Session::flash('message', "No se encontró la página solicitada, revise la dirección e intente de nuevo por favor");
             return redirect()->back();
         }
 
         $events = Event::where('eventable_id',$id)->where('eventable_type','like',"%$type%");
 
-        if($user->priv_level<1)
+        if ($user->priv_level < 1)
             $events = $events->where('user_id', $user->id);
 
         $events = $events->orderBy('number')->paginate(20);
 
-        foreach($events as $event)
-        {
+        foreach ($events as $event) {
             $event->date = Carbon::parse($event->date);
         }
         
@@ -137,18 +133,18 @@ class EventController extends Controller
 
         $type_info = collect();
         
-        if($type=='site')
+        if ($type == 'site')
             $type_info = Site::find($id);
-        elseif($type=='assignment')
+        elseif ($type == 'assignment')
             $type_info = Assignment::find($id);
-        elseif($type=='task')
+        elseif ($type == 'task')
             $type_info = Task::find($id);
-        elseif($type=='oc')
+        elseif ($type == 'oc')
             $type_info = OC::find($id);
-        elseif($type=='invoice')
+        elseif ($type == 'invoice')
             $type_info = Invoice::find($id);
 
-        if(!$type_info){
+        if (!$type_info) {
             Session::flash('message', "No se encontró la página solicitada, revise la dirección e intente de nuevo por favor");
             return redirect()->back();
         }
@@ -178,7 +174,7 @@ class EventController extends Controller
 
         $form_data = Request::all();
 
-        $form_data['date_to'] = $form_data['date_to']!='' ? $form_data['date_to'].' 23:59:59' : '';
+        $form_data['date_to'] = $form_data['date_to'] != '' ? $form_data['date_to'].' 23:59:59' : '';
 
         $v = \Validator::make($form_data, [
             'description'           => 'required',
@@ -197,31 +193,30 @@ class EventController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
 
         $event = new Event($form_data);
 
-        $event->description = $event->description=="Otro" ? Request::input('other_description') : $event->description;
+        $event->description = $event->description == "Otro" ? Request::input('other_description') : $event->description;
 
         $prev_number = Event::select('number')->where('eventable_id', $id)->where('eventable_type','like',"%$type%")
             ->OrderBy('number','desc')->first();
 
-        $event->number = empty($prev_number) ? 1 : $prev_number->number+1;
+        $event->number = empty($prev_number) ? 1 : $prev_number->number + 1;
         $event->user_id = $user->id;
         
-        if($type=='site')
+        if ($type == 'site')
             $event->eventable()->associate(Site::find($id));
-        elseif($type=='assignment')
+        elseif ($type == 'assignment')
             $event->eventable()->associate(Assignment::find($id));
-        elseif($type=='task')
+        elseif ($type == 'task')
             $event->eventable()->associate(Task::find($id));
-        elseif($type=='oc')
+        elseif ($type == 'oc')
             $event->eventable()->associate(OC::find($id));
-        elseif($type=='invoice')
+        elseif ($type == 'invoice')
             $event->eventable()->associate(Invoice::find($id));
 
         $responsible = User::select('id')->where('name', Request::input('responsible_name'))->first();
@@ -232,22 +227,20 @@ class EventController extends Controller
 
         $total_days = Request::input('total_days');
 
-        if(!empty($total_days)){
+        if (!empty($total_days)) {
             $days_added = $total_days;
-            $days_added = $days_added==0 ? 1 : $days_added;
+            $days_added = $days_added == 0 ? 1 : $days_added;
 
             $event->date_to = Carbon::parse($event->date)->addDays($days_added);
-        }
-        elseif(empty($event->date_to)){
+        } elseif(empty($event->date_to)) {
             $event->date_to = Carbon::now();
         }
 
         $event->user_generated = 1;
-
         $event->save();
 
         Session::flash('message', "El evento fue registrado correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('EventController@events_per_type', [ 'type' => $type , 'id' => $id ]);
@@ -335,7 +328,7 @@ class EventController extends Controller
             $type_info = collect();
         */
 
-        if(!$event||!$type_info){
+        if (!$event || !$type_info) {
             Session::flash('message', "No se encontró la página solicitada, revise la dirección e intente de nuevo por favor");
             return redirect()->back();
         }
@@ -367,7 +360,7 @@ class EventController extends Controller
 
         $form_data = Request::all();
 
-        $form_data['date_to'] = $form_data['date_to']!='' ? $form_data['date_to'].' 23:59:59' : '';
+        $form_data['date_to'] = $form_data['date_to'] != '' ? $form_data['date_to'].' 23:59:59' : '';
 
         $v = \Validator::make($form_data, [
             'description'           => 'required',
@@ -387,8 +380,7 @@ class EventController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back();
         }
@@ -397,7 +389,7 @@ class EventController extends Controller
 
         $event->fill($form_data);
 
-        $event->description = $event->description=="Otro" ? Request::input('other_description') : $event->description;
+        $event->description = $event->description == "Otro" ? Request::input('other_description') : $event->description;
 
         $responsible = User::select('id')->where('name', Request::input('responsible_name'))->first();
         $event->responsible_id = empty($responsible) ? 0 : $responsible->id;
@@ -406,20 +398,19 @@ class EventController extends Controller
 
         $total_days = Request::input('total_days');
 
-        if(!empty($total_days)){
+        if (!empty($total_days)) {
             $days_added = $total_days;
-            $days_added = $days_added==0 ? 1 : $days_added;
+            $days_added = $days_added == 0 ? 1 : $days_added;
 
             $event->date_to = Carbon::parse($event->date)->addDays($days_added);
-        }
-        elseif(empty($event->date_to)){
+        } elseif (empty($event->date_to)) {
             $event->date_to = Carbon::now();
         }
 
         $event->save();
 
         Session::flash('message', "El evento fue modificado");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('EventController@events_per_type', ['type' => $type, 'id' => $event->eventable_id]);
@@ -439,13 +430,13 @@ class EventController extends Controller
 
         $event = Event::find($id);
 
-        if($event){
+        if ($event) {
             $return_id = $event->eventable_id;
             $file_error = false;
 
-            foreach($event->files as $file){
+            foreach ($event->files as $file) {
                 $file_error = $this->removeFile($file);
-                if($file_error)
+                if ($file_error)
                     break;
 
                 /*
@@ -467,17 +458,15 @@ class EventController extends Controller
                 $event->delete();
 
                 Session::flash('message', "El evento ha sido eliminado");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->action('EventController@events_per_type', ['type' => $type, 'id' => $return_id]);
-            }
-            else{
+            } else {
                 Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Se produjo un error al ejecutar el borrado! No se encontró el registro indicado");
             return redirect()->back();
         }
