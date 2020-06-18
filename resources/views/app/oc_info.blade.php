@@ -299,7 +299,7 @@
                                     <td colspan="3">{{ $oc->responsible ? $oc->responsible->name : 'No asignado' }}</td>
                                 </tr>
 
-                                @if($oc->events->count()>0)
+                                @if($oc->events->count() > 0)
                                     <tr>
                                         <th>Eventos:</th>
                                         <td colspan="3">
@@ -447,6 +447,15 @@
                                         {{ $oc->observations }}
                                     </td>
                                 </tr>
+                                <tr><td colspan="4"></td></tr>
+                                @if($oc->events->count() > 0)
+                                    <tr>
+                                        <th>Eventos:</th>
+                                        <td colspan="3">
+                                            <a href="/event/oc/{{ $oc->id }}">{{ 'Ver eventos' }}</a>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endif
                             </tbody>
                         </table>
@@ -563,10 +572,11 @@
                           <th width="25%">Estado:</th>
                           <td>
                             {{ $oc->status }}
-                            @if ($oc->certification)
+                            {{-- @if ($oc->certification) --}}
+                            @if($oc->certificates->count() > 0)
                               <button type="button" class="btn btn-success pull-right" title="Certificado"
                                       data-toggle="modal" data-target="#certificationBox">
-                                <i class="fa fa-check"></i>
+                                  <i class="fa fa-check"></i>
                               </button>
                             @endif
                           </td>
