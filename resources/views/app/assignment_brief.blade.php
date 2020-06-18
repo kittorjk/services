@@ -443,7 +443,7 @@
                 </tr>
 
                 <tr style="background-color: transparent" class="tablesorter-childRow expand-child">
-                    <td colspan="11" style="padding: 0">
+                    <td colspan="13" style="padding: 0">
                         <div id="{{ 'collapse'.$assignment->id }}"
                              class="panel-collapse collapse mg-tp-px-10 col-sm-10 col-sm-offset-1" style="margin-bottom: 10px">
 
