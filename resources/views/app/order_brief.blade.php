@@ -97,8 +97,8 @@
                     @if(($user->area=='Gerencia General'&&$user->priv_level==2)||$user->priv_level>=3)
                         <td align="center">
                             <div class="progress">
-                                <div class="progress-bar progress-bar-success" style="{{ 'width: '.number_format(($order->charged_price/$order->assigned_price)*100,2).'%' }}">
-                                    <span>{{ number_format(($order->charged_price/$order->assigned_price)*100,2).' %' }}</span>
+                                <div class="progress-bar progress-bar-success" style="{{ 'width: '.number_format(($order->charged_price/($order->assigned_price && $order->assigned_price > 0 ? $order->assigned_price : 1))*100,2).'%' }}">
+                                    <span>{{ number_format(($order->charged_price/($order->assigned_price && $order->assigned_price > 0 ? $order->assigned_price : 1))*100,2).' %' }}</span>
                                 </div>
                             </div>
                         </td>
@@ -178,6 +178,7 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
+                                                {{-- Deshabilitado para probar relación uno a muchos sitio - orden
                                                 @foreach($order->sites as $site)
                                                     <tr>
                                                         <td>
@@ -216,6 +217,7 @@
                                                         </td>
                                                     </tr>
                                                 @endforeach
+                                                --}}
                                                 @if($order->status=='Pendiente')
                                                     <tr>
                                                         <td colspan="4" align="right">
