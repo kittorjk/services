@@ -246,28 +246,36 @@
                         @endif
                     </td>
                     <td>
-                        {{ $task->name }}
+                        <div data-popover="true" data-html=true data-content="
+                            {{
+                                '<i class="fa fa-question-circle" title="Descripción del item"></i>
+                                    &ensp;
+                                    '.($task->item->detail ?: $task->name)
+                            }}
+                        ">
+                            {{ $task->name }}
 
-                        @if(/*(($user->area=='Gerencia Tecnica'&&$user->priv_level>=1)||$user->priv_level>=3)*/
-                            ($user->action->prj_tk_edt&&
-                            $task->status!=$task->last_stat()/*'Concluído'*/&&$task->status!=0/*'No asignado'*/)||
-                            $user->priv_level==4)
+                            @if(/*(($user->area=='Gerencia Tecnica'&&$user->priv_level>=1)||$user->priv_level>=3)*/
+                                ($user->action->prj_tk_edt&&
+                                $task->status!=$task->last_stat()/*'Concluído'*/&&$task->status!=0/*'No asignado'*/)||
+                                $user->priv_level==4)
 
-                            <a href="/task/{{ $task->id }}/edit" title="Modificar información de item">
-                                <i class="fa fa-pencil-square-o"></i>
-                            </a>
-
-                            @if($task->summary_category)
-                                <a href="{{ '/task_category/'.$task->summary_category->id.'/edit' }}"
-                                    title="Modificar la categoría de este item en el resumen de avance">
-                                    <i class="fa fa-sticky-note"></i>
+                                <a href="/task/{{ $task->id }}/edit" title="Modificar información de item">
+                                    <i class="fa fa-pencil-square-o"></i>
                                 </a>
-                            @else
-                                <a href="{{ '/task_category/create?id='.$task->id }}" title="Agregar este item al resumen de avance">
-                                    <i class="fa fa-sticky-note-o"></i>
-                                </a>
+
+                                @if($task->summary_category)
+                                    <a href="{{ '/task_category/'.$task->summary_category->id.'/edit' }}"
+                                        title="Modificar la categoría de este item en el resumen de avance">
+                                        <i class="fa fa-sticky-note"></i>
+                                    </a>
+                                @else
+                                    <a href="{{ '/task_category/create?id='.$task->id }}" title="Agregar este item al resumen de avance">
+                                        <i class="fa fa-sticky-note-o"></i>
+                                    </a>
+                                @endif
                             @endif
-                        @endif
+                        </div>
                     </td>
                     <td>{{ $task->units }}</td>
                     <td align="center">{{ $task->total_expected }}</td>
