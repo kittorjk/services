@@ -959,6 +959,7 @@ class SearchController extends Controller
 
             $type_info = collect();
             $open = true;
+            $model = '';
         
             if ($aux[0] == 'site') {
                 $type_info = Site::find($aux[1]);
@@ -973,25 +974,36 @@ class SearchController extends Controller
                 $type_info = OC::find($aux[1]);
             } elseif ($aux[0] == 'invoice') {
                 $type_info = Invoice::find($aux[1]);
+            } elseif ($aux[0] == 'rendicion_viatico') {
+                $model = 'RendicionViatico';
+                $type_info == RendicionViatico::find($aux[1]);
             }
 
             if (!$type_info) {
-                Session::flash('message', "No se encontró la página solicitada,
-                    revise la dirección e intente de nuevo por favor");
+                Session::flash('message', "No se encontró la página solicitada, revise la dirección e intente de nuevo por favor");
                 return redirect()->back();
             }
+
+            $type = $aux[0];
+            $id = $aux[1];
 
             if ($has_date) {
                 $events = Event::whereBetween('date', [$from, $to])
                     ->where('eventable_id',$aux[1])
-                    ->where('eventable_type','like',"%$aux[0]%")
+                    ->where(function ($query) use($type, $model) {
+                        $query->where('eventable_type','like',"%$type%")
+                            ->orwhere('eventable_type','like',"%$model%");
+                    })
                     ->orderBy('number');
             } else {
                 if ($parameter == 'all') {
                     $events = Event::join('users', 'events.responsible_id', '=', 'users.id')
                         ->select('events.*')
                         ->where('eventable_id',$aux[1])
-                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->where(function ($q) use($type, $model) {
+                            $q->where('eventable_type','like',"%$type%")
+                                ->orwhere('eventable_type','like',"%$model%");
+                        })
                         ->where(function($query) use($search_term, $columns) {
                             $query->where('users.name', 'like', "%$search_term%");
 
@@ -1005,12 +1017,18 @@ class SearchController extends Controller
                         ->select('events.*')
                         ->where('users.name', 'like', "%$search_term%")
                         ->where('eventable_id',$aux[1])
-                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->where(function ($q) use($type, $model) {
+                            $q->where('eventable_type','like',"%$type%")
+                                ->orwhere('eventable_type','like',"%$model%");
+                        })
                         ->orderBy('events.number');
                 } else {
                     $events = Event::where("$parameter", 'like', "%$search_term%")
                         ->where('eventable_id',$aux[1])
-                        ->where('eventable_type','like',"%$aux[0]%")
+                        ->where(function ($q) use($type, $model) {
+                            $q->where('eventable_type','like',"%$type%")
+                                ->orwhere('eventable_type','like',"%$model%");
+                        })
                         ->orderBy('number');
                 }
             }

@@ -8,16 +8,17 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Session;
 use View;
-use App\Event;
-use App\File;
-use App\User;
-use App\Project;
 use App\Activity;
 use App\Assignment;
+use App\Event;
+use App\File;
+use App\Invoice;
+use App\OC;
+use App\Project;
+use App\RendicionViatico;
 use App\Site;
 use App\Task;
-use App\OC;
-use App\Invoice;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
@@ -83,6 +84,7 @@ class EventController extends Controller
 
         $type_info = collect();
         $open = true;
+        $model = '';
         
         if ($type == 'site') {
             $type_info = Site::find($id);
@@ -97,6 +99,9 @@ class EventController extends Controller
             $type_info = OC::find($id);
         } elseif ($type == 'invoice') {
             $type_info = Invoice::find($id);
+        } elseif ($type == 'rendicion_viatico') {
+            $model = 'RendicionViatico';
+            $type_info == RendicionViatico::find($id);
         }
         
         if (!$type_info) {
@@ -104,7 +109,11 @@ class EventController extends Controller
             return redirect()->back();
         }
 
-        $events = Event::where('eventable_id',$id)->where('eventable_type','like',"%$type%");
+        $events = Event::where('eventable_id',$id)->where(function ($query) use($type, $model) {
+            $query->where('eventable_type','like',"%$type%")
+                ->orwhere('eventable_type','like',"%$model%");
+        });
+        //$events = $type_info->events;
 
         if ($user->priv_level < 1)
             $events = $events->where('user_id', $user->id);

@@ -64,8 +64,8 @@
       <div class="panel-title">
         <div class="pull-left">
           <ul class="nav nav-tabs">
-              <li class="active"><a href="#main" data-toggle="tab"> Datos Generales</a></li>
-              <li><a href="#respaldos" data-toggle="tab"> Respaldos</a></li>
+              <li class="{{ $tab && $tab == "main" ? "active" : "" }}"><a href="#main" data-toggle="tab"> Datos Generales</a></li>
+              <li class="{{ $tab && $tab == "respaldos" ? "active" : "" }}"><a href="#respaldos" data-toggle="tab"> Respaldos</a></li>
               {{--@if($oc->status <> 'Anulado' || $user->priv_level == 4)
                 <li><a href="#payments" data-toggle="tab"> Estado de pagos</a></li>
               @endif--}}
@@ -78,7 +78,7 @@
     <div class="panel-body">
       <div class="tab-content">
 
-        <div class="tab-pane fade in active" id="main">
+        <div class="tab-pane fade {{ $tab && $tab == "main" ? "in active" : "" }}" id="main">
 
           <div class="col-lg-5 mg20">
             <a href="#" onclick="history.back();" class="btn btn-warning">
@@ -99,7 +99,7 @@
               @endif--}}
               @if($user->priv_level == 4)
                 <a href="/excel/rendicion_viatico/{{ $rendicion->id }}" class="btn btn-success" title="Descargar Rendición">
-                  <i class="fa fa-file-excel-o"></i> Descargar rendicion
+                  <i class="fa fa-file-excel-o"></i> Descargar rendición
                 </a>
               @endif
             @endif
@@ -170,34 +170,36 @@
                     <th colspan="4">
                       Comparativa solicitud / rendición [Bs]:
                       @if ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado')
-                        <div class="pull-right">
-                          <a href="/rendicion_respaldo/refrescar_totales/{{ $rendicion->id }}" class="btn btn-success" title="Actualizar totales">
-                            <i class="fa fa-refresh"></i>
-                          </a>
-                          &ensp;
-                          <button type="button" 
-                            class="btn btn-success open-rowBox"
-                            title="Agregar respaldo (factura / recibo)"
-                            data-toggle="modal" 
-                            data-target="#rowBox"
-                            data-id="0"
-                            data-fecha=""
-                            data-tipo=""
-                            data-nit=""
-                            data-nrorespaldo=""
-                            data-codigoautorizacion=""
-                            data-codigocontrol=""
-                            data-razonsocial=""
-                            data-detalle=""
-                            data-correspondea=""
-                            data-monto="">
-                            <i class="fa fa-plus"></i>
-                          </button>
-                          &ensp;
-                          <a href="/import/rendicion_respaldos/{{ $rendicion->id }}" class="btn btn-success" title="Importar lista de respaldos desde un archivo excel">
-                            <i class="fa fa-upload"></i>
-                          </a>
-                        </div>
+                        @if ($user->id == $rendicion->usuario_creacion || $user->priv_level == 4)
+                          <div class="pull-right">
+                            <a href="/rendicion_respaldo/refrescar_totales/{{ $rendicion->id }}" class="btn btn-success" title="Actualizar totales">
+                              <i class="fa fa-refresh"></i>
+                            </a>
+                            &ensp;
+                            <button type="button" 
+                              class="btn btn-success open-rowBox"
+                              title="Agregar respaldo (factura / recibo)"
+                              data-toggle="modal" 
+                              data-target="#rowBox"
+                              data-id="0"
+                              data-fecha=""
+                              data-tipo=""
+                              data-nit=""
+                              data-nrorespaldo=""
+                              data-codigoautorizacion=""
+                              data-codigocontrol=""
+                              data-razonsocial=""
+                              data-detalle=""
+                              data-correspondea=""
+                              data-monto="">
+                              <i class="fa fa-plus"></i>
+                            </button>
+                            &ensp;
+                            <a href="/import/rendicion_respaldos/{{ $rendicion->id }}" class="btn btn-success" title="Importar lista de respaldos desde un archivo excel">
+                              <i class="fa fa-upload"></i>
+                            </a>
+                          </div>
+                        @endif
                       @endif
                     </th>
                   </tr>
@@ -208,7 +210,7 @@
                   @if ($rendicion->solicitud->per_day_amount > 0 || $rendicion->subtotal_alimentacion > 0)
                     <tr>
                       <td>Alimentación</td>
-                      <td>{{ $rendicion->solicitud->per_day_amount }}</td>
+                      <td>{{ $rendicion->solicitud->per_day_amount * $rendicion->solicitud->in_days }}</td>
                       <td>Alimentación</td>
                       <td>{{ $rendicion->subtotal_alimentacion }}</td>
                     </tr>
@@ -224,7 +226,7 @@
                   @if ($rendicion->solicitud->hotel_amount > 0 || $rendicion->subtotal_hotel > 0)
                     <tr>
                       <td>Alojamiento</td>
-                      <td>{{ $rendicion->solicitud->hotel_amount }}</td>
+                      <td>{{ $rendicion->solicitud->hotel_amount * $rendicion->solicitud->in_days }}</td>
                       <td>Alojamiento</td>
                       <td>{{ $rendicion->subtotal_hotel }}</td>
                     </tr>
@@ -314,13 +316,17 @@
           
           @if($rendicion->estado != 'Cancelado' && $rendicion->estado != 'Aprobado')
             <div class="col-sm-12 mg20" align="center">
-              @if(($user->id === $rendicion->usuario_creacion || $user->priv_level == 4) && ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado'))
+              @if(($rendicion->usuario_creacion == $user->id || $user->priv_level == 4) && ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado'))
                 <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
                   title="Cancelar registro de rendición de viáticos" class="btn btn-danger">
-                  <i class="fa fa-times"></i> Anular
+                  <i class="fa fa-times"></i> Cancelar
                 </a>
                 <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición" class="btn btn-primary">
                   <i class="fa fa-pencil-square-o"></i> Modificar
+                </a>
+                <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
+                  title="Presentar rendición para su aprobación" class="btn btn-primary">
+                  <i class="fa fa-send"></i> Presentar
                 </a>
               @endif
               @if($rendicion->estado === 'Presentado' && (($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4))
@@ -330,11 +336,6 @@
                 <a href="{{ '/rendicion_viatico/estado?mode=aprobar&id='.$rendicion->id }}"
                   title="Aprobar rendición" class="confirm_close btn btn-success">
                   <i class="fa fa-check"></i> Aprobar
-                </a>
-              @elseif(($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado') && ($rendicion->usuario_creacion == $user->id || $user->priv_level == 4))
-                <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
-                  title="Presentar rendición para su aprobación" class="btn btn-primary">
-                  <i class="fa fa-send"></i> Presentar
                 </a>
               @endif
             </div>
@@ -371,11 +372,18 @@
           @endif
         </div>
 
-        <div class="tab-pane fade" id="respaldos">
-          <div class="col-lg-4 mg20">
+        <div class="tab-pane fade {{ $tab && $tab == "respaldos" ? "in active" : "" }}" id="respaldos">
+          <div class="col-lg-5 mg20">
             <a href="#" onclick="history.back();" class="btn btn-warning">
               <i class="fa fa-arrow-circle-left"></i> Volver
             </a>
+            <a href="{{ '/rendicion_viatico' }}" class="btn btn-warning" title="Ir a la tabla de rendiciones">
+              <i class="fa fa-arrow-circle-up"></i> Rendiciones
+            </a>
+          </div>
+
+          <div class="col-sm-12 mg10">
+            @include('app.session_flashed_messages', array('opt' => 0))
           </div>
 
           <div class="col-sm-12 mg10 mg-tp-px-10">
@@ -401,13 +409,13 @@
                       <table class="table table-bordered">
                         <tr>
                           <td>#</td>
-                          <td width="18%">Fecha</td>
+                          <td width="10%">Fecha</td>
                           <td>NIT</td>
-                          <td width="18%"># Factura</td>
+                          <td width="8%">Número</td>
                           <td title="Código de autorización">Cod. Autorización</td>
                           <td>Cod. Control</td>
                           <td>Razón Social</td>
-                          <td>Detalle</td>
+                          <td width="20%">Detalle</td>
                           <td>Corresponde a</td>
                           <td>Monto [Bs]</td>
                           <td>Estado</td>
@@ -417,7 +425,7 @@
                         @foreach($rendicion->respaldos as $respaldo)
                           @if ($respaldo->tipo_respaldo == 'Factura')
                             <?php $i++ ?>
-                            <tr @if ($respaldo->estado == 'Observado') style="background-color: #ba5e5e" title="{{ $respaldo->observaciones }}" @endif>
+                            <tr @if ($respaldo->estado == 'Observado') style="background-color: #d98c8c" {{--title="{{ $respaldo->observaciones }}"--}} @endif>
                               <td>{{ $i }}</td>
                               <td>
                                 {{ $respaldo->fecha_respaldo!='0000-00-00 00:00:00' ?
@@ -432,9 +440,23 @@
                               <td>{{ $respaldo->detalle }}</td>
                               <td>{{ $respaldo->corresponde_a }}</td>
                               <td align="right">{{ number_format($respaldo->monto, 2) }}</td>
-                              <td>{{ $respaldo->estado }}</td>
                               <td>
-                                @if ($respaldo->estado == 'Pendiente' || $respaldo->estado == 'Observado')
+                                @if ($respaldo->estado == "Observado")
+                                  <div data-popover="true" data-html=true data-content="
+                                    {{
+                                        '<i class="fa fa-question-circle" title="Observación"></i>
+                                            &ensp;
+                                            '.($respaldo->observaciones ?: $respaldo->estado)
+                                    }}
+                                  ">
+                                    {{ $respaldo->estado }}
+                                  </div>
+                                @else
+                                  {{ $respaldo->estado }}
+                                @endif
+                              </td>
+                              <td>
+                                @if (($respaldo->estado == 'Pendiente' || $respaldo->estado == 'Observado') && ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado'))
                                   @if ($user->id == $respaldo->usuario_creacion || $user->priv_level == 4)
                                     <a data-toggle="modal" 
                                       data-id="{{ $respaldo->id }}"
@@ -455,14 +477,40 @@
                                       <i class="fa fa-pencil-square"></i>
                                     </a>
                                     &ensp;
-                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" 
+                                    <a href="javascript:;" class="confirm_remove removeRow" data-id="{{ $respaldo->id }}" 
                                       title="Eliminar item" style="text-decoration: none">
                                       <i class="fa fa-trash"></i>
                                     </a>
                                     &ensp;
                                   @endif
+                                  @if ($respaldo->files->count() === 0)
+                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
+                                      <i class="fa fa-upload"></i>
+                                    </a>
+                                    &ensp;
+                                  @endif
                                 @endif
-                                @if ($respaldo->estado == 'Pendiente')
+                                @if ($respaldo->files->count() > 0)
+                                  @foreach ($respaldo->files as $file)
+                                    <a href="/display_file/{{ $file->id }}" target="_blank"
+                                        title="Mostrar archivo en una nueva pestaña del navegador" style="text-decoration: none">
+                                      <i class="fa fa-file"></i>
+                                    </a>
+                                    &ensp;
+                                    @if ($respaldo->estado == 'Observado' || $user->priv_level === 4)
+                                      <a href="/files/replace/{{ $file->id }}" title="Reemplazar archivo" style="text-decoration: none">
+                                        <i class="fa fa-refresh"></i>
+                                      </a>
+                                      &ensp;
+                                    @endif
+                                    {{--
+                                    <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
+                                      <i class="fa fa-download"></i>
+                                    </a>
+                                    --}}
+                                  @endforeach
+                                @endif
+                                @if ($respaldo->estado == 'Pendiente' && $rendicion->estado == 'Presentado')
                                   @if(($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4)
                                     <a href="{{ '/rendicion_respaldo/estado?mode=observar&id='.$respaldo->id }}"
                                       title="Observar" style="text-decoration: none">
@@ -474,18 +522,6 @@
                                       <i class="fa fa-check"></i>
                                     </a>
                                     &ensp;
-                                  @endif
-                                  @if ($respaldo->files->count() === 0)
-                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
-                                      <i class="fa fa-upload"></i>
-                                    </a>
-                                    &ensp;
-                                  @else
-                                    @foreach ($respaldo->files as $file)
-                                      <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
-                                        <i class="fa fa-download"></i>
-                                      </a>
-                                    @endforeach
                                   @endif
                                 @endif
                               </td>
@@ -518,7 +554,7 @@
                         <tr>
                           <td>#</td>
                           <td width="10%">Fecha</td>
-                          <td width="10%"># Factura</td>
+                          <td width="8%">Número</td>
                           <td>Razón Social</td>
                           <td width="20%">Detalle</td>
                           <td>Corresponde a</td>
@@ -530,7 +566,7 @@
                         @foreach($rendicion->respaldos as $respaldo)
                           @if ($respaldo->tipo_respaldo == 'Recibo')
                             <?php $j++ ?>
-                            <tr @if ($respaldo->estado == 'Observado') style="background-color: #ba5e5e" title="{{ $respaldo->observaciones }}" @endif>
+                            <tr @if ($respaldo->estado == 'Observado') style="background-color: #d98c8c" {{--title="{{ $respaldo->observaciones }}"--}} @endif>
                               <td>{{ $j }}</td>
                               <td>
                                 {{ $respaldo->fecha_respaldo!='0000-00-00 00:00:00' ?
@@ -542,9 +578,23 @@
                               <td>{{ $respaldo->detalle }}</td>
                               <td>{{ $respaldo->corresponde_a }}</td>
                               <td align="right">{{ number_format($respaldo->monto, 2) }}</td>
-                              <td>{{ $respaldo->estado }}</td>
                               <td>
-                                @if ($respaldo->estado == 'Pendiente' || $respaldo->estado == 'Observado')
+                                @if ($respaldo->estado == "Observado")
+                                  <div data-popover="true" data-html=true data-content="
+                                    {{
+                                        '<i class="fa fa-question-circle" title="Observación"></i>
+                                            &ensp;
+                                            '.($respaldo->observaciones ?: $respaldo->estado)
+                                    }}
+                                  ">
+                                    {{ $respaldo->estado }}
+                                  </div>
+                                @else
+                                  {{ $respaldo->estado }}
+                                @endif
+                              </td>
+                              <td>
+                                @if (($respaldo->estado == 'Pendiente' || $respaldo->estado == 'Observado') && ($rendicion->estado == 'Pendiente' || $rendicion->estado == 'Observado'))
                                   @if ($user->id == $respaldo->usuario_creacion || $user->priv_level == 4)
                                     <a data-toggle="modal" 
                                       data-id="{{ $respaldo->id }}"
@@ -565,14 +615,40 @@
                                       <i class="fa fa-pencil-square"></i>
                                     </a>
                                     &ensp;
-                                    <a href="javascript:;" class="removeRow" data-id="{{ $respaldo->id }}" 
+                                    <a href="javascript:;" class="confirm_remove removeRow" data-id="{{ $respaldo->id }}" 
                                       title="Eliminar item" style="text-decoration: none">
                                       <i class="fa fa-trash"></i>
                                     </a>
                                     &ensp;
+                                    @if ($respaldo->files->count() === 0)
+                                      <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
+                                        <i class="fa fa-upload"></i>
+                                      </a>
+                                      &ensp;
+                                    @endif
                                   @endif
                                 @endif
-                                @if ($respaldo->estado == 'Pendiente')
+                                @if ($respaldo->files->count() > 0)
+                                  @foreach ($respaldo->files as $file)
+                                    <a href="/display_file/{{ $file->id }}" target="_blank"
+                                        title="Mostrar archivo en una nueva pestaña del navegador" style="text-decoration: none">
+                                      <i class="fa fa-file"></i>
+                                    </a>
+                                    &ensp;
+                                    @if ($respaldo->estado == 'Observado' || $user->priv_level === 4)
+                                      <a href="/files/replace/{{ $file->id }}" title="Reemplazar archivo" style="text-decoration: none">
+                                        <i class="fa fa-refresh"></i>
+                                      </a>
+                                      &ensp;
+                                    @endif
+                                    {{--
+                                    <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
+                                      <i class="fa fa-download"></i>
+                                    </a>
+                                    --}}
+                                  @endforeach
+                                @endif
+                                @if ($respaldo->estado == 'Pendiente' && $rendicion->estado == 'Presentado')
                                   @if(($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa') || $user->priv_level == 4)
                                     <a href="{{ '/rendicion_respaldo/estado?mode=observar&id='.$respaldo->id }}"
                                       title="Observar" style="text-decoration: none">
@@ -584,18 +660,6 @@
                                       <i class="fa fa-check"></i>
                                     </a>
                                     &ensp;
-                                  @endif
-                                  @if ($respaldo->files->count() === 0)
-                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
-                                      <i class="fa fa-upload"></i>
-                                    </a>
-                                    &ensp;
-                                  @else
-                                    @foreach ($respaldo->files as $file)
-                                      <a href="/download/{{ $file->id }}" title="Descargar archivo" style="text-decoration: none">
-                                        <i class="fa fa-download"></i>
-                                      </a>
-                                    @endforeach
                                   @endif
                                 @endif
                               </td>
@@ -653,6 +717,7 @@
 @section('javascript')
   <script src="{{ asset('app/js/set_current_url.js') }}"></script> {{-- For recording current url --}}
   <script>
+    // TODO convert alert from id to class, all alerts should have the same delay
     $('#alert').delay(2000).fadeOut('slow');
 
     $.ajaxSetup({
@@ -718,10 +783,19 @@
 
     var $submit_button = $('#submit_button'), $container = $('#container'), $observaciones = $('#observaciones');
     $(document).on("click", ".botonObservar", function () {
-        console.log('called');
+      //console.log('called');
       $container.show();
       $observaciones.removeAttr('disabled').show();
       $submit_button.removeAttr('disabled').show();
+      $("html, body").animate({ scrollTop: $("#container").offset().top }, 1000);
+    });
+
+    $('.confirm_close').on('click', function () {
+        return confirm('Está seguro de que desea aprobar esta rendición?');
+    });
+
+    $('.confirm_remove').on('click', function () {
+        return confirm('Está seguro de que desea eliminar este respaldo?');
     });
   </script>
 @endsection

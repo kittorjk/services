@@ -79,10 +79,10 @@
 
                         <div class="col-lg-5 mg20">
                             <a href="#" onclick="history.back();" class="btn btn-warning">
-                                <i class="fa fa-arrow-circle-left"></i> Atrás
+                                <i class="fa fa-arrow-left"></i> Atrás
                             </a>
                             <a href="{{ '/stipend_request' }}" class="btn btn-warning">
-                                <i class="fa fa-bars"></i> Solicitudes
+                                <i class="fa fa-arrow-up"></i> Solicitudes
                             </a>
                         </div>
 
@@ -227,6 +227,7 @@
                                     <th colspan="3" style="text-align: right">Total a depositar [Bs]</th>
                                     <th style="text-align: right">{{ number_format($stipend->total_amount+$stipend->additional,2) }}</th>
                                 </tr>
+                                <tr><td colspan="4"></td></tr>
 
                                 <tr>
                                     <th colspan="4">Asignación</th>
@@ -238,6 +239,19 @@
                                         </a>
                                     </td>
                                 </tr>
+                                @if ($stipend->rendicion_viatico)
+                                    <tr>
+                                        <th colspan="4">Rendición</th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4">
+                                            <a href="/rendicion_viatico/{{ $stipend->rendicion_viatico->id }}" title="Ver rendición">
+                                                {{ $stipend->rendicion_viatico ? $stipend->rendicion_viatico->codigo : 'Rendición' }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endif
+
                                 @if($stipend->sites()->count()>0)
                                     <tr>
                                         <th colspan="4">Sitios</th>

@@ -13,14 +13,17 @@ use View;
 use Hash;
 use Input;
 use Exception;
+use App\Event;
 use App\RendicionViatico;
 use App\RendicionRespaldo;
 use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
+use App\Http\Traits\FilesTrait;
 
 class RendicionRespaldoController extends Controller
 {
+    use FilesTrait;
     /**
      * Display a listing of the resource.
      *
@@ -99,6 +102,9 @@ class RendicionRespaldoController extends Controller
       $respaldo->save();
 
       $this->calcular_totales($respaldo->rendicion_id);
+
+      /* An event is recorded to register the creation */
+      $this->add_event('new', $respaldo);
       
       // $rendicion->save();
       
@@ -106,7 +112,7 @@ class RendicionRespaldoController extends Controller
       // if (Session::has('url'))
           // return redirect(Session::get('url'));
       // else
-          return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id]);
+      return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id]);
     }
 
     /**
@@ -192,6 +198,9 @@ class RendicionRespaldoController extends Controller
 
       $this->calcular_totales($respaldo->rendicion_id);
 
+      /* An event is recorded to register the update */
+      $this->add_event('update', $respaldo);
+
       // $rendicion = $respaldo->rendicion;
 
       /*
@@ -260,7 +269,7 @@ class RendicionRespaldoController extends Controller
       // if (Session::has('url'))
           // return redirect(Session::get('url'));
       // else
-          return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id]);
+          return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id, 'tab' => 'respaldos']);
     }
 
     /**
@@ -273,12 +282,52 @@ class RendicionRespaldoController extends Controller
     {
       $user = Session::get('user');
       if ((is_null($user))||(!$user->id))
-          return redirect()->route('root');
+        return redirect()->route('root');
 
       $respaldo = RendicionRespaldo::find($id);
 
       if ($respaldo) {
         $to_return_id = $respaldo->rendicion_id;
+        
+        $file_error = false;
+
+        foreach ($respaldo->files as $file) {
+          $file_error = $this->removeFile($file);
+          if ($file_error)
+            break;
+        }
+
+        if (!$file_error) {
+          // Remove events
+          foreach ($respaldo->events as $event) {
+            foreach ($event->files as $file) {
+                $file_error = $this->removeFile($file);
+                if ($file_error)
+                    break;
+            }
+
+            if (!$file_error)
+                $event->delete();
+            else
+                break;
+          }
+        }
+
+        if (!$file_error) {
+          $respaldo->delete();
+
+          $this->calcular_totales($to_return_id);
+
+          Session::flash('message', "El registro fue eliminado del sistema");
+
+          // if (Session::has('url'))
+            // return redirect(Session::get('url'));
+          // else
+          return redirect()->action('RendicionViaticoController@show', ['id' => $to_return_id, 'tab' => 'respaldos']);
+        } else {
+            Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
+            return redirect()->back();
+        }
 
         /*
         $rendicion = $respaldo->rendicion;
@@ -341,17 +390,6 @@ class RendicionRespaldoController extends Controller
 
         $rendicion->save();
         */
-        
-        $respaldo->delete();
-
-        $this->calcular_totales($to_return_id);
-
-        Session::flash('message', "El registro fue eliminado del sistema");
-
-        // if (Session::has('url'))
-          // return redirect(Session::get('url'));
-        // else
-          return redirect()->action('RendicionViaticoController@show', ['id' => $to_return_id]);
       } else {
         Session::flash('message', "Error al ejecutar el borrado, no se encontró el registro solicitado.");
         return redirect()->back();
@@ -471,15 +509,18 @@ class RendicionRespaldoController extends Controller
         $respaldo->estado = 'Aprobado';
       } elseif ($mode == 'observar') {
         return View::make('app.rendicion_respaldo_obs_form', ['respaldo' => $respaldo, 'user' => $user,
-        'service' => $service, 'mode' => $mode]);
+          'service' => $service, 'mode' => $mode]);
       }
 
       $respaldo->usuario_modificacion = $user->id;
 
       $respaldo->save();
 
+      /* An event is recorded to register the change in status */
+      $this->add_event('new status', $respaldo);
+
       Session::flash('message', "Se ha actualizado el estado del documento de respaldo");
-      return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id]);
+      return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id, 'tab' => 'respaldos']);
     }
 
     public function cambiar_estado_obs (Request $request) {
@@ -519,11 +560,40 @@ class RendicionRespaldoController extends Controller
       // TODO Send an email notification to Project Manager
       // $this->notify_request($rendicion, 0);
 
-      /* TODO Register an event for the modification
-          $this->add_event('created', $rendicion, '');
-      */
-
+      /* An event is recorded to register the change in status */
+      $this->add_event('new status', $respaldo);
+      
       Session::flash('message', `El estado del documento de respaldo ha cambiado a $respaldo->estado`);
-      return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id]);
+      return redirect()->action('RendicionViaticoController@show', ['id' => $respaldo->rendicion_id, 'tab' => 'respaldos']);
+    }
+
+    public function add_event($type, $respaldo)
+    {
+        $user = Session::get('user');
+
+        $event = new Event;
+        $event->user_id = $user->id;
+        $event->date = Carbon::now();
+        
+        $prev_number = Event::select('number')->where('eventable_id',$respaldo->id)
+            ->where('eventable_type','App\RendicionRespaldo')->orderBy('number','desc')->first();
+        
+        $event->number = $prev_number ? $prev_number->number + 1 : 1;
+
+        if ($type == 'new status') {
+            $event->description = 'Cambio de estado de respaldo';
+            $event->detail = 'El respaldo cambia de estado a '.$respaldo->estado;
+            $event->detail .= $respaldo->observaciones ? ' con las siguientes observaciones: '.$respaldo->observaciones : '';
+        } elseif ($type == 'update') {
+            $event->description = 'Respaldo modificado';
+            $event->detail = 'El respaldo es modificado por '.$user->name;
+        } elseif ($type == 'new') {
+            $event->description = 'Respaldo agregado al sistema';
+            $event->detail = "$user->name ha agregado el respaldo al sistema";
+        }
+
+        $event->responsible_id = $user->id;
+        $event->eventable()->associate($respaldo);
+        $event->save();
     }
 }

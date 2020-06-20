@@ -111,6 +111,7 @@
           <th width="12%">Codigo</th>
           <th width="12%">Corresponde a</th>
           <th width="15%">Elaborado por</th>
+          <th># Respaldos</th>
           <th width="12%">Total rendicion [Bs]</th>
           <th>Observaciones</th>
           <th>Estado</th>
@@ -133,38 +134,39 @@
             </td>
             <td>{{ $rendicion->solicitud ? $rendicion->solicitud->code : 'N/E' }}</td>
             <td>{{ $rendicion->creadoPor ? $rendicion->creadoPor->name : 'N/E' }}</td>
-            <td>{{ $rendicion->total_rendicion }}</td>
+            <td align="center">{{ $rendicion->respaldos->count() }}</td>
+            <td align="right">{{ $rendicion->total_rendicion }}</td>
             <td>{{ $rendicion->observaciones }}</td>
             <td>{{ $rendicion->estado }}</td>
             <td align="center">
               @if($rendicion->estado != 'Cancelado' && $rendicion->estado != 'Aprobado')
                 @if($user->id === $rendicion->usuario_creacion || $user->priv_level == 4)
                   @if ($rendicion->estado === 'Pendiente' || $rendicion->estado === 'Observado')
-                    <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición">
+                    <a href="/rendicion_viatico/{{ $rendicion->id }}/edit" title="Modificar rendición" style="text-decoration: none">
                       <i class="fa fa-pencil-square-o"></i>
                     </a>
                     &ensp;
                     @if ($user->priv_level === 4)
                       <a href="{{ '/rendicion_viatico/estado?mode=cancelar&id='.$rendicion->id }}"
-                        title="Cancelar registro de rendición de viáticos">
+                        title="Cancelar registro de rendición de viáticos" style="text-decoration: none">
                         <i class="fa fa-times"></i>
                       </a>
                       &ensp;
                     @endif
                     <a href="{{ '/rendicion_viatico/estado?mode=presentar&id='.$rendicion->id }}"
-                      title="Presentar rendición para su aprobación">
+                      title="Presentar rendición para su aprobación" style="text-decoration: none">
                       <i class="fa fa-send"></i>
                     </a>
                   @endif
                 @endif
                 @if($rendicion->estado === 'Presentado' && ($user->action->aprobar_rendicion || ($user->priv_level >= 2 && $user->area === 'Gerencia Administrativa') || $user->priv_level == 4))
                   <a href="{{ '/rendicion_viatico/estado?mode=aprobar&id='.$rendicion->id }}"
-                    title="Aprobar rendición" class="confirm_close">
+                    title="Aprobar rendición" class="confirm_close" style="text-decoration: none">
                     <i class="fa fa-check"></i>
                   </a>
                   &ensp;
                   <a href="{{ '/rendicion_viatico/estado?mode=observar&id='.$rendicion->id }}"
-                    title="Observar rendición">
+                    title="Observar rendición" style="text-decoration: none">
                     <i class="fa fa-eye"></i>
                   </a>
                 @endif
@@ -220,13 +222,11 @@
       });
     });
 
-    /*
     $('.confirm_close').on('click', function () {
-        return confirm('Está seguro de que desea marcar este registro como "Completado"? ' +
-            'Una vez hecho este cambio no podrá modificar el contenido del registro. '+
-            'Las solicitudes agrupadas se registrarán como "Completadas" en conjunto');
+        return confirm('Está seguro de que desea aprobar esta rendición? ' +
+            'Asegúrese de revisar los respaldos cargados. ');
     });
-    */
+    
     /*
     $('.confirm_applied').on('click', function () {
         return confirm('Está seguro de que desea registrar el envío de documentación para aplicar a la ' +

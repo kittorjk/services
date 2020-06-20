@@ -25,4 +25,8 @@ class RendicionRespaldo extends Model
     public function files() {
         return $this->morphMany('App\File','imageable');
     }
+
+    public function events(){
+        return $this->morphMany('App\Event','eventable');
+    }
 }

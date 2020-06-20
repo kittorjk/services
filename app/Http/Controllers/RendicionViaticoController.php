@@ -175,9 +175,8 @@ class RendicionViaticoController extends Controller
       // TODO Send an email notification to Project Manager
       // $this->notify_request($rendicion, 0);
 
-      /* TODO Register an event for the creation
-          $this->add_event('created', $rendicion, '');
-      */
+      /* An event is recorded to register the change in status */
+      $this->add_event('new', $rendicion);
 
       Session::flash('message', "La estructura de rendición de viáticos fue creada en el sistema");
       if (Session::has('url'))
@@ -203,7 +202,7 @@ class RendicionViaticoController extends Controller
       
       $rendicion->fecha_estado = Carbon::parse($rendicion->fecha_estado)->hour(0)->minute(0)->second(0);
 
-      foreach($rendicion->respaldos as $respaldo) {
+      foreach ($rendicion->respaldos as $respaldo) {
         $respaldo->fecha_respaldo = Carbon::parse($respaldo->fecha_respaldo)->hour(0)->minute(0)->second(0);
       }
       
@@ -216,10 +215,12 @@ class RendicionViaticoController extends Controller
       $tipos_gasto = ['alimentacion', 'combustible', 'comunicaciones', 'extras', 'hotel',
         'materiales', 'taxi', 'transporte'];
 
+      $tab = Input::get('tab') ?: 'main';
+
       return View::make('app.rendicion_viatico_info', ['rendicion' => $rendicion, 'service' => $service,
         'user' => $user, 'usuario_creacion_nombre' => $usuario_creacion_nombre,
         'usuario_modificacion_nombre' => $usuario_modificacion_nombre, 'tipos_gasto' => $tipos_gasto, 
-        'cant_facturas' => $cant_facturas, 'cant_recibos' => $cant_recibos]);
+        'cant_facturas' => $cant_facturas, 'cant_recibos' => $cant_recibos, 'tab' => $tab]);
     }
 
     /**
@@ -315,9 +316,8 @@ class RendicionViaticoController extends Controller
       // TODO Send an email notification to Project Manager
       // $this->notify_request($rendicion, 0);
 
-      /* TODO Register an event for the modification
-          $this->add_event('created', $rendicion, '');
-      */
+      /* An event is recorded to register the change in status */
+      $this->add_event('update', $rendicion);
 
       Session::flash('message', "La estructura de rendición de viáticos fue modificada en el sistema");
       if (Session::has('url'))
@@ -420,10 +420,14 @@ class RendicionViaticoController extends Controller
         $rendicion->estado = 'Presentado';
         $rendicion->fecha_presentado = Carbon::parse($rendicion->fecha_presentado) < $hoy && $rendicion->fecha_presentado != '0000-00-00 00:00:00' ? $rendicion->fecha_presentado : $hoy;
       } elseif ($mode == 'aprobar') {
-        if ($tiene_pendientes) {
+        if ($tiene_observados) {
+          Session::flash('message', "Esta rendición cuenta con respaldos observados, corrija las observaciones antes de aprobar la rendición!");
+          return redirect()->back()->withInput();
+        } elseif ($tiene_pendientes) {
           Session::flash('message', "Debe aprobar todos los respaldos antes de aprobar la rendición!");
           return redirect()->back()->withInput();
         }
+
         $rendicion->estado = 'Aprobado';
         if ($rendicion->solicitud) {
           $solicitud = $rendicion->solicitud;
@@ -432,7 +436,7 @@ class RendicionViaticoController extends Controller
         }
       } elseif ($mode == 'cancelar' || $mode == 'observar') {
         return View::make('app.rendicion_viatico_obs_form', ['rendicion' => $rendicion, 'user' => $user,
-        'service' => $service, 'mode' => $mode]);
+          'service' => $service, 'mode' => $mode]);
       } elseif ($mode == 'reabrir') {
           $rendicion->estado = 'Pendiente';
           $rendicion->observaciones = '';
@@ -442,6 +446,9 @@ class RendicionViaticoController extends Controller
       $rendicion->usuario_modificacion = $user->id;
 
       $rendicion->save();
+
+      /* An event is recorded to register the change in status */
+      $this->add_event('new status', $rendicion);
 
       // return 'function cambiar_estado reached ' . $rendicion;
       Session::flash('message', "La estructura de rendición de viáticos fue modificada en el sistema");
@@ -491,9 +498,8 @@ class RendicionViaticoController extends Controller
       // TODO Send an email notification to Project Manager
       // $this->notify_request($rendicion, 0);
 
-      /* TODO Register an event for the modification
-          $this->add_event('created', $rendicion, '');
-      */
+      /* An event is recorded to register the change in status */
+      $this->add_event('new status', $rendicion);
 
       Session::flash('message', `El estado de la rendición $rendicion->codigo ha cambiado a $rendicion->estado`);
       if (Session::has('url'))
@@ -541,9 +547,8 @@ class RendicionViaticoController extends Controller
       // TODO Send an email notification to Project Manager
       // $this->notify_request($rendicion, 0);
 
-      /* TODO Register an event for the creation
-          $this->add_event('created', $rendicion, '');
-      */
+      /* An event is recorded to register the creation */
+      $this->add_event('new', $rendicion);
 
       Session::flash('message', "La estructura de rendición de viáticos fue creada en el sistema");
       if (Session::has('url'))
@@ -561,5 +566,35 @@ class RendicionViaticoController extends Controller
 
         $rendicion->save();
       }
+    }
+
+    public function add_event($type, $rendicion)
+    {
+        $user = Session::get('user');
+
+        $event = new Event;
+        $event->user_id = $user->id;
+        $event->date = Carbon::now();
+        
+        $prev_number = Event::select('number')->where('eventable_id',$rendicion->id)
+            ->where('eventable_type','App\RendicionRespaldo')->orderBy('number','desc')->first();
+        
+        $event->number = $prev_number ? $prev_number->number + 1 : 1;
+
+        if ($type == 'new status') {
+            $event->description = 'Cambio de estado de rendición';
+            $event->detail = 'La rendición cambia de estado a '.$rendicion->estado;
+            $event->detail .= $rendicion->observaciones ? ' con las siguientes observaciones: '.$rendicion->observaciones : '';
+        } elseif ($type == 'update') {
+            $event->description = 'Rendición modificada';
+            $event->detail = 'La rendición es modificada por '.$user->name;
+        } elseif ($type == 'new') {
+            $event->description = 'Rendición agregada al sistema';
+            $event->detail = "$user->name ha iniciado la rendición de la solicitud ".$rendicion->solicitud->code." en el sistema";
+        }
+
+        $event->responsible_id = $user->id;
+        $event->eventable()->associate($rendicion);
+        $event->save();
     }
 }
