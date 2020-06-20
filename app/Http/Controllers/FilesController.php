@@ -100,16 +100,16 @@ class FilesController extends Controller
         if ((is_null($user)) || (!$user->id))
             return redirect()->route('root');
 
-        if($id=='ct-0')
+        if ($id=='ct-0')
             $file = File::where('imageable_id', 0)->where('name','like','Formato_CITE%')->first();
-        elseif($id=='dr-0')
+        elseif ($id=='dr-0')
             $file = File::where('imageable_id', 0)->where('name','like','driver_form%')->first();
         else
             $file = File::find($id);
 
-        if(!empty($file))
+        if (!empty($file))
             return response()->download($file->path.$file->name);
-        else{
+        else {
             Session::flash('message', "No se ha encontrado el archivo en el servidor. Si el problema persiste
                 por favor contáctese con el administrador");
             return redirect()->back();
@@ -127,10 +127,20 @@ class FilesController extends Controller
         else
             $file = File::find($id);
 
-        return Response::make(file_get_contents($file->path.$file->name), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$file->name.'"'
-        ]);
+        if ($file->type == 'pdf') {
+            return Response::make(file_get_contents($file->path.$file->name), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$file->name.'"'
+            ]);
+        } elseif ($file->type == 'jpeg' || $file->type == 'jpg') {
+            return Response::make(file_get_contents($file->path.$file->name), 200, [
+                'Content-Type'  =>  'image/jpeg',
+                'Content-Disposition'   =>  'inline; filename="'.$file->name.'"'
+            ]);
+        } else {
+            Session::flash('message', "El archivo seleccionado no puede ser visualizado en el navegador");
+            return redirect()->back();
+        }
     }
 
     public function delete_form($type)
@@ -1786,8 +1796,7 @@ class FilesController extends Controller
             $FileSize = $newFile->getClientSize() / 1024;
             $FilePath = public_path().'/files/';
             // Rendicion Respaldo FIle
-            $FileName = 'RRF-'.str_pad($respaldo->id, 5, "0", STR_PAD_LEFT).'-'.
-                $current_date.'.'.strtolower($FileType);
+            $FileName = 'RRF-'.str_pad($respaldo->id, 5, "0", STR_PAD_LEFT).'-'.$current_date.'.'.strtolower($FileType);
             //$FileDescription = $request->input('description');
             $FileOriginalName = $newFile->getClientOriginalName();
             $FileDescription = $request->input('description') ?: $newFile->getClientOriginalName();
@@ -1804,11 +1813,16 @@ class FilesController extends Controller
                 // $this->store_file_db($FileName,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
                 $this->store_file_db($FileName,$FileOriginalName,$FileDescriptor,$FilePath,strtolower($FileType),$FileSize,$FileDescription,$respaldo);
 
+                // Actualizar respaldo cuando se carga un archivo                
+                $respaldo->usuario_modificacion = $user->id;
+                $respaldo->estado = 'Pendiente';
+                $respaldo->save();
+
                 Session::flash('message', "Archivo guardado con nombre $FileName");
                 if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
-                    return redirect()->action('RendicionRespaldoController@show', ['id' => $respaldo->rendicion->id]);
+                    return redirect()->action('RendicionRespaldoController@show', ['id' => $respaldo->rendicion->id, 'tab' => 'respaldos']);
             } else {
                 Session::flash('message', "Error al cargar archivo, intente de nuevo por favor");
                 return redirect()->back()->withInput();
@@ -1825,12 +1839,11 @@ class FilesController extends Controller
                 return redirect()->back()->withInput();
             }
 
-            if ($mime=='jpg'||$mime=='jpeg'||$mime=='png') {
+            if ($mime == 'jpg' || $mime == 'jpeg' || $mime == 'png') {
                 $v = \Validator::make($request->file(), [
                     'file' => 'mimes:jpg,jpeg,png',
                 ]);
-            }
-            else {
+            } else {
                 $v = \Validator::make($request->file(), [
                     'file' => 'mimes:'.$mime,
                 ]);
@@ -1850,7 +1863,7 @@ class FilesController extends Controller
                 $deleted = false;
             }
 
-            if($deleted) {
+            if ($deleted) {
                 $update_file = File::find($id);
 
                 $FileType = $newFile->getClientOriginalExtension();
@@ -1892,9 +1905,7 @@ class FilesController extends Controller
                     $update_file->save();
 
                     // Store updated amount to OC
-                    if (($update_file->type=='xls'||$update_file->type=='xlsx') &&
-                        $update_file->imageable_type=='App\OC')
-                    {
+                    if (($update_file->type == 'xls' || $update_file->type == 'xlsx') && $update_file->imageable_type == 'App\OC') {
                         $oc = OC::find($update_file->imageable_id);
                         Excel::load($newFile->getRealPath(), function ($reader) use ($oc) {
                             $sheet = $reader->getSheetByName('OC');
@@ -1903,11 +1914,20 @@ class FilesController extends Controller
                         });
                     }
 
+                    // Update vehicle record
                     if (strpos($update_file, 'VGI') !== false && $update_file->imageable_type == 'App\Vehicle') {
                         $vehicle = $update_file->imageable;
 
                         $vehicle->gas_inspection_exp = $request->input('exp_date');
                         $vehicle->save();
+                    }
+
+                    // Update respaldo
+                    if ($update_file->imageable_type == 'App\RendicionRespaldo') {
+                        $respaldo = RendicionRespaldo::find($update_file->imageable_id);
+                        $respaldo->usuario_modificacion = $user->id;
+                        $respaldo->estado = 'Pendiente';
+                        $respaldo->save();
                     }
 
                     Session::flash('message', "El archivo $FileName ha sido reemplazado");
@@ -1920,12 +1940,13 @@ class FilesController extends Controller
                         return redirect()->action('SiteController@show', ['id' => $update_file->imageable_id]);
                     elseif ($update_file->imageable_type=='App\Order')
                         return redirect()->action('OrderController@show', ['id' => $update_file->imageable_id]);
-                    elseif ($service=='project')
+                    elseif ($update_file->imageable_type == 'App\RendicionRespaldo')
+                        return redirect()->action('RendicionRespaldoController@show', ['id' => $respaldo->rendicion->id, 'tab' => 'respaldos']);
+                    elseif ($service == 'project')
                         return redirect()->route('assignment.index');
                     //return redirect()->action('SiteController@index');
                     else
                         return redirect()->route($service.'.index');
-
                 } else {
                     Session::flash('message', "Error al cargar el archivo, intente de nuevo por favor");
                     return redirect()->back()->withInput();
