@@ -47,7 +47,9 @@
                     @endif
                 </div>
 
-                @include('app.session_flashed_messages', array('opt' => 1))
+                <div class="col-sm-12 mg10">
+                    @include('app.session_flashed_messages', array('opt' => 1))
+                </div>
 
                 <div class="col-sm-12 mg10 mg-tp-px-10">
 
