@@ -30,4 +30,8 @@ class Employee extends Model
     // Un vehículo puede tener varios archivos
     return $this->morphMany('App\File','imageable');
   }
+
+  public function stipend_requests() {
+    return $this->hasMany('App\StipendRequest', 'employee_id', 'id');
+  }
 }

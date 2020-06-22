@@ -148,6 +148,8 @@ Route::get('/employee/{id}/retire', 'EmployeeController@retire_form');
 Route::put('/employee/{id}/retire', 'EmployeeController@retire');
 Route::resource('/employee', 'EmployeeController');
 
+Route::resource('/employee_account', 'EmployeeAccountController');
+
 Route::get('/event', 'EventController@index');
 Route::get('/event/{type}/{id}', 'EventController@events_per_type');
 Route::get('/event/{type}/{id}/edit', 'EventController@edit');

@@ -62,6 +62,9 @@
   <a href="{{ '/stipend_request' }}" class="btn btn-primary" title="Ver solicitudes de viáticos">
     <i class="fa fa-file"></i> Solicitudes
   </a>
+  <a href="{{ '/employee_account' }}" class="btn btn-primary" title="Ver cuentas por empleado">
+    <i class="fa fa-users"></i> Cuentas de empleados
+  </a>
   @if($user->priv_level >= 2)
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
       <i class="fa fa-search"></i> Buscar
@@ -133,7 +136,14 @@
               @endif
             </td>
             <td>{{ $rendicion->solicitud ? $rendicion->solicitud->code : 'N/E' }}</td>
-            <td>{{ $rendicion->creadoPor ? $rendicion->creadoPor->name : 'N/E' }}</td>
+            <td>
+              {{ $rendicion->creadoPor ? $rendicion->creadoPor->name : 'N/E' }}
+              @if ($rendicion->creadoPor && $rendicion->creadoPor->employee && $rendicion->creadoPor->employee->id)
+                <a href="/employee_account/{{ $rendicion->creadoPor->employee->id }}" title="Ver detalle de cuentas de empleado">
+                  <i class="fa fa-address-card pull-right"></i>
+                </a>
+              @endif
+            </td>
             <td align="center">{{ $rendicion->respaldos->count() }}</td>
             <td align="right">{{ $rendicion->total_rendicion }}</td>
             <td>{{ $rendicion->observaciones }}</td>
