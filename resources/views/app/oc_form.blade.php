@@ -66,7 +66,7 @@
 
                                     <input type="hidden" name="action" value="{{ $action }}">
 
-                                    @if((!$action||$action=='reject_disable'))
+                                    @if (!$action || $action == 'reject_disable')
                                         <div class="input-group" style="width: 100%">
                                             <label for="assignment_id" class="input-group-addon" style="width: 23%;text-align: left"
                                                 title="Enlazado al módulo de proyectos">
@@ -79,9 +79,10 @@
                                                 @foreach($assignments as $assignment)
                                                     <option value="{{ $assignment->id }}"
                                                             title="{{ $assignment->name.' - '.$assignment->literal_code }}"
-                                                            {{ ($oc&&$oc->assignment_id==$assignment->id)||
-                                                                old('assignment_id')==$assignment->id ? 'selected="selected"' :
-                                                                 '' }}>{{ str_limit($assignment->name,70) }}</option>
+                                                            {{ (($oc && $oc->assignment_id == $assignment->id) ||
+                                                                ($asg_id && $asg_id == $assignment->id) ||
+                                                                old('assignment_id') == $assignment->id) ? 'selected="selected"' :
+                                                                 '' }}>{{ str_limit($assignment->name, 70) }}</option>
                                                 @endforeach
                                                 {{--<option value="Otro">Otro</option>--}}
                                             </select>
@@ -154,8 +155,14 @@
                                           <select required="required" class="form-control" name="type" id="type"
                                                   {{$oc && $oc->status === 'Anulado' ? 'disabled' : ''}}>
                                               <option value="" hidden>Seleccione el tipo de OC</option>
-                                              <option value="Servicio" {{ ($oc && $oc->type == 'Servicio') || old('type') == 'Servicio' ? 'selected="selected"' : '' }}>Servicio</option>
-                                              <option value="Compra de material" {{ ($oc && $oc->type == 'Compra de material') || old('type') == 'Compra de material' ? 'selected="selected"' : '' }}>Compra de material</option>
+                                              <option value="Servicio" 
+                                                {{ ($oc && $oc->type == 'Servicio') || old('type') == 'Servicio' ? 'selected="selected"' : '' }}>
+                                                Servicio
+                                              </option>
+                                              <option value="Compra de material" 
+                                                {{ ($oc && $oc->type == 'Compra de material') || old('type') == 'Compra de material' ? 'selected="selected"' : '' }}>
+                                                Compra de material
+                                              </option>
                                           </select>
                                         </div>
 
@@ -175,7 +182,7 @@
                                             <span class="input-group-addon" style="width:31%;text-align: left">Plazo de entrega</span>
                                             <input required="required" type="number" class="form-control" name="delivery_term"
                                                    step="1" min="1" placeholder="1"
-                                                   value="{{ $oc&&$oc->delivery_term!=0 ? $oc->delivery_term :
+                                                   value="{{ $oc && $oc->delivery_term != 0 ? $oc->delivery_term :
                                                         old('delivery_term') }}"
                                                    {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                             <span class="input-group-addon" style="width:55px">días</span>
@@ -209,8 +216,8 @@
                                         </div>
                                     @endif
 
-                                    @if((!$action||$action=='reject_disable'))
-                                        @if($oc&&$user->priv_level==4)
+                                    @if (!$action || $action == 'reject_disable')
+                                        @if ($oc && $user->priv_level == 4)
                                             <div class="input-group" style="width: 75%">
                                                 <span class="input-group-addon" style="width:31%;text-align: left"
                                                     title="Monto ejecutado hasta la fecha">
@@ -228,16 +235,16 @@
                                         <div class="input-group" style="width: 100%">
                                             <label for="percentages" class="input-group-addon" style="width: 23%;text-align: left"
                                                 title="Términos de pago (porcentajes)">
-                                                T. de pago <span class="pull-right">*</span>
+                                                % de pago <span class="pull-right">*</span>
                                             </label>
 
                                             <select required="required" class="form-control" name="percentages" id="percentages"
                                                     {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="" hidden>Seleccione los porcentajes de pago</option>
-                                                @foreach($percentages as $percentage)
+                                                @foreach ($percentages as $percentage)
                                                     <option value="{{ $percentage->percentages }}"
-                                                            {{ ($oc&&$oc->percentages==$percentage->percentages)||
-                                                                old('percentages')==$percentage->percentages ?
+                                                            {{ ($oc && $oc->percentages == $percentage->percentages) ||
+                                                                old('percentages') == $percentage->percentages ?
                                                                 'selected="selected"' : '' }}
                                                     >{{ str_replace('-','% - ',$percentage->percentages).'%' }}</option>
                                                 @endforeach
@@ -257,10 +264,10 @@
                                             <select required="required" class="form-control" name="client" id="client"
                                                     {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="" hidden>Seleccione un cliente</option>
-                                                @foreach($clients as $client)
+                                                @foreach ($clients as $client)
                                                     <option value="{{ $client->client }}"
-                                                            {{ ($oc&&$oc->client==$client->client)||
-                                                                old('client')==$client->client ? 'selected="selected"' :
+                                                            {{ ($oc && $oc->client == $client->client) ||
+                                                                old('client') == $client->client ? 'selected="selected"' :
                                                                 '' }}>{{ $client->client }}</option>
                                                 @endforeach
                                                 <option value="Otro">Otro</option>
@@ -277,7 +284,7 @@
 
                                             <input required="required" type="text" class="form-control" name="client_oc"
                                                    id="client_oc" placeholder="Código de orden de compra de cliente"
-                                                   value="{{ $oc&&$oc->client_oc ? $oc->client_oc : old('client_oc') }}"
+                                                   value="{{ $oc && $oc->client_oc ? $oc->client_oc : old('client_oc') }}"
                                                     {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                         </div>
 
@@ -300,28 +307,28 @@
                                             <select required="required" class="form-control" name="pm_id" id="pm_id"
                                                     {{ $oc && $oc->status == 'Anulado' ? 'disabled' : '' }}>
                                                 <option value="">Seleccione un responsable por parte de ABROS</option>
-                                                @foreach($pm_candidates as $pm_candidate)
+                                                @foreach ($pm_candidates as $pm_candidate)
                                                     <option value="{{ $pm_candidate->id }}"
-                                                            {{ ($oc&&$oc->pm_id==$pm_candidate->id)||
-                                                                old('pm_id')==$pm_candidate->id ? 'selected="selected"' :
+                                                            {{ ($oc && $oc->pm_id == $pm_candidate->id) ||
+                                                                old('pm_id') == $pm_candidate->id ? 'selected="selected"' :
                                                                 '' }}>{{ $pm_candidate->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     @endif
 
-                                    @if($action&&($action=='anular'||$action=='reject'))
+                                    @if ($action && ($action == 'anular' || $action == 'reject'))
                                         <textarea rows="3" required="required" class="form-control" name="observations"
                                                 id="observations" placeholder="{{ 'Motivo para '.($action=='reject' ?
                                                  'rechazar' : 'anular').' la OC *' }}">{{ $oc ?
                                                  $oc->observations : old('observations') }}</textarea>
                                     @endif
 
-                                    @if($action&&$action=='reject')
+                                    @if ($action && $action == 'reject')
                                         <input type="hidden" name="id" value="{{ $oc->id }}">
                                     @endif
 
-                                    @if(!$action&&$oc&&$user->action->oc_nll /*$user->priv_level==4*/)
+                                    @if (!$action && $oc && $user->action->oc_nll /*$user->priv_level==4*/)
                                         <div class="input-group" style="width: 100%">
                                             <label for="status" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Estado
@@ -344,12 +351,12 @@
                         @include('app.loader_gif')
 
                         <div class="form-group" align="center">
-                            @if($action&&($action=='anular'||$action=='reject'))
+                            @if ($action && ($action == 'anular' || $action == 'reject'))
                                 <button type="button" class="btn btn-danger" {{-- previously type="submit" --}}
                                         onclick="this.disabled=true; $('#wait').show(); this.form.submit()">
                                     <i class="fa fa-minus-circle"></i>
-                                    {{ $action&&$action=='anular' ? 'Anular' :
-                                        ($action&&$action=='reject' ? 'Rechazar' : 'Guardar') }}
+                                    {{ $action && $action == 'anular' ? 'Anular' :
+                                        ($action && $action == 'reject' ? 'Rechazar' : 'Guardar') }}
                                 </button>
                             @else
                                 <button type="button" class="btn btn-success" {{-- previously type="submit" --}}

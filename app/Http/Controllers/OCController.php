@@ -124,6 +124,7 @@ class OCController extends Controller
 
     $service = Session::get('service');
     $action = Input::get('action');
+    $asg_id = Input::get('asg');
 
     $last_stat = count(Assignment::$status_names) -1;
 
@@ -147,7 +148,7 @@ class OCController extends Controller
 
     return View::make('app.oc_form', ['oc' => 0, 'assignments' => $assignments, 'clients' => $clients,
         'pm_candidates' => $pm_candidates, 'providers' => $providers, 'percentages' => $percentages, 
-        'action' => $action, 'service' =>$service, 'user' => $user]);
+        'action' => $action, 'service' =>$service, 'user' => $user, 'asg_id' => $asg_id]);
   }
 
   /**

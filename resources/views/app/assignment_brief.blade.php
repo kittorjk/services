@@ -94,9 +94,9 @@
                     <th>Regional</th>
                     <th width="10%">Estado</th>
                     {{--@if(($user->area=='Gerencia Tecnica'&&$user->priv_level==2)||$user->priv_level>=3)--}}
-                        <th width="8%">Avance</th>
-                        <th width="8%" class="{sorter: 'digit'}">Tiempo restante</th>
-                        <th width="8%">Acciones</th>
+                    <th width="8%">Avance</th>
+                    <th width="8%" class="{sorter: 'digit'}">Tiempo restante</th>
+                    <th width="8%">Acciones</th>
                     {{--@endif--}}
                     <th width="8%">Sitios</th>
                 </tr>
@@ -426,6 +426,8 @@
                                 &ensp;
                                 <a href="/assignment/refresh_data/{{ $assignment->id }}"
                                    title="Actualizar números de asignación"><i class="fa fa-refresh"></i></a>
+                                &ensp;
+                                <a href="{{ '/oc/create?asg='.$assignment->id }}" title="Iniciar una OC"><i class="fa fa-file"></i></a>
                             @endif
                             &ensp;
                             <a data-toggle="collapse" data-parent="#accordion" href="{{ '#collapse'.$assignment->id }}"
