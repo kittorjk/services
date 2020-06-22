@@ -37,7 +37,7 @@ class StipendRequestController extends Controller
         if ((is_null($user))||(!$user->id)) {
             return View('app.index', ['service'=>'project', 'user'=>null]);
         }
-        if($user->acc_project==0)
+        if ($user->acc_project == 0)
             return redirect()->action('LoginController@logout', ['service' => 'project']);
 
         $service = Session::get('service');

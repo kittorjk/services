@@ -539,6 +539,7 @@ class RendicionViaticoController extends Controller
       $rendicion->fecha_estado = Carbon::now();
       $rendicion->estado = 'Pendiente';
       $rendicion->usuario_creacion = $user->priv_level === 4 ? $solicitud->user_id : $user->id;
+      $rendicion->saldo_favor_empresa = $solicitud->total_amount + $solicitud->additional;
       
       $rendicion->save();
 
