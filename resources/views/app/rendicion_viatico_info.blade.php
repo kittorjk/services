@@ -97,7 +97,7 @@
                       <i class="fa fa-file-text-o"></i> Emitir certificado
                   </a>
               @endif--}}
-              @if($user->priv_level == 4)
+              @if ($user->id == $rendicion->usuario_creacion || $user->priv_level == 4 || ($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa'))
                 <a href="/excel/rendicion_viatico/{{ $rendicion->id }}" class="btn btn-success" title="Descargar Rendición">
                   <i class="fa fa-file-excel-o"></i> Descargar rendición
                 </a>
@@ -380,6 +380,16 @@
             <a href="{{ '/rendicion_viatico' }}" class="btn btn-warning" title="Ir a la tabla de rendiciones">
               <i class="fa fa-arrow-circle-up"></i> Rendiciones
             </a>
+          </div>
+
+          <div class="col-lg-7" align="right">
+            @if($rendicion->estado <> 'Cancelado')
+              @if ($user->id == $rendicion->usuario_creacion || $user->priv_level == 4 || ($user->priv_level >= 2 && $user->area == 'Gerencia Administrativa'))
+                <a href="/excel/rendicion_viatico/{{ $rendicion->id }}" class="btn btn-success" title="Descargar Rendición">
+                  <i class="fa fa-file-excel-o"></i> Descargar rendición
+                </a>
+              @endif
+            @endif
           </div>
 
           <div class="col-sm-12 mg10">
