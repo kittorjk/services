@@ -345,6 +345,7 @@ class OCController extends Controller
     $service = Session::get('service');
 
     $action = input::get('action');
+    $asg_id = input::get('asg');
 
     $oc = OC::find($id);
 
@@ -371,7 +372,7 @@ class OCController extends Controller
 
     return View::make('app.oc_form', ['oc' => $oc, 'assignments' => $assignments, 'clients' => $clients,
         'providers' => $providers, 'pm_candidates' => $pm_candidates, 'percentages' => $percentages,
-        'action' => $action, /*'action' => 0, */'service' => $service, 'user' => $user]);
+        'action' => $action, /*'action' => 0, */'service' => $service, 'user' => $user, 'asg_id' => $asg_id]);
   }
 
   /**
@@ -647,9 +648,10 @@ class OCController extends Controller
     $oc = OC::find($id);
     
     $action = 'anular';
+    $asg_id = input::get('asg');
 
     return View::make('app.oc_form', ['oc' => $oc, 'proyectos' => 0, 'clients' => 0, 'providers' => 0,
-        'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user]);
+        'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user, 'asg_id' => $asg_id]);
   }
 
   public function cancel_oc(Request $request, $id)
@@ -707,9 +709,10 @@ class OCController extends Controller
     $oc = OC::find($id);
 
     $action = 'reject';
+    $asg_id = input::get('asg');
 
     return View::make('app.oc_form', ['oc' => $oc, 'proyectos' => 0, 'clients' => 0, 'providers' => 0,
-        'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user]);
+        'pm_candidates' => 0, 'percentages' => 0, 'action' => $action, 'service' => $service, 'user' => $user, 'asg_id' => $asg_id]);
   }
 
   public function reject_oc(Request $request) {
