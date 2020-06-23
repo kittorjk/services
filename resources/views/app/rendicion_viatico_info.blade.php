@@ -482,12 +482,12 @@
                                       <i class="fa fa-trash"></i>
                                     </a>
                                     &ensp;
-                                  @endif
-                                  @if ($respaldo->files->count() === 0)
-                                    <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
-                                      <i class="fa fa-upload"></i>
-                                    </a>
-                                    &ensp;
+                                    @if ($respaldo->files->count() === 0)
+                                      <a href="/files/rendicion_respaldo/{{ $respaldo->id }}" title="Subir imagen o pdf" style="text-decoration: none">
+                                        <i class="fa fa-upload"></i>
+                                      </a>
+                                      &ensp;
+                                    @endif
                                   @endif
                                 @endif
                                 @if ($respaldo->files->count() > 0)

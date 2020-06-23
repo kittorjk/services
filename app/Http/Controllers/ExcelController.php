@@ -1909,6 +1909,218 @@ class ExcelController extends Controller
 
             })->export('xls');
         }
+        elseif ($table == 'rendicion_viatico') {
+            $rendicion = RendicionViatico::find($id);
+
+            $excel_name = $rendicion->solicitud && $rendicion->solicitud->employee ? 'Rendición '.$rendicion->solicitud->employee->first_name.' '.$rendicion->solicitud->employee->last_name : 'Rendición de empleado';
+            $sheet_name = 'Respaldos presentados';
+            //$documents = collect();
+
+            $counter = 0;
+            $total_facturas = 0;
+
+            foreach ($rendicion->respaldos as $respaldo) {
+                if ($respaldo->tipo_respaldo == 'Factura') {
+                    $counter += 1;
+                    $sheet_content->push(
+                        [   '#'                     => $counter,
+                            'Fecha'                 => Carbon::parse($respaldo->fecha_respaldo)->format('d/m/Y'),
+                            'NIT'                   => $respaldo->nit,
+                            'Num Factura'           => $respaldo->nro_respaldo,
+                            'C. Autorizacion'       => $respaldo->codigo_autorizacion,
+                            'C. Control'            => $respaldo->codigo_control,
+                            'Razon Social'          => $respaldo->razon_social,
+                            'Detalle'               => $respaldo->detalle,
+                            'Corresponde a'         => $respaldo->corresponde_a,
+                            'Monto'                 => $respaldo->monto,
+                            'Estado'                => $respaldo->estado
+                        ]);
+
+                    $total_facturas += $respaldo->monto;
+                }
+            }
+
+            //return $sheet_content;
+
+            /*
+            foreach ($device->files as $file) {
+                $documents->push(
+                    [   'ID'                    => $file->id,
+                        'Nombre de archivo'     => $file->name,
+                        'Descripción'           => $file->description,
+                        'Tipo de archivo'       => $file->type,
+                        'Fecha de registo'      => Carbon::parse($file->created_at)->format('d/m/Y'),
+                        'Última modificación'   => Carbon::parse($file->updated_at)->format('d/m/Y'),
+                    ]);
+            }
+            */
+
+            //$this->record_export('/rendicion_viatico/'.$rendicion->id,'Rendicón de viaticos '.$rendicion->codigo,$rendicion);
+
+            Excel::create($excel_name, function($excel) use($sheet_name, $sheet_content, $rendicion, $total_facturas) {
+                $excel->sheet($sheet_name, function($sheet) use($sheet_content, $rendicion, $total_facturas) {
+
+                    $sheet->cells('A5:K5', function($cells) {
+                        $cells->setBackground('#b3b3b3')
+                            //->setFontColor('#ffffff')
+                            ->setFontWeight('bold');
+                    });
+                    /*
+                    $sheet->cells('A5:F5', function($cells) {
+                        $cells->setBackground('#98bfe6')
+                            ->setFontColor('#ffffff')
+                            ->setFontWeight('bold');
+                    });
+                    */
+
+                    $sheet->mergeCells('A1:E1')
+                        ->mergeCells('A2:C2')
+                        ->mergeCells('A3:B3')
+                        ->mergeCells('A4:E4');
+
+                    /*
+                    $sheet->cell('A1', function($cell) {
+                        $cell->setAlignment('center');
+                    });
+                    */
+
+                    $sheet->setCellValue('A1', 'RENDICION DE GASTOS EFECTUADOS')
+                            ->setCellValue('A2', 'Periodo de rendición')
+                            ->setCellValue('D2', 'Desde')
+                            ->setCellValue('E2', Carbon::parse($rendicion->solicitud->date_from)->format('d/m/Y'))
+                            ->setCellValue('F2', 'Hasta')
+                            ->setCellValue('G2', Carbon::parse($rendicion->solicitud->date_to)->format('d/m/Y'))
+                            ->setCellValue('A3', 'Solicitud')
+                            ->setCellValue('C3', $rendicion->solicitud->code)
+                            ->setCellValue('I3', 'Rendición #')
+                            ->setCellValue('J3', $rendicion->codigo)
+                            ->setCellValue('A4', 'Rendición '.$rendicion->solicitud->employee->first_name.' '.$rendicion->solicitud->employee->last_name);
+
+                    $sheet->fromArray($sheet_content, null, 'A5', true);
+
+                    $sheet->setCellValue('H'.($sheet_content->count() + 6), 'Total en facturas [Bs]')
+                        ->setCellValue('J'.($sheet_content->count() + 6), $total_facturas);
+
+                    $sheet->cells('A'.($sheet_content->count() + 6).':K'.($sheet_content->count()+6), function($cells) {
+                        $cells->setBackground('#b3b3b3')
+                            //->setFontColor('#ffffff')
+                            ->setFontWeight('bold');
+                    });
+
+                    //$sheet->mergeCells('A'.($sheet_content->count()+7).':F'.($sheet_content->count()+7));
+
+                    //$sheet->setCellValue('A'.($sheet_content->count() + 7),'Recibos');
+
+                    $i = $sheet->getHighestRow() + 1;
+                    $total_recibos = 0;
+                    $cnt = 0;
+
+                    /*
+                    $sheet->setCellValue('A'.($i + 1), 'Id')
+                        ->setCellValue('B'.($i + 1), 'Nombre de archivo')
+                        ->setCellValue('C'.($i + 1), 'Descripción')
+                        ->setCellValue('D'.($i + 1), 'Tipo')
+                        ->setCellValue('E'.($i + 1), 'Fecha de registo')
+                        ->setCellValue('F'.($i + 1), 'Última modificación');
+
+                    $i = $i + 2;
+                    */
+
+                    foreach ($rendicion->respaldos as $respaldo) {
+                        if ($respaldo->tipo_respaldo == 'Recibo') {
+                            $cnt += 1;
+                            $sheet->appendRow(($i), array(
+                                    $cnt,
+                                    Carbon::parse($respaldo->fecha_respaldo)->format('d/m/Y'),
+                                    '',
+                                    $respaldo->nro_respaldo,
+                                    '',
+                                    '',
+                                    $respaldo->razon_social,
+                                    $respaldo->detalle,
+                                    $respaldo->corresponde_a,
+                                    $respaldo->monto,
+                                    $respaldo->estado
+                            ));
+                            $i++;
+                             
+                            $total_recibos += $respaldo->monto;
+                        }
+                    }
+
+                    $sheet->appendRow(($i), array(
+                        '', '', '', '', '', '', '',
+                        'Total en recibos [Bs]',
+                        '',
+                        $total_recibos,
+                        ''
+                    ));
+
+                    /*
+                    $sheet->setCellValue('H'.($i), 'Total en recibos [Bs]')
+                        ->setCellValue('J'.($i), $total_recibos);
+                        */
+
+                    $sheet->cells('A'.($i).':K'.($i), function($cells) {
+                        $cells->setBackground('#b3b3b3')
+                            //->setFontColor('#ffffff')
+                            ->setFontWeight('bold');
+                    });
+
+                    $sheet->appendRow(($i+1), array(
+                        '', '', '', '', '', '', '',
+                        'Total rendición [Bs]',
+                        '',
+                        ($total_facturas + $total_recibos),
+                        ''
+                    ));
+
+                    $sheet->appendRow(($i+2), array(
+                        '', '', '', '', '', '', '',
+                        'Total depositado [Bs]',
+                        '',
+                        $rendicion->monto_deposito,
+                        ''
+                    ));
+
+                    $sheet->appendRow(($i+3), array(
+                        '', '', '', '', '', '', '',
+                        'Saldo favor empresa [Bs]',
+                        '',
+                        $rendicion->saldo_favor_empresa,
+                        ''
+                    ));
+
+                    $sheet->appendRow(($i+4), array(
+                        '', '', '', '', '', '', '',
+                        'Saldo favor persona [Bs]',
+                        '',
+                        $rendicion->saldo_favor_persona,
+                        ''
+                    ));
+
+                    $sheet->appendRow(($i+5), array(
+                        '',
+                        'Son: '.ucfirst($this->convert_number_to_words($rendicion->saldo_favor_empresa > $rendicion->saldo_favor_persona ? $rendicion->saldo_favor_empresa : $rendicion->saldo_favor_persona)).' Bolivianos',
+                        '', '', '', '', '', '', '', '', ''
+                    ));
+
+                    $sheet->appendRow(($i+6), array(
+                        '', '', '', '', '', '', '', '', '', '', ''
+                    ));
+                    $sheet->appendRow(($i+7), array(
+                        '', '', '', '', '', '', '', '', '', '', ''
+                    ));
+                    $sheet->appendRow(($i+8), array(
+                        '', '', '', '', '', '', '', '', '', '', ''
+                    ));
+
+                    $sheet->appendRow(($i+9), array(
+                        '', 'Elaborado por:', '', '', '', 'Aprobado por:', '', 'Recibido por:', '', '', ''
+                    ));
+                });
+            })->export('xls');
+        }
         elseif ($table == 'sites') {
             $excel_name = 'Sitios por proyecto';
             $sheet_name = 'Sitios';
