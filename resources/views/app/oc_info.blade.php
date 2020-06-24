@@ -347,9 +347,82 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2">Documento firmado por solicitante:</td>
+                                    <td colspan="2">Documento firmado:</td>
                                     <td colspan="2">
                                         <?php $signed_exists = false; ?>
+                                        @foreach ($oc->files as $file)
+                                            @if (substr(explode('_',$file->name)[2],0,2) == 'gg')
+                                                @include('app.info_document_options', array('file'=>$file))
+                                                
+                                                @if (($file->status === 0 && $oc->status == 'Aprobado Gerencia General' && $user->action->oc_apv_gg) || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @endif
+
+                                                <?php $signed_exists = true; ?>
+                                            @endif
+                                        @endforeach
+                                        @if (!$signed_exists)
+                                          @foreach ($oc->files as $file)
+                                            @if (substr(explode('_',$file->name)[2],0,4) == 'gtec')
+                                                @include('app.info_document_options', array('file'=>$file))
+
+                                                @if (($file->status === 0 && $oc->status == 'Aprobado Gerencia Tecnica' && $user->action->oc_apv_tech) || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @elseif (($oc->status == 'Aprobado Gerencia General' && $user->action->oc_apv_gg))
+                                                    &emsp;
+                                                    <a href="/files/oc_gg/{{ $oc->id }}"><i class="fa fa-refresh"></i> Reemplazar</a>
+                                                @endif
+
+                                                <?php $signed_exists = true; ?>
+                                            @endif
+                                          @endforeach
+                                        @endif
+                                        @if (!$signed_exists)
+                                          @foreach ($oc->files as $file)
+                                            @if (substr(explode('_',$file->name)[2],0,3) == 'sgn')
+                                                @include('app.info_document_options', array('file'=>$file))
+
+                                                @if (($file->status === 0 && $oc->status == 'Creado' && $user->id == $oc->user_id) || $user->priv_level === 4)
+                                                    &emsp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @elseif (($oc->status == 'Aprobado Gerencia Tecnica' && $user->action->oc_apv_tech))
+                                                    &emsp;
+                                                    <a href="/files/oc_gtec/{{ $oc->id }}"><i class="fa fa-refresh"></i> Reemplazar</a>
+                                                @elseif (($oc->status == 'Aprobado Gerencia General' && $user->action->oc_apv_gg))
+                                                    &emsp;
+                                                    <a href="/files/oc_gg/{{ $oc->id }}"><i class="fa fa-refresh"></i> Reemplazar</a>
+                                                @endif
+
+                                                <?php $signed_exists = true; ?>
+                                            @endif
+                                          @endforeach
+                                        @endif
+                                        @if (!$signed_exists)
+                                          @if ($user->action->oc_apv_gg || $user->priv_level == 4)
+                                            <a href="/files/oc_gg/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @elseif ($user->action->oc_apv_tech)
+                                            <a href="/files/oc_gtec/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @elseif ($user->id == $oc->user_id)
+                                            <a href="/files/oc_sgn/{{ $oc->id }}"><i class="fa fa-upload"></i> Subir archivo</a>
+                                          @else
+                                            <em>{{ 'En espera de archivo' }}</em>
+                                          @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                {{--
+                                <tr>
+                                    <td colspan="2">Documento firmado por solicitante:</td>
+                                    <td colspan="2">
+                                        <php $signed_exists = false; ?>
                                         @foreach($oc->files as $file)
                                             @if(substr(explode('_',$file->name)[2],0,3)=='sgn')
                                                 @include('app.info_document_options', array('file'=>$file))
@@ -358,16 +431,8 @@
                                                     &emsp;
                                                     <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo"><i class="fa fa-refresh"></i> Reemplazar</a>
                                                 @endif
-
-                                                {{--
-                                                <a href="/download/{{ $file->id }}" style="text-decoration: none">
-                                                    <img src="/imagenes/pdf-icon.png" alt="PDF"/>
-                                                </a>
-                                                <a href="/file/{{ $file->id }}">Detalles</a>
-                                                &emsp;
-                                                <a href="/display_file/{{ $file->id }}">Ver</a>
-                                                --}}
-                                                <?php $signed_exists = true; ?>
+                                                
+                                                <php $signed_exists = true; ?>
                                             @endif
                                         @endforeach
                                         @if(!$signed_exists)
@@ -383,7 +448,7 @@
                                 <tr>
                                     <td colspan="2">Documento firmado por G. Tecnica:</td>
                                     <td colspan="2">
-                                        <?php $signed_tec_exists = false; ?>
+                                        <php $signed_tec_exists = false; ?>
                                         @foreach($oc->files as $file)
                                             @if (substr(explode('_',$file->name)[2],0,4) == 'gtec')
                                                 @include('app.info_document_options', array('file'=>$file))
@@ -395,7 +460,7 @@
                                                     </a>
                                                 @endif
 
-                                                <?php $signed_tec_exists = true; ?>
+                                                <php $signed_tec_exists = true; ?>
                                             @endif
                                         @endforeach
                                         @if (!$signed_tec_exists)
@@ -412,7 +477,7 @@
                                 <tr>
                                     <td colspan="2">Documento firmado por G. General:</td>
                                     <td colspan="2">
-                                        <?php $signed_gg_exists = false; ?>
+                                        <php $signed_gg_exists = false; ?>
                                         @foreach($oc->files as $file)
                                             @if (substr(explode('_',$file->name)[2],0,2) == 'gg')
                                                 @include('app.info_document_options', array('file'=>$file))
@@ -424,7 +489,7 @@
                                                     </a>
                                                 @endif
 
-                                                <?php $signed_gg_exists = true; ?>
+                                                <php $signed_gg_exists = true; ?>
                                             @endif
                                         @endforeach
                                         @if (!$signed_gg_exists)
@@ -437,6 +502,7 @@
                                     </td>
                                 </tr>
                                 @endif
+                                --}}
                             @else
                                 <tr><td colspan="4"></td></tr>
                                 <tr>
