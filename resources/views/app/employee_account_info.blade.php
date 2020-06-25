@@ -68,27 +68,17 @@
                   </a>
               </li>
             @endif
-            @if($user->action->prj_vtc_exp)
-                <li class="divider"></li>
-                <li class="dropdown-submenu">
-                    <a href="#" data-toggle="dropdown"><i class="fa fa-file-excel-o"></i> Exportar a Excel</a>
-                    <ul class="dropdown-menu dropdown-menu-prim">
-                        <li>
-                            <a href="{{ '/excel/stipend_requests' }}">
-                                <i class="fa fa-file-excel-o fa-fw"></i> Tabla de solicitudes
-                            </a>
-                        </li>
-                        @if ($asg)
-                            <li>
-                                <a href="{{ '/excel/stipend_requests/'.$asg }}">
-                                    <i class="fa fa-file-excel-o fa-fw"></i> Solicitudes por asignación
-                                </a>
-                            </li>
-                        @endif
-                    </ul>
-                </li>
-            @endif
             --}}
+            @if ($user->action->prj_vtc_exp)
+                @if ($employee_record)
+                    <li class="divider"></li>
+                    <li>
+                        <a href="{{ '/excel/employee_account_info/'.$employee_record->id }}">
+                            <i class="fa fa-file-excel-o fa-fw"></i> Descargar tabla
+                        </a>
+                    </li>
+                @endif
+            @endif
         </ul>
     </div>
     <a href="{{ '/rendicion_viatico' }}" class="btn btn-primary" title="Ver rendiciones de viáticos">

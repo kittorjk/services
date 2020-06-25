@@ -1955,7 +1955,7 @@ class ExcelController extends Controller
             }
             */
 
-            //$this->record_export('/rendicion_viatico/'.$rendicion->id,'Rendicón de viaticos '.$rendicion->codigo,$rendicion);
+            $this->record_export('/rendicion_viatico/'.$rendicion->id,'Rendicón de viaticos '.$rendicion->codigo,$rendicion);
 
             Excel::create($excel_name, function($excel) use($sheet_name, $sheet_content, $rendicion, $total_facturas) {
                 $excel->sheet($sheet_name, function($sheet) use($sheet_content, $rendicion, $total_facturas) {
@@ -3568,6 +3568,38 @@ class ExcelController extends Controller
                 'stipend_requests records with '.$assignment->code, 0);
 
             return $this->create_excel($excel_name, $sheet_name, $stipend_requests);
+        }
+        elseif ($table === 'employee_account_info') {
+            $employee_record = Employee::find($id);
+
+            $excel_name = 'Estado de rendiciones de viaticos - '.$employee_record->first_name .' '.$employee_record->last_name;
+            $sheet_name = 'Rendiciones '.$employee_record->code;
+
+            $stipend_requests = $employee_record->stipend_requests()->whereNotIn('status', ['Observed', 'Rejected']);
+            $sheet_content = collect();
+
+            foreach ($stipend_requests as $request) {
+                $sheet_content->prepend(
+                    [
+                        'Solicitud'                         => $request->code,
+                        'Centro de costos'                  => $request->assignment && $request->assignment->cost_center > 0 ? $request->assignment->cost_center : '',
+                        'Fecha'                             => date_format($request->created_at,'d-m-Y'),
+                        'Viático [Bs]'                      => number_format($request->total_amount, 2),
+                        'Adicionales [Bs]'                  => number_format($request->additional, 2),
+                        'Trabajo'                           => $request->reason,
+                        'Desde'                             => $request->date_from->format('d-m-Y'),
+                        'Hasta'                             => $request->date_to->format('d-m-Y'),
+                        'Estado'                            => StipendRequest::$stats[$request->status],
+                        'Monto solicitado [Bs]'             => number_format($request->total_amount + $request->additional,2),
+                        'Monto rendido [Bs]'                => $request->rendicion_viatico ? number_format($request->rendicion_viatico->total_rendicion, 2) : '',
+                        'Saldo a favor de ABROS [Bs]'       => $request->rendicion_viatico ? ($request->rendicion_viatico->saldo_favor_empresa > 0 ? number_format($request->rendicion_viatico->saldo_favor_empresa, 2) : '') : number_format($request->total_amount + $request->additional,2),
+                        'Saldo a favor del empleado [Bs]'   => $request->rendicion_viatico ? ($request->rendicion_viatico->saldo_favor_persona > 0 ? number_format($request->rendicion_viatico->saldo_favor_persona, 2) : '') : ''
+                    ]);
+            }
+
+            $this->record_export('/employee_account_info', 'stipend_requests records with '.$employee_record->code, 0);
+
+            return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
         /* Last resort redirection when no match is found */
