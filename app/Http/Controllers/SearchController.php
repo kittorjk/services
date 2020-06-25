@@ -951,6 +951,66 @@ class SearchController extends Controller
             return View::make('app.employee_brief', ['employees' => $employees, 'service' => $service, 'user' => $user]);
         }
 
+        elseif ($table == 'employee_account_info') {
+            //$columns = Schema::getColumnListing('employees');
+            $employee_record = Employee::find($id);
+
+            if ($has_date) {
+                $stipend_requests = $employee_record->stipend_requests()
+                    ->whereBetween('created_at', [$from, $to])
+                    ->whereNotIn('status', ['Observed', 'Rejected']);
+            } else {
+                if ($parameter == 'all') {
+                    $stipend_requests = $employee_record->stipend_requests()->join('assignments', 'stipend_requests.assignment_id', '=', 'assignments.id')
+                        ->select('stipend_requests.*')
+                        ->where(function($query) use($search_term) {
+                            $query->where('assignments.cost_center', 'Like', '%'.$search_term.'%')
+                                ->orwhere('stipend_requests.code', 'Like', '%'.$search_term.'%');
+                        })
+                        ->whereNotIn('stipend_requests.status', ['Observed', 'Rejected']);
+                } elseif ($parameter == 'code') {
+                    $stipend_requests = $employee_record->stipend_requests()
+                        ->where("code", 'like', "%$search_term%")
+                        ->whereNotIn('status', ['Observed', 'Rejected']);
+                } elseif ($parameter == 'cc') {
+                    $stipend_requests = $employee_record->stipend_requests()->join('assignments', 'stipend_requests.assignment_id', '=', 'assignments.id')
+                        ->select('stipend_requests.*')
+                        ->where('assignments.cost_center', 'Like', '%'.$search_term.'%')
+                        ->whereNotIn('stipend_requests.status', ['Observed', 'Rejected']);
+                }  else {
+                    $stipend_requests = $employee_record->stipend_requests()
+                        ->whereNotIn('status', ['Observed', 'Rejected']);
+                }
+            }
+
+            $stipend_requests = $stipend_requests->orderBy('created_at', 'desc')->paginate(20);
+
+            $total_solicitudes = 0;
+            $total_rendiciones = 0;
+            $saldo_global_abros = 0;
+            $saldo_global_empleado = 0;
+
+            foreach ($stipend_requests as $request) {
+                $request->date_from = Carbon::parse($request->date_from);
+                $request->date_to = Carbon::parse($request->date_to);
+
+                if ($request->status == 'Completed' || $request->status == 'Documented') {
+                    $total_solicitudes += $request->total_amount + $request->additional;
+                }
+                
+                if ($request->rendicion_viatico) {
+                    $total_rendiciones += $request->rendicion_viatico->total_rendicion;
+                }
+            }
+
+            $saldo_global_abros = $total_solicitudes - $total_rendiciones;
+            $saldo_global_empleado = $total_rendiciones - $total_solicitudes;
+
+            return View::make('app.employee_account_info', ['stipend_requests' => $stipend_requests, 'service' => $service, 'user' => $user, 
+                'employee_record' => $employee_record, 'total_solicitudes' => $total_solicitudes, 'total_rendiciones' => $total_rendiciones, 
+                'saldo_global_abros' => $saldo_global_abros, 'saldo_global_empleado' => $saldo_global_empleado]);
+        }
+
         elseif ($table == 'events') {
             $columns = Schema::getColumnListing('events');
 

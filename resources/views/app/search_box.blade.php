@@ -415,6 +415,10 @@
                                         @if ($table === 'client_sessions')
                                             <option value="service_accessed">Servicio</option>
                                         @endif
+                                        @if ($table == 'employee_account_info')
+                                            <option value="code">Número de solicitud</option>
+                                            <option value="cc">Cuenta contable</option>
+                                        @endif
                                     </select>
                                     <input required="required" type="text" class="form-control" name="buscar"
                                            placeholder="Parámetro de búsqueda">

@@ -100,13 +100,11 @@
     <a href="{{ '/stipend_request' }}" class="btn btn-primary" title="Ver solicitudes de viaticos">
       <i class="fa fa-file"></i> Solicitudes
     </a>
-    {{--
     @if ($user->priv_level >= 2)
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchBox">
         <i class="fa fa-search"></i> Buscar
       </button>
     @endif
-    --}}
 @endsection
 
 @section('content')
@@ -303,11 +301,9 @@
     </div>
 
     <!-- Search Modal -->
-    {{--
     <div id="searchBox" class="modal fade" role="dialog">
-        @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'stipend_requests','id'=>($asg ?: 0)))
+        @include('app.search_box', array('user' => $user, 'service' => $service, 'table' => 'employee_account_info', 'id' => ($employee_record->id ?: 0)))
     </div>
-    --}}
 @endsection
 
 @section('footer')
