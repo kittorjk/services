@@ -3575,8 +3575,7 @@ class ExcelController extends Controller
             $excel_name = 'Estado de rendiciones de viaticos - '.$employee_record->first_name .' '.$employee_record->last_name;
             $sheet_name = 'Rendiciones '.$employee_record->code;
 
-            $stipend_requests = $employee_record->stipend_requests()->whereNotIn('status', ['Observed', 'Rejected']);
-            $sheet_content = collect();
+            $stipend_requests = $employee_record->stipend_requests()->whereNotIn('status', ['Observed', 'Rejected'])->get();
 
             foreach ($stipend_requests as $request) {
                 $sheet_content->prepend(
@@ -3587,8 +3586,8 @@ class ExcelController extends Controller
                         'Viático [Bs]'                      => number_format($request->total_amount, 2),
                         'Adicionales [Bs]'                  => number_format($request->additional, 2),
                         'Trabajo'                           => $request->reason,
-                        'Desde'                             => $request->date_from->format('d-m-Y'),
-                        'Hasta'                             => $request->date_to->format('d-m-Y'),
+                        'Desde'                             => Carbon::parse($request->date_from)->format('d-m-Y'),
+                        'Hasta'                             => Carbon::parse($request->date_to)->format('d-m-Y'),
                         'Estado'                            => StipendRequest::$stats[$request->status],
                         'Monto solicitado [Bs]'             => number_format($request->total_amount + $request->additional,2),
                         'Monto rendido [Bs]'                => $request->rendicion_viatico ? number_format($request->rendicion_viatico->total_rendicion, 2) : '',
