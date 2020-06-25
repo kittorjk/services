@@ -983,17 +983,15 @@ class SearchController extends Controller
                 }
             }
 
+            $all_stipend_requests = $stipend_requests->orderBy('created_at', 'desc')->get(); // For calculation purposes
             $stipend_requests = $stipend_requests->orderBy('created_at', 'desc')->paginate(20);
-
+    
             $total_solicitudes = 0;
             $total_rendiciones = 0;
             $saldo_global_abros = 0;
             $saldo_global_empleado = 0;
-
-            foreach ($stipend_requests as $request) {
-                $request->date_from = Carbon::parse($request->date_from);
-                $request->date_to = Carbon::parse($request->date_to);
-
+    
+            foreach ($all_stipend_requests as $request) {
                 if ($request->status == 'Completed' || $request->status == 'Documented') {
                     $total_solicitudes += $request->total_amount + $request->additional;
                 }
@@ -1001,6 +999,11 @@ class SearchController extends Controller
                 if ($request->rendicion_viatico) {
                     $total_rendiciones += $request->rendicion_viatico->total_rendicion;
                 }
+            }
+    
+            foreach ($stipend_requests as $request) {
+                $request->date_from = Carbon::parse($request->date_from);
+                $request->date_to = Carbon::parse($request->date_to);
             }
 
             $saldo_global_abros = $total_solicitudes - $total_rendiciones;
