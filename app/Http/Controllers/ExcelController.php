@@ -789,7 +789,7 @@ class ExcelController extends Controller
                         'Código'                        => $oc->code,
                         'Usuario'                       => $oc->user ? $oc->user->name : '',
                         'Fecha'                         => date_format($oc->created_at,'d/m/Y'),
-                        'Mes'                           => date_format($oc->created_at,'m'),
+                        //'Mes'                           => date_format($oc->created_at,'m'),
                         'Proveedor'                     => $oc->provider,
                         'Tipo de OC'                    => $oc->type,
                         'Concepto'                      => wordwrap($oc->proy_concept, 70, "\n", false),
@@ -809,6 +809,11 @@ class ExcelController extends Controller
                         'Plazo de entrega'              => $oc->delivery_term,
                         'Responsable'                   => $oc->responsible ? $oc->responsible->name : '',
                         'Estado'                        => $oc->status,
+                        'Acciones'                      => (($oc->status === 'Aprobado Gerencia Tecnica' && $oc->type == 'Servicio') ||
+                                                            ($oc->status == 'Creado' && $oc->type == 'Compra de material')) ?
+                                                            'Pendiente aprobación de G. General' :
+                                                            (($oc->status == 'Creado' && $oc->type == 'Servicio') ?
+                                                            'Pendiente aprobación de G. Tecnica' : ''),
                         'Observaciones'                 => wordwrap($oc->observations, 70, "\n", false),
                         'Complemento de OC'             => $oc->linked ? $oc->linked->code : '',
                     ]);
