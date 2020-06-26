@@ -128,9 +128,16 @@ class InvoiceController extends Controller
 
     $ps_id = Input::get('oc'); // Previously selected OC id
 
-    $ocs = OC::where('status','Aprobado Gerencia General')->where('payment_status','<>','Concluido')->where(function ($query) {
-                $query->where('executed_amount','<>',0)->orwhere('payment_status','Sin pagos')->orwhere('payment_status', '');
-            })->get();
+    if ($user->priv_level === 4) {
+      $ocs = OC::where('status','Aprobado Gerencia General')->where(function ($query) {
+          $query->where('executed_amount','<>',0)->orwhere('payment_status','Sin pagos')->orwhere('payment_status', '');
+      })->get();
+    } else {
+      $ocs = OC::where('status','Aprobado Gerencia General')->where('payment_status','<>','Concluido')->where(function ($query) {
+          $query->where('executed_amount','<>',0)->orwhere('payment_status','Sin pagos')->orwhere('payment_status', '');
+      })->get();
+    }
+    
     //$bank_options = Provider::select('bnk_name')->where('bnk_name', '<>', '')->groupBy('bnk_name')->get();
 
     return View::make('app.invoice_form', ['invoice' => 0, 'ocs' => $ocs, 'service' => $service,
@@ -631,7 +638,11 @@ class InvoiceController extends Controller
     } elseif ($invoice->concept == 'Entrega') {
       //if ($oc->flags[7] == 0)
       //  $oc->flags = str_pad($oc->flags+1, 8, "0", STR_PAD_LEFT);
-      $oc->payment_status = 'Concluido';
+      if ($oc->oc_amount == $oc->payed_amount) {
+        $oc->payment_status = 'Concluido';
+      } else {
+        $oc->payment_status = 'Avance';
+      }
     }
 
     $oc->payed_amount += $invoice->amount;
