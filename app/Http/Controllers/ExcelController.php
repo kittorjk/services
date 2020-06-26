@@ -809,17 +809,18 @@ class ExcelController extends Controller
                         'Plazo de entrega'              => $oc->delivery_term,
                         'Responsable'                   => $oc->responsible ? $oc->responsible->name : '',
                         'Estado'                        => $oc->status,
-                        'Acciones'                      => (($oc->status === 'Aprobado Gerencia Tecnica' && $oc->type == 'Servicio') ||
-                                                            ($oc->status == 'Creado' && $oc->type == 'Compra de material')) ?
-                                                            'Pendiente aprobación de G. General' :
-                                                            (($oc->status == 'Creado' && $oc->type == 'Servicio') ?
-                                                            'Pendiente aprobación de G. Tecnica' : ''),
+                        'Acciones'                      => $oc->status == 'Anulado' ? 'Anulada' : 
+                            ($oc->status == 'Rechazada' ? 'Rechazada' : 
+                            ($oc->payment_status == 'Concluido' ? 'Concluída' :
+                            ($oc->status === 'Aprobado Gerencia General' ? 'Aprobada' : 
+                            (($oc->status === 'Aprobado Gerencia Tecnica' && $oc->type == 'Servicio') || ($oc->status == 'Creado' && $oc->type == 'Compra de material') ? 'Pendiente aprobación de G. General' : 
+                            ($oc->status == 'Creado' && $oc->type == 'Servicio' ? 'Pendiente aprobación de G. Tecnica' : ''))))),
                         'Observaciones'                 => wordwrap($oc->observations, 70, "\n", false),
                         'Complemento de OC'             => $oc->linked ? $oc->linked->code : '',
                     ]);
             }
 
-            $this->record_export('/oc','Full table',0);
+            $this->record_export('/oc','Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
