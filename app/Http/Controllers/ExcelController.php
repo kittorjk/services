@@ -742,18 +742,18 @@ class ExcelController extends Controller
 
             $oc_certifications = OcCertification::all();
 
-            foreach($oc_certifications as $oc_certification)
-            {
+            foreach ($oc_certifications as $oc_certification) {
                 $sheet_content->prepend(
                     [   'ID'                    => $oc_certification->id,
                         'Código'                => $oc_certification->code,
                         'Código OC'             => $oc_certification->oc->code,
-                        'Centro de costos'      => $oc_certification->oc->assignment && $oc_certification->oc->assignment->cost_center && $oc_certification->oc->assignment->cost_center > 0 ? $oc_certification->oc->assignment->cost_center : '',
+                        'Centro de costos'      => $oc_certification->oc->assignment && $oc_certification->oc->assignment->cost_center &&
+                            $oc_certification->oc->assignment->cost_center > 0 ? $oc_certification->oc->assignment->cost_center : '',
                         'Monto ejecutado [Bs]'  => $oc_certification->amount + 0, // number_format($oc_certification->amount,2).' Bs',
                         'Certificado por'       => $oc_certification->user->name,
                         'ID usuario'            => $oc_certification->user_id,
                         'Tipo de aceptación'    => $oc_certification->type_reception,
-                        '# aceptación parcial'  => $oc_certification->num_reception!=0 ?
+                        '# aceptación parcial'  => $oc_certification->num_reception != 0 ?
                             $oc_certification->num_reception : '',
                         'Fecha comunicación entrega'    => Carbon::parse($oc_certification->date_ack)->format('d/m/Y'),
                         'Fecha aceptación'      => Carbon::parse($oc_certification->date_acceptance)->format('d/m/Y'),
@@ -765,7 +765,7 @@ class ExcelController extends Controller
                     ]);
             }
 
-            $this->record_export('/oc_certificate','Full table',0);
+            $this->record_export('/oc_certificate','Full table', 0);
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
@@ -774,13 +774,12 @@ class ExcelController extends Controller
             $excel_name = 'Base de OCs';
             $sheet_name = 'Ordenes de Compra';
 
-            if(Session::has('db_query'))
+            if (Session::has('db_query'))
                 $ocs = Session::get('db_query');
             else
                 $ocs = OC::all();
 
-            foreach($ocs as $oc)
-            {
+            foreach ($ocs as $oc) {
                 //$user_name = User::where('id',$oc->user_id)->first()->name;
                 //$pm_name = empty($oc->pm_id) ? '' : User::where('id',$oc->pm_id)->first()->name;
 
@@ -800,7 +799,8 @@ class ExcelController extends Controller
                         'Pendiente de certificación'    => $oc->oc_amount - $oc->executed_amount + 0,
                         'Porcentajes de pago'           => str_replace('-','% - ',$oc->percentages).'%',
                         'Proyecto'                      => wordwrap($oc->proy_name, 70, "\n", false),
-                        'Centro de costos'              => $oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0 ? $oc->assignment->cost_center : '',
+                        'Centro de costos'              => $oc->assignment && $oc->assignment->cost_center && $oc->assignment->cost_center > 0 ?
+                            $oc->assignment->cost_center : '',
                         'Descripción proyecto'          => wordwrap($oc->proy_description, 70, "\n", false),
                         'Cliente'                       => $oc->client,
                         'OC Cliente'                    => $oc->client_oc,
@@ -1938,7 +1938,7 @@ class ExcelController extends Controller
                             'Razon Social'          => $respaldo->razon_social,
                             'Detalle'               => $respaldo->detalle,
                             'Corresponde a'         => $respaldo->corresponde_a,
-                            'Monto'                 => $respaldo->monto,
+                            'Monto'                 => $respaldo->monto + 0,
                             'Estado'                => $respaldo->estado
                         ]);
 
