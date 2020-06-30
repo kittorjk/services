@@ -92,7 +92,7 @@ class TaskController extends Controller
 
         $site_info = Site::find($id);
 
-        if(!$site_info){
+        if (!$site_info) {
             Session::flash('message', 'Sucedió un error al recuperar la información solicitada, revise la dirección 
                 e intente de nuevo por favor');
             return redirect()->back();
@@ -103,8 +103,7 @@ class TaskController extends Controller
         $last_stat = $tasks->count()>0 ? $tasks->first()->last_stat() : (count(Task::$status_options) -1);
             //Task::first()->last_stat();
 
-        foreach($tasks as $task)
-        {
+        foreach ($tasks as $task) {
             $task->start_date = Carbon::parse($task->start_date);
             $task->end_date = Carbon::parse($task->end_date);
 
@@ -146,7 +145,7 @@ class TaskController extends Controller
 
         $site = Site::find($id);
 
-        if(!$site){
+        if (!$site) {
             //$sites = Site::whereNotIn('status', ['Concluído','No asignado'])->get();
             Session::flash('message', 'Ocurrió un error al recuperar información del sitio, intente de nuevo por favor');
             return redirect()->back();
@@ -179,7 +178,7 @@ class TaskController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['end_date']!='')
+        if ($form_data['end_date'] != '')
             $form_data['end_date'] = $form_data['end_date'].' 23:59:59';
 
         $v = \Validator::make($form_data, [
@@ -213,28 +212,27 @@ class TaskController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
 
         $task = new Task($form_data);
 
-        if($task->total_expected==0){
+        if ($task->total_expected == 0) {
             Session::flash('message', 'Debe especificar la cantidad proyectada!');
             return redirect()->back()->withInput();
         }
 
-        if($task->pondered_weight&&($task->pondered_weight<1||$task->pondered_weight>10)){
+        if ($task->pondered_weight && ($task->pondered_weight < 1 || $task->pondered_weight > 10)) {
             Session::flash('message', 'El peso ponderado debe estar en el rango de 1 a 10!');
             return redirect()->back()->withInput();
         }
 
         $task->pondered_weight = $task->pondered_weight ?: 1;
         
-        if(empty($task->status)){
-            $task->status = Carbon::parse($task->start_date)<Carbon::now() ?
+        if (empty($task->status)) {
+            $task->status = Carbon::parse($task->start_date) < Carbon::now() ?
                 $task->status_number('Ejecución') : 1 /* Initial state */;
         }
 
@@ -247,7 +245,7 @@ class TaskController extends Controller
         */
 
         $prev_number = Task::select('number')->where('site_id',$task->site_id)->OrderBy('number','desc')->first();
-        $task->number = empty($prev_number) ? 1 : $prev_number->number+1;
+        $task->number = empty($prev_number) ? 1 : $prev_number->number + 1;
 
         $task->user_id = $user->id;
         $task->assigned_price = $task->total_expected*$task->quote_price;
@@ -272,7 +270,6 @@ class TaskController extends Controller
         */
 
         $task->item_id = 0; //$item->id;
-        
         $task->additional = 1; //True
 
         $task->save();
@@ -280,7 +277,7 @@ class TaskController extends Controller
         $this->fill_code_column();
 
         Session::flash('message', "El item fue agregado correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
@@ -386,7 +383,7 @@ class TaskController extends Controller
 
         $form_data = Request::all();
 
-        if($form_data['end_date']!='')
+        if ($form_data['end_date'] != '')
             $form_data['end_date'] = $form_data['end_date'].' 23:59:59';
 
         $v = \Validator::make($form_data, [
@@ -420,8 +417,7 @@ class TaskController extends Controller
             ]
         );
 
-        if ($v->fails())
-        {
+        if ($v->fails()) {
             Session::flash('message', $v->messages()->first());
             return redirect()->back()->withInput();
         }
@@ -431,12 +427,12 @@ class TaskController extends Controller
 
         $task->fill($form_data);
         
-        if($task->total_expected==0){
+        if ($task->total_expected == 0) {
             Session::flash('message', 'Debe especificar la cantidad proyectada!');
             return redirect()->back()->withInput();
         }
 
-        if($task->pondered_weight<1||$task->pondered_weight>10){
+        if ($task->pondered_weight < 1 || $task->pondered_weight > 10) {
             Session::flash('message', 'El peso ponderado debe estar en el rango de 1 a 10!');
             return redirect()->back()->withInput();
         }
@@ -476,7 +472,7 @@ class TaskController extends Controller
         $task->save();
 
         Session::flash('message', "Datos actualizados correctamente");
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
@@ -508,7 +504,7 @@ class TaskController extends Controller
         $categories = ItemCategory::select('name');
         //Item::select('category')->where('category', '<>', '')->where('area', $user->work_type)->groupBy('category')->get();
 
-        if($assignment->project_id!=0&&ItemCategory::where('project_id', $assignment->project_id)->count()>0){
+        if ($assignment->project_id != 0 && ItemCategory::where('project_id', $assignment->project_id)->count() > 0) {
             $categories = $categories->where('project_id', $assignment->project_id);
         }
 
@@ -537,26 +533,26 @@ class TaskController extends Controller
 
         $site = Site::find($id);
 
-        for($i=0;$i<$listed_items;$i++){
-            if(!empty($results['item_'.$i])&&!empty($results['quantity_'.$i])&&$results['quantity_'.$i]>0){
+        for ($i = 0; $i < $listed_items; $i++) {
+            if (!empty($results['item_'.$i]) && !empty($results['quantity_'.$i]) && $results['quantity_'.$i] > 0) {
                 $item = Item::find($results['item_'.$i]);
                 $already_added = false;
 
-                foreach($site->tasks as $task){
-                    if($task->item_id==$item->id){
+                foreach ($site->tasks as $task) {
+                    if ($task->item_id == $item->id) {
                         $already_added = true; //Check if an item is already present in a site
                         $num_repeated++;
                     }
                 }
 
-                if(!$already_added){
+                if (!$already_added) {
                     $task = new Task;
                     $task->user_id = $user->id;
                     $task->site_id = $id;
                     $task->item_id = $item->id;
 
                     $prev_number = Task::select('number')->where('site_id',$task->site_id)->OrderBy('number','desc')->first();
-                    $task->number = empty($prev_number) ? 1 : $prev_number->number+1;
+                    $task->number = empty($prev_number) ? 1 : $prev_number->number + 1;
 
                     $task->name = $item->description;
                     $task->description = $item->detail;
@@ -569,9 +565,9 @@ class TaskController extends Controller
                     $task->assigned_price = $task->total_expected*$task->quote_price;
                     $task->start_date = $site->start_date;
                     $task->end_date = $site->end_date;
-                    $task->additional = strpos($item->category, 'Adicionales')!==false ? 1 : 0;
+                    $task->additional = strpos($item->category, 'Adicionales') !== false ? 1 : 0;
 
-                    $task->status = Carbon::parse($task->start_date)<Carbon::now() ?
+                    $task->status = Carbon::parse($task->start_date) < Carbon::now() ?
                         $task->status_number('Ejecución') : 1 /* Initial state */;
 
                     $task->save();
@@ -583,11 +579,11 @@ class TaskController extends Controller
 
         $this->fill_code_column(); //Complete records with empty code
 
-        Session::flash('message', ($num_added==0 ? "No seleccionó ningún item." :
-            ($num_added==1 ? "Se agregó un item a este sitio." : "Se agregaron $num_added items a este sitio.")).
-            ($num_repeated>0 ? " Se seleccionaron $num_repeated items repetidos!" : ""));
+        Session::flash('message', ($num_added == 0 ? "No seleccionó ningún item." :
+            ($num_added == 1 ? "Se agregó un item a este sitio." : "Se agregaron $num_added items a este sitio.")).
+            ($num_repeated > 0 ? " Se seleccionaron $num_repeated items repetidos!" : ""));
 
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
@@ -606,14 +602,14 @@ class TaskController extends Controller
             return redirect()->route('root');
 
         $task = Task::find($id);
+        $site = $task->site;
 
-        if($task){
+        if ($task) {
             $to_return_id = $task->site_id;
             $file_error = false;
 
-            foreach($task->activities as $activity){
-
-                foreach($activity->files as $file){
+            foreach ($task->activities as $activity) {
+                foreach ($activity->files as $file) {
                     /*
                     $success = true;
 
@@ -627,7 +623,7 @@ class TaskController extends Controller
                         $file->delete();
                     */
                     $file_error = $this->removeFile($file);
-                    if($file_error)
+                    if ($file_error)
                         break;
                 }
 
@@ -637,12 +633,11 @@ class TaskController extends Controller
                     break;
             }
 
-            if(!$file_error){
-                foreach($task->events as $event){
-
-                    foreach($event->files as $file){
+            if (!$file_error) {
+                foreach ($task->events as $event) {
+                    foreach ($event->files as $file) {
                         $file_error = $this->removeFile($file);
-                        if($file_error)
+                        if ($file_error)
                             break;
                     }
 
@@ -656,18 +651,25 @@ class TaskController extends Controller
             if (!$file_error) {
                 $task->delete();
 
+                // Update values if delete was successful
+                if ($site) {
+                    $this->refresh_site($site);
+    
+                    if ($site->assignment) {
+                        $this->refresh_assignment($site->assignment);
+                    }
+                }
+
                 Session::flash('message', "El registro fue eliminado del sistema");
-                if(Session::has('url'))
-                    return redirect(Session::get('url'));
-                else
-                    return redirect()->action('TaskController@tasks_per_site', ['id' => $to_return_id]);
-            }
-            else {
+                //if (Session::has('url'))
+                //    return redirect(Session::get('url'));
+                //else
+                return redirect()->action('TaskController@tasks_per_site', ['id' => $to_return_id]);
+            } else {
                 Session::flash('message', "Error al borrar el registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Error al ejecutar el borrado, no se encontró el registro solicitado.");
             return redirect()->back();
         }
@@ -683,14 +685,13 @@ class TaskController extends Controller
 
         $task = Task::find($id);
 
-        if($task){
+        if ($task) {
             $file_error = false;
 
-            foreach($task->activities as $activity){
-
-                foreach($activity->files as $file){
+            foreach ($task->activities as $activity) {
+                foreach ($activity->files as $file) {
                     $file_error = $this->removeFile($file);
-                    if($file_error)
+                    if ($file_error)
                         break;
                 }
 
@@ -701,18 +702,27 @@ class TaskController extends Controller
             }
 
             if (!$file_error) {
+                // Update values if delete was successful
+                $this->refresh_task($task);
+    
+                if ($task->site) {
+                    $this->refresh_site($task->site);
+    
+                    if ($task->site->assignment) {
+                        $this->refresh_assignment($task->site->assignment);
+                    }
+                }
+
                 Session::flash('message', "Todas las actividades de este item han sido eliminadas");
-                if(Session::has('url'))
+                if (Session::has('url'))
                     return redirect(Session::get('url'));
                 else
                     return redirect()->action('TaskController@tasks_per_site', ['id' => $task->site_id]);
-            }
-            else {
+            } else {
                 Session::flash('message', "Error al borrar un registro, por favor consulte al administrador. $file_error");
                 return redirect()->back();
             }
-        }
-        else {
+        } else {
             Session::flash('message', "Error al ejecutar el borrado, no se encontró el item solicitado.");
             return redirect()->back();
         }
@@ -746,7 +756,7 @@ class TaskController extends Controller
                     // Si la cantidad ejecutada del item no es igual a la cantidad asignada el estado pasa de Cobro a Aplicado
                     if ($task->executed_price == $task->assigned_price) {
                         foreach ($task->activities as $activity) {
-                            foreach($activity->files as $file){
+                            foreach ($activity->files as $file) {
                                 $this->blockFile($file);
                             }
                         }
@@ -864,9 +874,9 @@ class TaskController extends Controller
         $prev_number = Event::select('number')->where('eventable_id',$task->id)
             ->where('eventable_type','App\Task')->orderBy('number','desc')->first();
 
-        $event->number = $prev_number ? $prev_number->number+1 : 1;
+        $event->number = $prev_number ? $prev_number->number + 1 : 1;
 
-        if($type=='status changed'){
+        if ($type == 'status changed') {
             $event->description = 'Cambio de estado';
             $event->detail = "$user->name ha cambiado el estado del item $task->code a ".$task->statuses($task->status);
         }
@@ -884,10 +894,9 @@ class TaskController extends Controller
         
         //$tasks = Task::where('site_id',$id)->orderBy('number')->get();
         $site = Site::find($id);
-        $assignment = $site&&$site->assignment ? $site->assignment : 0;
+        $assignment = $site && $site->assignment ? $site->assignment : 0;
 
-        foreach($site->tasks as $task)
-        {
+        foreach ($site->tasks as $task) {
             $this->refresh_task($task);
             /*
             if($task->status!='Concluído'&&$task->status!='No asignado'){
@@ -903,15 +912,15 @@ class TaskController extends Controller
             }
             */
         }
-        if($site){
+        if ($site) {
             $this->refresh_site($site);
         }
-        if($assignment){
+        if ($assignment) {
             $this->refresh_assignment($assignment);
         }
 
         Session::flash('message', 'Datos actualizados correctamente');
-        if(Session::has('url'))
+        if (Session::has('url'))
             return redirect(Session::get('url'));
         else
             return redirect()->action('TaskController@tasks_per_site', ['id' => $id]);
@@ -921,7 +930,7 @@ class TaskController extends Controller
     {
         $tasks = Task::where('code','')->get();
 
-        foreach($tasks as $task){
+        foreach ($tasks as $task) {
             $task->code = 'TK-'.str_pad($task->id, 4, "0", STR_PAD_LEFT).'0'.$task->number.
                 date_format($task->created_at,'-y');
 
