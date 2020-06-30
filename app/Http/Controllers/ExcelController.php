@@ -2105,6 +2105,10 @@ class ExcelController extends Controller
                         ''
                     ));
 
+                    $sheet->setColumnFormat(array(
+                        'J6:J'.($i+4) => '#,##0.00_-'
+                    ));                    
+
                     $sheet->appendRow(($i+5), array(
                         '',
                         'Son: '.ucfirst($this->convert_number_to_words($rendicion->saldo_favor_empresa > $rendicion->saldo_favor_persona ? $rendicion->saldo_favor_empresa : $rendicion->saldo_favor_persona)).' Bolivianos',
