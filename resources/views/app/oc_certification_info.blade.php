@@ -134,8 +134,8 @@
                                     <th colspan="2">Certificado firmado:</th>
                                     <td colspan="2">
                                         <?php $signed_file_exists = false; ?>
-                                        @foreach($certificate->files as $file)
-                                            @if(substr($file->name,0,3) == 'CFD' || substr($file->name,0,4) == 'CTDF' /* old name */)
+                                        @foreach ($certificate->files as $file)
+                                            @if (substr($file->name,0,3) == 'CFD' || substr($file->name,0,4) == 'CTDF' /* old name */)
                                                 @include('app.info_document_options', array('file'=>$file))
                                                 {{--
                                                 <a href="/download/{{ $file->id }}">
@@ -145,10 +145,17 @@
                                                 &emsp;
                                                 <a href="/display_file/{{ $file->id }}">Ver</a>
                                                 --}}
+                                                @if ($user->action->oc_apv_tech || $user->action->oc_apv_gg || $user->priv_level === 4)
+                                                    &ensp;
+                                                    <a href="/files/replace/{{ $file->id }}" title="Reemplazar este archivo">
+                                                      <i class="fa fa-refresh"></i> Reemplazar
+                                                    </a>
+                                                @endif
+
                                                 <?php $signed_file_exists = true; ?>
                                             @endif
                                         @endforeach
-                                        @if(!$signed_file_exists)
+                                        @if (!$signed_file_exists)
                                             <a href="/files/oc_certificate/{{ $certificate->id }}">
                                                 <i class="fa fa-upload"></i> Subir archivo
                                             </a>
