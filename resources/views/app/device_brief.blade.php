@@ -17,7 +17,8 @@
             <i class="fa fa-laptop"></i> Equipos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/device' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/device' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li><a href="{{ '/operator' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones </a></li>
             <li><a href="{{ '/device_requirement' }}"><i class="fa fa-arrow-right"></i> Ver requerimientos</a></li>
             @if($user->action->acv_dvc_req /*$user->priv_level>=2*/)

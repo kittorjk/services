@@ -26,7 +26,8 @@
             <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/rbs_viatic' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/rbs_viatic' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/rbs_viatic/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva solicitud </a></li>
             @if($user->priv_level>=2)
                 <li><a href="{{ '/rbs_viatic/approve_list' }}"><i class="fa fa-check fa-fw"></i> Aprobar solicitud </a></li>

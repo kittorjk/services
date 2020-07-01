@@ -16,7 +16,8 @@
             <i class="fa fa-car"></i> Vehículos asignados <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/driver' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/driver' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/driver?conf=pending' }}"><i class="fa fa-hourglass-2 fa-fw"></i> Ver asignaciones sin confirmar</a></li>
             <li><a href="{{ '/vehicle' }}"><i class="fa fa-car fa-fw"></i> Ver vehículos </a></li>
             <li><a href="{{ '/vehicle_requirement' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver requerimientos</a></li>

@@ -16,7 +16,8 @@
             <i class="fa fa-exchange"></i> Asignación de equipos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/operator' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/operator' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li>
                 <a href="{{ '/operator?conf=pending' }}"><i class="fa fa-hourglass-2 fa-fw"></i> Ver asignaciones sin confirmar</a>
             </li>

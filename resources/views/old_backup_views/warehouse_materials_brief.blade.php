@@ -15,7 +15,8 @@
 @endsection
 
 @section('menu_options')
-    <li><a href="/warehouse/materials/{{ $wh_info->id }}">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>
+    {{--<li><a href="/warehouse/materials/{{ $wh_info->id }}">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>--}}
+    <li><a href="" onclick="window.location.reload();">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>
     @if($user->work_type=='Almacén'||$user->priv_level==4)
         <li><a href="#">&ensp;<i class="fa fa-exchange"></i> MOVIMIENTOS <span class="caret"></span>&ensp;</a>
             <ul class="sub-menu">

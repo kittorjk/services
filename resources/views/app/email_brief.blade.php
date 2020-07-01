@@ -18,8 +18,9 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-envelope"></i> CORREOS <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ '/email' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
-            @if($user->priv_level==4)
+            {{--<li><a href="{{ '/email' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            @if ($user->priv_level == 4)
                 <li><a href="{{ '/excel/emails' }}"><i class="fa fa-file-excel-o"></i> Exportar lista</a></li>
             @endif
         </ul>

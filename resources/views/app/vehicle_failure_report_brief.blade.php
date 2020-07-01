@@ -26,7 +26,8 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="{{ '/vehicle_failure_report'.($vehicle ? '?vhc='.$vehicle->id : '') }}">
+                {{--<a href="{{ '/vehicle_failure_report'.($vehicle ? '?vhc='.$vehicle->id : '') }}">--}}
+                <a href="" onclick="window.location.reload();">
                     <i class="fa fa-refresh"></i> Recargar página
                 </a>
             </li>

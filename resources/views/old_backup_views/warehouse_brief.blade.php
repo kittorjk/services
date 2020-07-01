@@ -16,7 +16,8 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-barcode"></i> ALMACENES <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ '/warehouse' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/warehouse' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             @if($user->work_type=='Almacén'||$user->priv_level==4)
                 <li><a href="{{ '/warehouse/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar almacén </a></li>
             @endif

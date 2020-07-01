@@ -26,7 +26,8 @@
             <i class="fa fa-bars"></i> Historial de equipo <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="/history/device/{{ $device->id }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="/history/device/{{ $device->id }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li><a href="{{ '/device' }}"><i class="fa fa-bars"></i> Ir a equipos </a></li>
             <li><a href="{{ '/operator' }}"><i class="fa fa-bars"></i> Ir a asignaciones </a></li>
             <li><a href="{{ '/device_requirement' }}"><i class="fa fa-bars"></i> Ir a requerimientos</a></li>

@@ -30,7 +30,8 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="{{ '/employee_account'.($employee_record && $employee_record->id ? '/'.$employee_record->id : '') }}">
+                {{--<a href="{{ '/employee_account'.($employee_record && $employee_record->id ? '/'.$employee_record->id : '') }}">--}}
+                <a href="" onclick="window.location.reload();">
                     <i class="fa fa-refresh fa-fw"></i> Recargar página
                 </a>
             </li>

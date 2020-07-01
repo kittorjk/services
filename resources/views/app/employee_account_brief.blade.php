@@ -29,7 +29,8 @@
             <i class="fa fa-file"></i> Cuentas de empleados <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/employee_account' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/employee_account' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             {{--
             @if ($user->priv_level > 0)
               <li>

@@ -15,7 +15,8 @@
 @endsection
 
 @section('menu_options')
-    <li><a href="/warehouse/events/{{ 0 }}">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>
+    {{--<li><a href="/warehouse/events/{{ 0 }}">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>--}}
+    <li><a href="" onclick="window.location.reload();">&ensp;<i class="fa fa-refresh"></i> RECARGAR&ensp;</a></li>
     <li><a data-toggle="modal" href="#searchBox">&ensp;<i class="fa fa-search"></i> BUSCAR&ensp;</a></li>
 @endsection
 

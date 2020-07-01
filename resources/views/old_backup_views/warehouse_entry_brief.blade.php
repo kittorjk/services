@@ -16,9 +16,10 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-sign-in"></i> INGRESOS <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ '/wh_entry' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/wh_entry' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/wh_entry/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar ingreso </a></li>
-            @if($user->priv_level==4)
+            @if ($user->priv_level == 4)
                 <li>
                     <a href="{{ '/excel/wh_entries' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel </a>
                 </li>

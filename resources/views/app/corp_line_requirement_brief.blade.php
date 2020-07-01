@@ -26,14 +26,15 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="{{ '/line_requirement' }}"><i class="fa fa-refresh"></i> Recargar página</a>
+                {{--<a href="{{ '/line_requirement' }}"><i class="fa fa-refresh"></i> Recargar página</a>--}}
+                <a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página</a>
             </li>
             <li><a href="{{ '/corporate_line' }}"><i class="fa fa-arrow-right"></i> Ver lista de líneas</a></li>
             <li><a href="{{ '/line_assignation' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones </a></li>
             @if($user->action->acv_ln_req /*$user->priv_level>=1*/)
                 <li><a href="{{ '/line_requirement/create' }}"><i class="fa fa-plus"></i> Nuevo requerimiento</a></li>
             @endif
-            @if($user->priv_level>=3)
+            @if ($user->priv_level >= 3)
                 <li class="divider"></li>
                 <li><a href="{{ '/excel/corp_line_requirements' }}"><i class="fa fa-file-excel-o"></i> Exportar a Excel</a></li>
             @endif

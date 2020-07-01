@@ -22,7 +22,8 @@
             <i class="fa fa-list"></i> Categorías <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/item_category' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/item_category' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li>
                 <a href="/import/items/{{ 0 }}" title="{{ 'Crear una nueva categoría de items de proyecto o agregar
                     items a una categoría existente' }}">

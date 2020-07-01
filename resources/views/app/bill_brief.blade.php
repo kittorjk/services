@@ -12,7 +12,8 @@
             <i class="fa fa-bars"></i> Facturas <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/bill' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>
+            {{--<li><a href="{{ '/bill' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>
             <li><a href="{{ '/bill/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar factura</a></li>
             <li><a href="{{ '/bill?stat=0' }}"><i class="fa fa-check fa-fw"></i> Ver facturas pendientes</a></li>
             <li><a href="{{ '/bill?stat=1' }}"><i class="fa fa-check fa-fw"></i> Ver facturas cobradas</a></li>

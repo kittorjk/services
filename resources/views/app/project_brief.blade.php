@@ -28,7 +28,8 @@
             <i class="fa fa-cogs"></i> Contratos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/project' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/project' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             @if($user->priv_level>=1)
                 <li><a href="{{ '/project/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar contrato </a></li>
             @endif

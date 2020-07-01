@@ -17,7 +17,8 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-file"></i> ARCHIVOS <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ '/file' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/file' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             @if($user->action->adm_file_del /*$user->priv_level==4*/)
                 <li><a href="{{ '/delete/type' }}"><i class="fa fa-trash-o"></i> Borrar un archivo</a></li>
             @endif

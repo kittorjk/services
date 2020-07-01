@@ -27,7 +27,8 @@
             <i class="fa fa-wrench"></i> Calibraciones <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/calibration' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/calibration' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             @if($user->action->acv_cbr_mod /*($user->priv_level==2&&$user->area=='Gerencia Tecnica')||
                 $user->work_type=='Almacén'||$user->priv_level>=3*/)
                 <li><a href="{{ '/calibration/create' }}"><i class="fa fa-plus"></i> Registrar calibración </a></li>

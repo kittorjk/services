@@ -21,7 +21,8 @@
                 @include('app.menu_app_popup', array('user' => $user, 'mode' => 'li'))
 
                 <li><a href="{{ '/cite' }}" title="Inicio">&ensp;<i class="fa fa-home" style="font-size: 1.3em;"></i>&ensp;</a></li>
-                <li><a href="{{ Request::fullUrl() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
+                {{--<li><a href="{{ Request::fullUrl() }}" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>--}}
+                <li><a href="" onclick="window.location.reload();" title="Recargar página">&ensp;<i class="fa fa-refresh" style="font-size: 1.3em;"></i>&ensp;</a></li>
 
                 <li><a href="#">&ensp;<i class="fa fa-envelope-o"></i> CITES <span class="caret"></span>&ensp;</a>
                     <ul class="sub-menu">

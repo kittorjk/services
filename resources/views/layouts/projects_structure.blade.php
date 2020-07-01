@@ -67,7 +67,8 @@
                     <a href="#" onclick="history.back();" class="btn btn-primary" title="Volver">
                         <i class="fa fa-arrow-circle-left" style="font-size: 1.4em;"></i>
                     </a>
-                    <a href="{{ Request::fullUrl() }}" class="btn btn-primary" title="Recargar página"><i class="fa fa-refresh" style="font-size: 1.4em;"></i></a>
+                    {{--<a href="{{ Request::fullUrl() }}" class="btn btn-primary" title="Recargar página"><i class="fa fa-refresh" style="font-size: 1.4em;"></i></a>--}}
+                    <a href="" onclick="window.location.reload();" class="btn btn-primary" title="Recargar página"><i class="fa fa-refresh" style="font-size: 1.4em;"></i></a>
     
                     @yield('menu_options')
     

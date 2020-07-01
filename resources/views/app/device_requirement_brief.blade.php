@@ -26,7 +26,8 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="{{ '/device_requirement'.($dvc ? '?dvc='.$dvc : '') }}"><i class="fa fa-refresh"></i> Recargar página</a>
+                {{--<a href="{{ '/device_requirement'.($dvc ? '?dvc='.$dvc : '') }}"><i class="fa fa-refresh"></i> Recargar página</a>--}}
+                <a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página</a>
             </li>
             <li><a href="{{ '/device' }}"><i class="fa fa-arrow-right"></i> Ver equipos</a></li>
             <li><a href="{{ '/operator' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones </a></li>

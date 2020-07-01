@@ -21,7 +21,8 @@
             <i class="fa fa-user"></i> Materiales <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/client_listed_material?client='.$client }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/client_listed_material?client='.$client }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li><a href="{{ '/client_listed_material' }}"><i class="fa fa-bars"></i> Ver todo </a></li>
             <li>
                 <a href="{{ '/client_listed_material/create?client='.$client }}"><i class="fa fa-plus"></i> Agregar material </a>

@@ -25,7 +25,8 @@
       <i class="fa fa-phone"></i> Líneas corporativas <span class="caret"></span>
     </button>
     <ul class="dropdown-menu dropdown-menu-prim">
-      <li><a href="{{ '/corporate_line' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>
+      {{--<li><a href="{{ '/corporate_line' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>--}}
+      <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página</a></li>
       <li><a href="{{ '/line_assignation' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver asignaciones</a></li>
       <li><a href="{{ '/line_requirement' }}"><i class="fa fa-arrow-right fa-fw"></i> Ver requerimientos</a></li>
       @if($user->action->acv_ln_req)

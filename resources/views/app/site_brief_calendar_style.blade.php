@@ -90,9 +90,10 @@
             <i class="fa fa-cogs"></i> Items <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="/site/calendar/{{ $site->id }}"><i class="fa fa-refresh"></i> Recargar </a></li>
-            @if(($site&&$site->status!=$site->last_stat()/*'Concluído'*/&&$site->status!=0/*'No asignado'*/&&
-                $user->priv_level>=1)||$user->priv_level==4)
+            {{--<li><a href="/site/calendar/{{ $site->id }}"><i class="fa fa-refresh"></i> Recargar </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar </a></li>
+            @if (($site && $site->status != $site->last_stat()/*'Concluído'*/ && $site->status != 0/*'No asignado'*/ &&
+                $user->priv_level >= 1) || $user->priv_level == 4)
                 <li><a href="/task/{{ $site->id }}/add"><i class="fa fa-plus"></i> Agregar item</a></li>
                 <li><a href="/task/{{ $site->id }}/create"><i class="fa fa-plus"></i> Crear nuevo item</a></li>
                 <li><a href="/import/tasks/{{ $site->id }}"><i class="fa fa-upload"></i> Importar items</a></li>

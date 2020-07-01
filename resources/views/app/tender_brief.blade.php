@@ -28,14 +28,15 @@
             <i class="fa fa-cogs"></i> Licitaciones <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/tender' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/tender' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/tender/create' }}"><i class="fa fa-plus fa-fw"></i> Nueva licitación </a></li>
-            @if($user->priv_level>=3)
+            @if ($user->priv_level >= 3)
                 <li><a href="{{ '/tender?mode=asg' }}"><i class="fa fa-list fa-fw"></i> Ver licitaciones ganadas </a></li>
                 <li><a href="{{ '/tender?mode=nsg' }}"><i class="fa fa-list fa-fw"></i> Ver licitaciones perdidas </a></li>
                 <li><a href="{{ '/tender?mode=np' }}"><i class="fa fa-list fa-fw"></i> Ver licitaciones no presentadas </a></li>
             @endif
-            @if($user->priv_level==4)
+            @if ($user->priv_level == 4)
                 <li class="divider"></li>
                 <li><a href="{{ '/excel/tenders' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel </a></li>
             @endif

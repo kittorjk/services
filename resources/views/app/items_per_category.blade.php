@@ -22,7 +22,8 @@
             <i class="fa fa-list"></i> Items <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/item/?cat='.$category->id }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/item/?cat='.$category->id }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             <li>
                 <a href="/import/items/{{ 0 }}" title="Cargar una nueva categoría de items de proyecto">
                     <i class="fa fa-upload"></i> Cargar items

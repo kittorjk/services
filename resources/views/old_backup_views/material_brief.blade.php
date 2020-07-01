@@ -17,7 +17,8 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-wrench"></i> MATERIALES <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ '/material' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/material' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/material/create' }}"><i class="fa fa-plus fa-fw"></i> Agregar material </a></li>
             @if($user->priv_level==4)
                 <li><a href="{{ '/excel/materials' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel </a></li>

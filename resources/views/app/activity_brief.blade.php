@@ -53,7 +53,8 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             @if($task_info)
-                <li><a href="/activity/{{ $task_info->id }}"><i class="fa fa-refresh"></i> Recargar página</a></li>
+                {{--<li><a href="/activity/{{ $task_info->id }}"><i class="fa fa-refresh"></i> Recargar página</a></li>--}}
+                <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i>Recargar página</a></li>
                 @if(($task_info->status!=$task_info->last_stat()/*'Concluído'*/&&
                     $task_info->status!=0/*'No asignado'*/)||$user->priv_level==4)
                     <li>

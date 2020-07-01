@@ -26,14 +26,15 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="{{ '/vehicle_requirement'.($vhc ? '?vhc='.$vhc : '') }}"><i class="fa fa-refresh"></i> Recargar página</a>
+                {{--<a href="{{ '/vehicle_requirement'.($vhc ? '?vhc='.$vhc : '') }}"><i class="fa fa-refresh"></i> Recargar página</a>--}}
+                <a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página</a>
             </li>
             <li><a href="{{ '/vehicle' }}"><i class="fa fa-arrow-right"></i> Ver vehículos</a></li>
             <li><a href="{{ '/driver' }}"><i class="fa fa-arrow-right"></i> Ver asignaciones </a></li>
-            @if($user->action->acv_vhc_req /*$user->work_type=='Transporte'||$user->priv_level>=2*/)
+            @if ($user->action->acv_vhc_req /*$user->work_type=='Transporte'||$user->priv_level>=2*/)
                 <li><a href="{{ '/vehicle_requirement/create' }}"><i class="fa fa-plus"></i> Nuevo requerimiento </a></li>
             @endif
-            @if($user->acv_vhc_exp /*$user->priv_level==4*/)
+            @if ($user->acv_vhc_exp /*$user->priv_level==4*/)
                 <li class="divider"></li>
                 <li><a href="{{ '/excel/vehicle_requirements' }}"><i class="fa fa-file-excel-o"></i> Exportar a Excel</a></li>
             @endif

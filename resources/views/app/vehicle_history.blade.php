@@ -27,12 +27,13 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             <li>
-                <a href="/history/vehicle/{{ $vehicle->id }}"><i class="fa fa-refresh"></i> Recargar página </a>
+                {{--<a href="/history/vehicle/{{ $vehicle->id }}"><i class="fa fa-refresh"></i> Recargar página </a>--}}
+                <a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a>
             </li>
             <li><a href="{{ '/vehicle' }}"><i class="fa fa-bars"></i> Ir a vehículos </a></li>
             <li><a href="{{ '/driver' }}"><i class="fa fa-bars"></i> Ir a asignaciones </a></li>
             <li><a href="{{ '/vehicle_requirement' }}"><i class="fa fa-bars"></i> Ir a requerimientos </a></li>
-            @if($user->action->acv_vhc_exp /*$user->priv_level==4*/)
+            @if ($user->action->acv_vhc_exp /*$user->priv_level==4*/)
                 <li class="divider"></li>
                 <li><a href="{{ '/excel/vehicle_histories' }}"><i class="fa fa-file-excel-o"></i> Exportar tabla </a></li>
                 <li>

@@ -17,7 +17,8 @@
 @section('menu_options')
     <li><a href="#">&ensp;<i class="fa fa-file"></i> EXPORTADOS <span class="caret"></span>&ensp;</a>
         <ul class="sub-menu">
-            <li><a href="{{ route('exported_files') }}"><i class="fa fa-refresh"></i> Recargar página </a></li>
+            {{--<li><a href="{{ route('exported_files') }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Recargar página </a></li>
             {{--
                 <li><a href="/excel/files"><i class="fa fa-file-excel-o"></i> Exportar lista</a></li>
             --}}

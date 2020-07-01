@@ -29,7 +29,8 @@
             <i class="fa fa-money"></i> Solicitudes de viáticos <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
-            <li><a href="{{ '/stipend_request'.($asg ? '?asg='.$asg : '') }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ '/stipend_request'.($asg ? '?asg='.$asg : '') }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             @if ($user->priv_level > 0)
               <li>
                   <a href="{{ $asg ? '/stipend_request/create?asg='.$asg : '/stipend_request/seleccionar_proyecto' }}">
@@ -37,7 +38,7 @@
                   </a>
               </li>
             @endif
-            @if($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
+            @if ($user->action->prj_vtc_mod /*$user->priv_level>=2*/)
                 <li>
                     <a href="{{ '/stipend_request/approve_list' }}">
                         <i class="fa fa-check fa-fw"></i> Pendientes de aprobación
@@ -49,7 +50,7 @@
                     </a>
                 </li>
             @endif
-            @if($user->action->prj_vtc_pmt)
+            @if ($user->action->prj_vtc_pmt)
                 <li>
                     <a href="{{ '/stipend_request/payment_list' }}">
                         <i class="fa fa-check fa-fw"></i> Pendientes de pago
@@ -63,7 +64,7 @@
                   </a>
               </li>
             @endif
-            @if($user->action->prj_vtc_exp /*$user->priv_level==4*/)
+            @if ($user->action->prj_vtc_exp /*$user->priv_level==4*/)
                 <li class="divider"></li>
                 <li class="dropdown-submenu">
                     <a href="#" data-toggle="dropdown"><i class="fa fa-file-excel-o"></i> Exportar a Excel</a>

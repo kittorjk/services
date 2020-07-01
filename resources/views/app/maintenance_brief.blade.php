@@ -18,7 +18,8 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-prim">
             {{--<li><a href="{{ '/maintenance' }}"><i class="fa fa-refresh"></i> Recargar página </a></li>--}}
-            <li><a href="{{ Request::fullurl() }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+            {{--<li><a href="{{ Request::fullurl() }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+            <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
             <li><a href="{{ '/maintenance?vhc=true' }}"><i class="fa fa-car fa-fw"></i> Vehículos en mantenimiento </a></li>
             <li><a href="{{ '/maintenance?dvc=true' }}"><i class="fa fa-laptop fa-fw"></i> Equipos en mantenimiento </a></li>
             @if($user->action->acv_mnt_add

@@ -12,7 +12,8 @@
       <i class="fa fa-money"></i> Rendiciones de viáticos <span class="caret"></span>
     </button>
     <ul class="dropdown-menu dropdown-menu-prim">
-      <li><a href="{{ '/rendicion_viatico' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
+      {{--<li><a href="{{ '/rendicion_viatico' }}"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>--}}
+      <li><a href="" onclick="window.location.reload();"><i class="fa fa-refresh fa-fw"></i> Recargar página </a></li>
       <li><a href="{{ '/rendicion_viatico/create' }}"><i class="fa fa-plus fa-fw"></i> Registrar rendición </a></li>
       {{--@if($user->action->aprobar_rendicion)--}}
         <li>
