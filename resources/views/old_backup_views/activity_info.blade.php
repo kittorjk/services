@@ -3,7 +3,7 @@
 @section('header')
     @parent
     <script type="text/javascript"
-            src="http://viralpatel.net/blogs/demo/jquery/jquery.shorten.1.0.js"></script>
+            src="https://viralpatel.net/blogs/demo/jquery/jquery.shorten.1.0.js"></script>
 @endsection
 
 @section('content')

@@ -10,7 +10,7 @@
 <h3>Hola, {{ $recipient->name }}</h3>
 <p>
     Este correo es para informarle que se se recibió una solicitud de reestablecimiento de contraseña de su cuenta
-    en el sistema <a href="http://services.gerteabros.com/">services.gerteabros.com</a>.
+    en el sistema <a href="https://services.gerteabros.com/">services.gerteabros.com</a>.
 </p>
 <p>
     Su nueva contraseña es la siguiente:

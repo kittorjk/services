@@ -33,7 +33,7 @@
 
 <p>
     Puede ver los detalles de estas ordenes ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/project">enlace</a>, y seleccionando la opción contratos en la
+    <a href="https://services.gerteabros.com/project">enlace</a>, y seleccionando la opción contratos en la
     parte superior de la página.
 </p>
 

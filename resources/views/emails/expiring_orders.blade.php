@@ -35,7 +35,7 @@
 
 <p>
     Puede ver los detalles de estas ordenes ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/project">enlace</a>, y seleccionando la opción órdenes.
+    <a href="https://services.gerteabros.com/project">enlace</a>, y seleccionando la opción órdenes.
 </p>
 
 <h5>This is an automated message sent by gerteabros.com system. Please DO NOT reply to this message.</h5>

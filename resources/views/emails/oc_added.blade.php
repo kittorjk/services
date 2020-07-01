@@ -13,11 +13,11 @@
     y espera su aprobación.
 </p>
 <p>
-    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>
+    Puede ingresar al sistema a través de este <a href="https://services.gerteabros.com/oc">enlace</a>
 </p>
 <p>
-    Para ver los detalles de esta órden haga click <a href="http://services.gerteabros.com/oc/{{ $oc->id }}">aquí</a>,
-    Para ir a la lista de OCs pendientes de aprobación haga click <a href="http://services.gerteabros.com/approve_oc/">aquí</a>.
+    Para ver los detalles de esta órden haga click <a href="https://services.gerteabros.com/oc/{{ $oc->id }}">aquí</a>,
+    Para ir a la lista de OCs pendientes de aprobación haga click <a href="https://services.gerteabros.com/approve_oc/">aquí</a>.
     Es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 

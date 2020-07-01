@@ -14,7 +14,7 @@
 </p>
 <p>
     Para ver los detalles de esta asignación y confirmar que recibió el equipo, por favor ingrese al sistema
-    de seguimiento de activos haciendo click <a href="http://services.gerteabros.com/active">aquí</a>.
+    de seguimiento de activos haciendo click <a href="https://services.gerteabros.com/active">aquí</a>.
 </p>
 <p>
     Es necesario que previamente inicie sesión en el sistema.

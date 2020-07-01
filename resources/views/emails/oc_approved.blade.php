@@ -15,8 +15,8 @@
     {{ $approved }}
 </p>
 <p>
-    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>.
-    Para ir a la lista de OCs pendientes de aprobación haga click <a href="http://services.gerteabros.com/approve_oc/">aquí</a>.
+    Puede ingresar al sistema a través de este <a href="https://services.gerteabros.com/oc">enlace</a>.
+    Para ir a la lista de OCs pendientes de aprobación haga click <a href="https://services.gerteabros.com/approve_oc/">aquí</a>.
     Es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 

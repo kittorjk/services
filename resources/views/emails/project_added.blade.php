@@ -13,7 +13,7 @@
 </p>
 <p>
     Puede ver los detalles de este contrato ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/project">enlace</a>, y eligiendo la opción "Contratos" en el menú
+    <a href="https://services.gerteabros.com/project">enlace</a>, y eligiendo la opción "Contratos" en el menú
     "Ir a".
 </p>
 <p>

@@ -10,7 +10,7 @@
 <h3>Hola, {{ $recipient->name }}</h3>
 <p>
     Este correo es para informarle que se le ha asignado una nueva cuenta de usuario en el sistema
-    <a href="http://services.gerteabros.com">gerteabros.com</a>.
+    <a href="https://services.gerteabros.com">gerteabros.com</a>.
 </p>
 <p>
     Puede ingresar a su cuenta siguiendo el enlace, con los siguiente valores:

@@ -18,7 +18,7 @@
             /*white-space: normal; /* Set content to a second line */
         }
     </style>
-    <script type="text/javascript" src="{{ asset('http://viralpatel.net/blogs/demo/jquery/jquery.shorten.1.0.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('https://viralpatel.net/blogs/demo/jquery/jquery.shorten.1.0.js') }}"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 

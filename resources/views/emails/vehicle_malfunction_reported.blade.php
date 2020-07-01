@@ -21,7 +21,7 @@
 </p>
 <p>
     Puede ver más detalles de éste vehículo ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/vehicle/{{ $vehicle->id }}">enlace</a>. Es necesario que previamente
+    <a href="https://services.gerteabros.com/vehicle/{{ $vehicle->id }}">enlace</a>. Es necesario que previamente
     haya iniciado sesión en el sistema.
 </p>
 

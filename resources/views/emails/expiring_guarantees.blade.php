@@ -32,7 +32,7 @@
 </table>
 <p>
     Puede ver los detalles de estas polizas ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/project">enlace</a>, y seleccionando la opción "polizas" en el menú
+    <a href="https://services.gerteabros.com/project">enlace</a>, y seleccionando la opción "polizas" en el menú
     desplegable de la parte superior de la página.
 </p>
 

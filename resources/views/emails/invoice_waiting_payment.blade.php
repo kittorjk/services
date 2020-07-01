@@ -26,7 +26,7 @@
     </table>
 <p>
     Puede ver los detalles de estas facturas ingresando al sistema a través de este
-    <a href="http://services.gerteabros.com/oc">enlace</a> y seleccionando la opción Pagos en la parte
+    <a href="https://services.gerteabros.com/oc">enlace</a> y seleccionando la opción Pagos en la parte
     superior de la página.
 </p>
 

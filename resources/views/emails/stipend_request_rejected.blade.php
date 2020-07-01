@@ -21,7 +21,7 @@
 </p>
 <p>
     Puede ver los detalles de esta solicitud ingresando a la ficha de la solicitud a través de este
-    <a href="http://services.gerteabros.com/stipend_request/{{ $stipend->id }}">enlace</a>.
+    <a href="https://services.gerteabros.com/stipend_request/{{ $stipend->id }}">enlace</a>.
     Es necesario que antes haya iniciado sesión.
 </p>
 

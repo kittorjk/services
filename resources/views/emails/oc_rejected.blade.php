@@ -21,9 +21,9 @@
 </p>
 
 <p>
-    Ingrese al sistema de ordenes de compra a través de este <a href="http://services.gerteabros.com/oc">enlace</a>.
+    Ingrese al sistema de ordenes de compra a través de este <a href="https://services.gerteabros.com/oc">enlace</a>.
     <br>
-    Para ir a la lista de OCs rechazadas haga click <a href="http://services.gerteabros.com/rejected_ocs/">aquí</a>.
+    Para ir a la lista de OCs rechazadas haga click <a href="https://services.gerteabros.com/rejected_ocs/">aquí</a>.
     Es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 

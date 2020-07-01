@@ -25,10 +25,10 @@
         @endforeach
     </table>
 <p>
-    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>
+    Puede ingresar al sistema a través de este <a href="https://services.gerteabros.com/oc">enlace</a>
 </p>
 <p>
-    Para ver los detalles de estas facturas haga click <a href="http://services.gerteabros.com/invoice">aquí</a>,
+    Para ver los detalles de estas facturas haga click <a href="https://services.gerteabros.com/invoice">aquí</a>,
     es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 

@@ -17,7 +17,7 @@
 </p>
 <p>
     Puede ver los detalles de esta licitación ingresando al sistema de seguimiento a través de este
-    <a href="http://services.gerteabros.com/tender">enlace</a>.
+    <a href="https://services.gerteabros.com/tender">enlace</a>.
 </p>
 <p>
     Es necesario que previamente inicie sesión en el sistema.

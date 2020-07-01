@@ -20,7 +20,7 @@
 </p>
 <p>
     Puede ver el detalle de este requerimiento ingresando al sistema con el siguiente enlace
-    <a href="http://services.gerteabros.com/device_requirement">http://services.gerteabros.com/device_requirement</a>
+    <a href="https://services.gerteabros.com/device_requirement">https://services.gerteabros.com/device_requirement</a>
 </p>
 <p>
     Es necesario que previamente inicie sesión con su usuario y contraseña.

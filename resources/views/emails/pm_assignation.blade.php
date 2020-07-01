@@ -14,7 +14,7 @@
 </p>
 <p>
     Puede ver los detalles de esta asignación ingresando al sistema de seguimiento de proyectos a través de éste
-    <a href="http://services.gerteabros.com/assignment">enlace</a>. Es necesario que antes haya iniciado sesión.
+    <a href="https://services.gerteabros.com/assignment">enlace</a>. Es necesario que antes haya iniciado sesión.
 </p>
 
 <h5>This is an automated message sent by gerteabros.com system. Please DO NOT reply to this message.</h5>

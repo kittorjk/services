@@ -5,11 +5,11 @@
     {{--espera su aprobación.--}}
 </p>
 <p>
-    Puede ingresar al sistema a través de este <a href="http://services.gerteabros.com/oc">enlace</a>.
+    Puede ingresar al sistema a través de este <a href="https://services.gerteabros.com/oc">enlace</a>.
 </p>
 <p>
     Para ver los detalles de esta factura y proceder a su pago haga click
-    <a href="http://services.gerteabros.com/invoice/{{ $invoice->id }}">aquí</a>,
+    <a href="https://services.gerteabros.com/invoice/{{ $invoice->id }}">aquí</a>,
     es necesario que previamente haya iniciado sesión en el sistema.
 </p>
 <!--
