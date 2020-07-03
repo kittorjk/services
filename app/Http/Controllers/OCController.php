@@ -580,7 +580,8 @@ class OCController extends Controller
 
         if ($user->priv_level == 4 ||
           ($user->action->oc_apv_gg && (($signed_gtec_exists && $oc->type == 'Servicio' && $oc->status == 'Aprobado Gerencia Tecnica') ||
-            ($signed_org_exists && $oc->type != 'Servicio' && ($oc->status == 'Creado' || $oc->status == 'Aprobado Gerencia Tecnica')))) /*($user->priv_level==3&&$user->area=='Gerencia General')*/) {
+            ($signed_org_exists && $oc->type != 'Servicio' && ($oc->status == 'Creado' || $oc->status == 'Aprobado Gerencia Tecnica')) ||
+            $signed_gg_exists)) /*($user->priv_level==3&&$user->area=='Gerencia General')*/) {
           /*
           if ($oc->flags[1] == 0 && $oc->flags[2] == 0)
               $oc->flags = str_pad($oc->flags+1100000, 8, "0", STR_PAD_LEFT);
@@ -597,7 +598,7 @@ class OCController extends Controller
           $oc->auth_ceo_date = Carbon::now();
           $oc->auth_ceo_code = $this->generateCode();
           $valid_to_update = true;
-        } elseif ($user->action->oc_apv_tech && $signed_org_exists && ($oc->type == 'Servicio' && $oc->status == 'Creado') /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
+        } elseif ($user->action->oc_apv_tech && (($signed_org_exists && $oc->type == 'Servicio' && $oc->status == 'Creado') || $signed_gtec_exists) /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
           // $oc->flags = str_pad($oc->flags+100000, 8, "0", STR_PAD_LEFT);
           $oc->status = 'Aprobado Gerencia Tecnica';
 
@@ -1023,5 +1024,23 @@ class OCController extends Controller
     }
 
     return $store;
+  }
+
+  public function formatted_view ($id) {
+    $user = Session::get('user');
+    if ((is_null($user)) || (!$user->id))
+      return redirect()->route('root');
+
+    $service = Session::get('service');
+    $oc = OC::find($id);
+
+    $oc->percentages = str_replace('-','% - ',$oc->percentages).'%';
+    $exploded_percentages = explode('-', $oc->percentages);
+
+    foreach ($oc->invoices as $invoice) {
+      $invoice->updated_at = Carbon::parse($invoice->updated_at)->hour(0)->minute(0)->second(0);
+    }
+
+    return View::make('app.oc_formatted_view', ['oc' => $oc, 'exploded_percentages' => $exploded_percentages, 'service' => $service, 'user' => $user]);
   }
 }
