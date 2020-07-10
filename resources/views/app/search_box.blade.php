@@ -107,7 +107,6 @@
 
                                     <label for="parametro"></label>
                                     <select required="required" class="form-control" name="parametro" id="parametro">
-                                        <option value="all">Todas las columnas</option>
                                         @if ($table == 'bills')
                                             <option value="code">Número de Factura</option>
                                         @elseif ($table == 'cites')
@@ -419,6 +418,7 @@
                                             <option value="code">Número de solicitud</option>
                                             <option value="cc">Cuenta contable</option>
                                         @endif
+                                        <option value="all">Todas las columnas</option>
                                     </select>
                                     <input required="required" type="text" class="form-control" name="buscar"
                                            placeholder="Parámetro de búsqueda">
