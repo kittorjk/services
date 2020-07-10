@@ -328,7 +328,8 @@
                                         <input type="hidden" name="id" value="{{ $oc->id }}">
                                     @endif
 
-                                    @if (!$action && $oc && $user->action->oc_nll /*$user->priv_level==4*/)
+                                    {{--
+                                    @if ((!$action && $oc && $user->action->oc_nll) || $user->priv_level==4)
                                         <div class="input-group" style="width: 100%">
                                             <label for="status" class="input-group-addon" style="width: 23%;text-align: left">
                                                 Estado
@@ -344,6 +345,7 @@
                                             </select>
                                         </div>
                                     @endif
+                                    --}}
                                 </span>
                             </div>
                         </div>

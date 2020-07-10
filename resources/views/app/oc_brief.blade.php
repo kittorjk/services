@@ -120,6 +120,7 @@
       <tbody>
         <?php
           $string_ok = "<i class=\"glyphicon glyphicon-ok\" style=\"color:green\"></i>";
+          $string_obs = "<i class=\"glyphicon glyphicon-ok\" style=\"color:gold\"></i>";
           $string_missing = "<i class=\"glyphicon glyphicon-ok\" style=\"color:lightgray\"></i>";
         ?>
         @foreach ($ocs as $oc)
@@ -149,7 +150,7 @@
             <td align="center"
               title="{{ $oc->payment_status == 'Concluido' ? 'Concluída' : $oc->status }}"
             >
-              {!! $oc->status != 'Anulado' ? $string_ok : $string_missing !!}
+              {!! $oc->status == 'Anulado' ? $string_missing : ($oc->status == 'Observado' ? $string_obs : $string_ok) !!}
               &ensp;
               @if ($oc->type == 'Compra de material')
                 &emsp;
@@ -162,11 +163,11 @@
             <td>
               @if ($oc->status == 'Anulado')
                 {{ 'Anulada' }}
-              @elseif ($oc->status == 'Rechazada')
-                @if ($oc->user_id == $user->id || $user->action->oc_edt /*$user->priv_level>=3*/)
-                  <a href="{{ '/rejected_ocs' }}">{{ 'Rechazada' }}</a>
+              @elseif ($oc->status == 'Observado')
+                @if ($oc->user_id == $user->id /*|| $user->action->oc_edt $user->priv_level>=3*/)
+                  <a href="{{ '/rejected_ocs' }}">{{ 'Observada' }}</a>
                 @else
-                  {{ 'Rechazada' }}
+                  {{ 'Observada' }}
                 @endif
               @elseif ($oc->payment_status == 'Concluido')
                 {{ 'Concluída' }}

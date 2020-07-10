@@ -29,12 +29,14 @@ use Carbon\Carbon;
 use App\Http\Traits\FilesTrait;
 use App\Http\Traits\ProviderTrait;
 use App\Http\Traits\UserTrait;
+use App\Http\Traits\GeneralTrait;
 
 class OCController extends Controller
 {
   use FilesTrait;
   use ProviderTrait;
   use UserTrait;
+  use GeneralTrait;
   /**
    * Display a listing of the resource.
    *
@@ -74,7 +76,7 @@ class OCController extends Controller
     $ocs_waiting_approval = 0;
 
     $pending_ocs = OC::where('status','<>','Anulado')->where('payment_status','<>','Concluido')
-                      ->where('status', '<>', 'Rechazada')->get();
+                      ->where('status', '<>', 'Observado')->get();
     foreach ($pending_ocs as $oc) {
       if ((($oc->status == 'Aprobado Gerencia Tecnica' || $oc->status == 'Creado') && $user->action->oc_apv_gg /*$user->priv_level==4*/) ||
         ($oc->status == 'Creado' && $user->action->apv_tech /*$user->area=='Gerencia Tecnica'&&$user->priv_level==3*/) ||
@@ -83,9 +85,9 @@ class OCController extends Controller
     }
 
     if ($user->priv_level == 4)
-      $rejected_ocs = OC::where('status', 'Rechazada')->count();
+      $rejected_ocs = OC::where('status', 'Observado')->count();
     else
-      $rejected_ocs = OC::where('status', 'Rechazada')->where('user_id', $user->id)->count();
+      $rejected_ocs = OC::where('status', 'Observado')->where('user_id', $user->id)->count();
 
     $inv_waiting_approval = 0;
 
@@ -522,16 +524,16 @@ class OCController extends Controller
     $oc_code = Input::get('code');
 
     if ($user->priv_level == 4) {
-      $ocs = OC::whereIn('status', ['Aprobado Gerencia Tecnica', 'Creado'])->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      $ocs = OC::whereIn('status', ['Aprobado Gerencia Tecnica', 'Creado'])->where('status', '<>', 'Observado')->orderBy('id', 'desc')->get();
     } elseif ($user->action->oc_apv_gg /*$user->priv_level==3&&$user->area=='Gerencia General'*/) {
-      // $ocs = OC::where('status', 'Aprobado Gerencia Tecnica')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      // $ocs = OC::where('status', 'Aprobado Gerencia Tecnica')->where('status', '<>', 'Observado')->orderBy('id', 'desc')->get();
       $ocs = OC::where(function ($query) {
         $query->where('status', 'Aprobado Gerencia Tecnica')->where('type', 'Servicio');
       })->orwhere(function ($query2) {
         $query2->where('status', 'Creado')->where('type', 'Compra de material');
       })->orderBy('id','desc')->get();
     } elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
-      $ocs = OC::where('status', 'Creado')->where('type', 'Servicio')->where('status', '<>', 'Rechazada')->orderBy('id', 'desc')->get();
+      $ocs = OC::where('status', 'Creado')->where('type', 'Servicio')->where('status', '<>', 'Observado')->orderBy('id', 'desc')->get();
     } else {
       Session::flash('message', 'Usted no tiene permiso para ver la página solicitada!');
       return redirect()->back();
@@ -724,7 +726,7 @@ class OCController extends Controller
     $v = \Validator::make(Request::all(), [
         'observations'       => 'required',
     ],
-      [ 'observations.required'      => 'Debe especificar el motivo para rechazar la OC!' ]
+      [ 'observations.required'      => 'Debe especificar el motivo para observar la OC!' ]
     );
 
     if ($v->fails()) {
@@ -737,7 +739,7 @@ class OCController extends Controller
     $oc = OC::find($id);
 
     $oc->observations = Request::input('observations');
-    $oc->status = 'Rechazada';
+    $oc->status = 'Observado';
 
     $oc->save();
 
@@ -747,7 +749,7 @@ class OCController extends Controller
     /* An event is recorded to register the rejection of the OC */
     $this->add_event('reject',$oc,'');
 
-    Session::flash('message', "La Orden de Compra $oc->code ha sido rechazada");
+    Session::flash('message', "La Orden de Compra $oc->code ha sido observada");
     if (Session::has('url'))
       return redirect(Session::get('url'));
     else
@@ -763,12 +765,41 @@ class OCController extends Controller
     $service = Session::get('service');
       
     if ($user->priv_level == 4) {
-      $ocs = OC::where('status', 'Rechazada')->orderBy('id', 'desc')->get();
+      $ocs = OC::where('status', 'Observado')->orderBy('id', 'desc')->get();
     } else {
-      $ocs = OC::where('status', 'Rechazada')->where('user_id', $user->id)->orderBy('id', 'desc')->get();
+      $ocs = OC::where('status', 'Observado')->where('user_id', $user->id)->orderBy('id', 'desc')->get();
     }
 
     return View::make('app.oc_rejected_list', ['ocs' => $ocs, 'service' => $service, 'user' => $user]);
+  }
+
+  public function request_approval (Request $request, $id) {
+    $user = Session::get('user');
+    if ((is_null($user)) || (!$user->id))
+      return redirect()->route('root');
+
+    $oc = OC::find($id);
+      
+    //$oc->auth_tec_date = Carbon::now();
+    $oc->auth_tec_code = '';
+    //$oc->auth_ceo_date = Carbon::now();
+    $oc->auth_ceo_code = '';
+    $oc->status = 'Creado';
+    
+    $oc->save();
+
+    /* A new event is recorded to register the request of approval of the OC */
+    $this->add_event('request_approval', $oc, '');
+
+    /* Send a notification to inform on the request of approval for the OC */
+    $this->send_email_notification($oc, 'request_approval');
+
+    Session::flash('message', "La Orden ha cambiado de estado y se encuentra en espera de aprobación");
+    if (Session::has('url'))
+      return redirect(Session::get('url'));
+    else
+      return redirect()->route('oc.index');
+    // return redirect()->action('OCController@show', ['id' => $id]);
   }
   
   public function insert_complementary($oc)
@@ -852,7 +883,7 @@ class OCController extends Controller
     $prev_number = Event::select('number')->where('eventable_id',$oc->id)
         ->where('eventable_type','App\OC')->orderBy('number','desc')->first();
 
-    $event->number = $prev_number ? $prev_number->number+1 : 1;
+    $event->number = $prev_number ? $prev_number->number + 1 : 1;
 
     if ($type == 'approve') {
       $event->description = 'Orden aprobada';
@@ -861,8 +892,11 @@ class OCController extends Controller
       $event->description = 'Orden anulada';
       $event->detail = $user->name.' anula la orden de compra '.$oc->code;
     } elseif ($type == 'reject') {
-      $event->description = 'Orden rechazada';
-      $event->detail = $user->name.' rechazó la orden de compra '.$oc->code.' por motivo de: '.$oc->observations;
+      $event->description = 'Orden observada';
+      $event->detail = $user->name.' observó la orden de compra '.$oc->code.' por motivo de: '.$oc->observations;
+    } elseif ($type == 'request_approval') {
+      $event->description = 'Solicitud de aprobación';
+      $event->detail = $user->name.' solicita la aprobación de la orden de compra '.$oc->code.' previamente observada por motivo de: '.$oc->observations;
     }
 
     $event->responsible_id = $user->id;
@@ -956,6 +990,19 @@ class OCController extends Controller
 
       $mail_structure = 'emails.oc_added';
       $subject = 'Nueva órden de compra agregada al sistema';
+    } elseif ($type == 'request_approval') {
+      if ($oc->type == 'Servicio') {
+        $recipient = $gtech_approver;
+      } else {
+        // In case of purchase of materials OC goes to GG directly
+        $recipient = $gg_approver;
+      }
+
+      $cc = $user->email;
+      $data = array('recipient' => $recipient, 'oc' => $oc);
+
+      $mail_structure = 'emails.oc_request_approval';
+      $subject = 'Orden de compra corregida y pendiente de aprobación';
     } elseif ($type == 'approved') {
       $approved = $oc; // In this case $oc is a string not a collection (see approve_action function)
       //$recipient = User::where('area','Gerencia General')->where('priv_level',3)->first();
@@ -977,7 +1024,7 @@ class OCController extends Controller
       $data = array('recipient' => $recipient, 'oc' => $oc, 'user' => $user);
 
       $mail_structure = 'emails.oc_rejected';
-      $subject = 'Orden de compra rechazada';
+      $subject = 'Orden de compra observada';
     }
 
     if ($mail_structure != '') {
@@ -1034,13 +1081,53 @@ class OCController extends Controller
     $service = Session::get('service');
     $oc = OC::find($id);
 
-    $oc->percentages = str_replace('-','% - ',$oc->percentages).'%';
-    $exploded_percentages = explode('-', $oc->percentages);
+    $payment_terms = '';
+
+    if ($oc->percentages != '') {
+      $percentages_exploded = explode('-', $oc->percentages);
+
+      if ($percentages_exploded[0] != 0) {
+          $payment_terms .= $percentages_exploded[0].'% a la firma de la presente orden contra presentación '.
+              'de la factura, ';
+      }
+      if ($percentages_exploded[1] != 0) {
+          $payment_terms .= $percentages_exploded[1].'% contra entrega de avance certificado y factura, ';
+      }
+      if ($percentages_exploded[2] != 0) {
+          $payment_terms .= $percentages_exploded[2].'% a 30 días de recibido el certificado de aceptación '.
+              'definitiva y la factura correspondiente.';
+      }
+    }
+
+    if ($oc->status == 'Aprobado Gerencia General') {
+      $qr_data = $oc->code.' aprobada por Gerencia General el '.Carbon::parse($oc->auth_ceo_date)->format('d-m-Y').
+          ' autorización '.$oc->auth_ceo_code;
+    } elseif ($oc->status == 'Aprobado Gerencia Tecnica') {
+      $qr_data = $oc->code.' aprobada por Gerencia Tecnica el '.Carbon::parse($oc->auth_tec_date)->format('d-m-Y').
+          ' autorización '.$oc->auth_tec_code;
+    } elseif ($oc->status == 'Anulado') {
+      $qr_data = $oc->code.' anulada';
+    } else
+      $qr_data = $oc->code.' pendiente de aprobación';
+
+    $gg_content = $oc->auth_ceo_code ? 'Aprobada por Gerencia General el '.Carbon::parse($oc->auth_ceo_date)->format('d-m-Y').
+      ' con autorización '.$oc->auth_ceo_code : 'Pendiente de aprobación';
+    $gtec_content = $oc->auth_tec_code ? 'Aprobada por Gerencia Técnica el '.Carbon::parse($oc->auth_tec_date)->format('d-m-Y').
+      ' con autorización '.$oc->auth_tec_code : ($oc->type == 'Compra de material' ? 'No requiere aprobación del área técnica' : 'Pendiente de aprobación');
+
+    //$view = View::make('app.qr_code_export', ['data' => $data, 'size' => 90, 'margin' => 0]);
+    //$qr_code = $view->render(); // (string) $view;
+
+    $total_amount_literal = ucfirst($this->convert_number_to_words($oc->oc_amount)).' Bolivianos';
+
+    // $oc->percentages = str_replace('-','% - ',$oc->percentages).'%';
 
     foreach ($oc->invoices as $invoice) {
       $invoice->updated_at = Carbon::parse($invoice->updated_at)->hour(0)->minute(0)->second(0);
     }
 
-    return View::make('app.oc_formatted_view', ['oc' => $oc, 'exploded_percentages' => $exploded_percentages, 'service' => $service, 'user' => $user]);
+    return View::make('app.oc_formatted_view', ['oc' => $oc, 'percentages_exploded' => $percentages_exploded, 'total_amount_literal' => $total_amount_literal,
+      'qr_data' => $qr_data, 'gg_content' => $gg_content, 'gtec_content' => $gtec_content, 'payment_terms' => $payment_terms, 'service' => $service,
+      'user' => $user]);
   }
 }

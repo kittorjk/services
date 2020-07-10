@@ -9,8 +9,8 @@
 
 <h3>Hola, {{ $recipient->name }}</h3>
 <p>
-    Éste correo es para informarle que la orden de compra {{ $oc->code }} ha sido rechazada por {{ $user->name }} con
-    las siguientes observaciones:
+    Éste correo es para informarle que la orden de compra {{ $oc->code }} ha sido observada por {{ $user->name }}.
+    Las siguientes observaciones han sido registradas en el sistema:
 </p>
 <p>
     {{ $oc->observations }}

@@ -810,7 +810,7 @@ class ExcelController extends Controller
                         'Responsable'                   => $oc->responsible ? $oc->responsible->name : '',
                         'Estado'                        => $oc->status,
                         'Acciones'                      => $oc->status == 'Anulado' ? 'Anulada' : 
-                            ($oc->status == 'Rechazada' ? 'Rechazada' : 
+                            ($oc->status == 'Observado' ? 'Observada' : 
                             ($oc->payment_status == 'Concluido' ? 'Concluída' :
                             ($oc->status === 'Aprobado Gerencia General' ? 'Aprobada' : 
                             (($oc->status === 'Aprobado Gerencia Tecnica' && $oc->type == 'Servicio') || ($oc->status == 'Creado' && $oc->type == 'Compra de material') ? 'Pendiente aprobación de G. General' : 

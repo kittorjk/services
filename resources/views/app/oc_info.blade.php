@@ -59,7 +59,7 @@
 
                 <div class="tab-pane fade in active" id="details">
 
-                    <div class="col-lg-5 mg20">
+                    <div class="col-lg-4 mg20">
                         <a href="#" onclick="history.back();" class="btn btn-warning">
                             <i class="fa fa-arrow-left"></i> Volver
                         </a>
@@ -68,19 +68,24 @@
                         </a>
                     </div>
 
-                    <div class="col-lg-7" align="right">
+                    <div class="col-lg-8" align="right">
                         @if ($oc->status <> 'Anulado')
-                            @if($user->action->oc_ctf_add /*$user->priv_level>=2*/)
+                            @if (($user->action->oc_ctf_add && $oc->status == 'Aprobado Gerencia General') || $user->priv_level == 4)
                                 <a href="{{ '/oc_certificate/create?id='.$oc->id }}" class="btn btn-success"
                                    title="Agregar certificado de aceptación para ésta OC">
                                     <i class="fa fa-file-text-o"></i> Emitir certificado
                                 </a>
                             @endif
-                            @if(empty($file_sgn)||$user->priv_level==4)
+                            @if (empty($file_sgn) || $user->priv_level == 4)
                                 <a href="/excel/oc/{{ $oc->id }}" class="btn btn-success" title="Descargar OC">
                                     <i class="fa fa-file-excel-o"></i> Descargar orden
                                 </a>
                             @endif
+                        @endif
+                        @if ($user->priv_level == 4 || true)
+                            <a href="/oc/view/{{ $oc->id }}" target="_blank" class="btn btn-success" title="Generar OC">
+                                <i class="fa fa-file-text-o"></i> Ver orden
+                            </a>
                         @endif
                     </div>
 
@@ -587,9 +592,10 @@
                       </div>
                     @endif
 
-                    @if(($oc->status <> 'Anulado' && $oc->status != 'Aprobado Gerencia General' && ($user->id == $oc->user_id || $user->action->oc_edt
-                        /*$user->priv_level==3*/)) || $user->priv_level == 4)
-                      <div class="col-sm-12 mg20" align="center">
+                    <div class="col-sm-12 mg20" align="center">
+                      @if(($oc->status <> 'Anulado' && $oc->status != 'Aprobado Gerencia General' && ($user->id == $oc->user_id || $user->action->oc_edt
+                          /*$user->priv_level==3*/)) || $user->priv_level == 4)
+                      
                         <a href="/oc/{{ $oc->id }}/edit" class="btn btn-success">
                           <i class="fa fa-pencil-square-o"></i> Modificar OC
                         </a>
@@ -599,12 +605,18 @@
                             <i class="fa fa-ban"></i> Anular OC
                           </a>
                         @endif
-                      </div>
-                    @endif
+                      @endif
+
+                      @if ($oc->status == 'Observado' && ($user->id == $oc->user_id || $user->priv_level == 4))
+                        <a href="/oc/request_approval/{{ $oc->id }}" class="btn btn-primary request_approval">
+                          <i class="fa fa-send"></i> Solicitar aprobación
+                        </a>
+                      @endif
+                    </div>
                 </div>
 
                 <div class="tab-pane fade" id="payments">
-                  <div class="col-lg-5 mg20">
+                  <div class="col-lg-4 mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning">
                       <i class="fa fa-arrow-left"></i> Volver
                     </a>
@@ -613,19 +625,24 @@
                     </a>
                   </div>
 
-                  <div class="col-lg-7" align="right">
+                  <div class="col-lg-8" align="right">
                     @if ($oc->status <> 'Anulado')
-                      @if($user->action->oc_ctf_add /*$user->priv_level>=2*/)
+                      @if ($user->action->oc_ctf_add /*$user->priv_level>=2*/)
                         <a href="{{ '/oc_certificate/create?id='.$oc->id }}" class="btn btn-success"
                               title="Agregar certificado de aceptación para ésta OC">
                           <i class="fa fa-file-text-o"></i> Emitir certificado
                         </a>
                       @endif
-                      @if(empty($file_sgn)||$user->priv_level==4)
+                      @if (empty($file_sgn) || $user->priv_level == 4)
                         <a href="/excel/oc/{{ $oc->id }}" class="btn btn-success" title="Descargar OC">
                           <i class="fa fa-file-excel-o"></i> Descargar orden
                         </a>
                       @endif
+                    @endif
+                    @if ($user->priv_level == 4 || true)
+                      <a href="/oc/view/{{ $oc->id }}" target="_blank" class="btn btn-success" title="Generar OC">
+                        <i class="fa fa-file-text-o"></i> Ver orden
+                      </a>
                     @endif
                   </div>
 
@@ -927,5 +944,10 @@
         $comments.attr('disabled', 'disabled').hide();
       }
     }).trigger('click');
+
+    $('.request_approval').on('click', function () {
+        return confirm('Está seguro de que desea solicitar la aprobación de esta orden? ' +
+            'Asegúrese de haber corregido todas las observaciones.');
+    });
   </script>
 @endsection

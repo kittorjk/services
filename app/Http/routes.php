@@ -231,6 +231,8 @@ Route::get('/oc/cancel/{id}', 'OCController@cancel_form');
 Route::put('/oc/cancel/{id}', 'OCController@cancel_oc');
 Route::get('/oc/reject', 'OCController@reject_form');
 Route::put('/oc/reject', 'OCController@reject_oc');
+Route::get('/oc/request_approval/{id}', 'OCController@request_approval');
+Route::get('/oc/view/{id}', 'OCController@formatted_view');
 Route::get('approve_oc', 'OCController@approve_form');
 Route::post('approve_oc', 'OCController@approve_action');
 Route::get('/rejected_ocs', 'OCController@rejected_ocs_list');
