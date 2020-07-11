@@ -56,7 +56,7 @@ class OcRowController extends Controller
       $v = \Validator::make(Request::all(), [
           'oc_id'                   => 'required|exists:o_c_s,id',
           'num_order'               => 'required',
-          'description'             => 'required|max:100',
+          'description'             => 'required|max:1000',
           'qty'                     => 'required',
           'units'                   => 'required',
           'unit_cost'               => 'required'
@@ -138,7 +138,7 @@ class OcRowController extends Controller
       $v = \Validator::make(Request::all(), [
           'oc_id'                   => 'required|exists:o_c_s,id',
           'num_order'               => 'required',
-          'description'             => 'required|max:100',
+          'description'             => 'required|max:1000',
           'qty'                     => 'required',
           'units'                   => 'required',
           'unit_cost'               => 'required'
