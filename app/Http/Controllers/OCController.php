@@ -261,7 +261,7 @@ class OCController extends Controller
       $oc->auth_tec_code = $this->generateCode();
       $oc->auth_ceo_date = Carbon::now();
       $oc->auth_ceo_code = $this->generateCode();
-    } elseif ($user->action->oc_apv_tech /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
+    } elseif ($user->action->oc_apv_tech && $oc->type == 'Servicio' /*$user->priv_level==3&&$user->area=='Gerencia Tecnica'*/) {
       $oc->status = 'Aprobado Gerencia Tecnica';
       $oc->auth_tec_date = Carbon::now();
       $oc->auth_tec_code = $this->generateCode();
@@ -283,7 +283,7 @@ class OCController extends Controller
     }
 
     Session::flash('message', "La Orden de Compra fue agregada al sistema correctamente");
-    if(Session::has('url'))
+    if (Session::has('url'))
       return redirect(Session::get('url'));
     else
       return redirect()->route('oc.index');
@@ -582,7 +582,7 @@ class OCController extends Controller
 
         if ($user->priv_level == 4 ||
           ($user->action->oc_apv_gg && (($signed_gtec_exists && $oc->type == 'Servicio' && $oc->status == 'Aprobado Gerencia Tecnica') ||
-            ($signed_org_exists && $oc->type != 'Servicio' && ($oc->status == 'Creado' || $oc->status == 'Aprobado Gerencia Tecnica')) ||
+            (($signed_org_exists || $signed_gtec_exists) && $oc->type != 'Servicio' && ($oc->status == 'Creado' || $oc->status == 'Aprobado Gerencia Tecnica')) ||
             $signed_gg_exists)) /*($user->priv_level==3&&$user->area=='Gerencia General')*/) {
           /*
           if ($oc->flags[1] == 0 && $oc->flags[2] == 0)
