@@ -17,7 +17,7 @@ class CreateOcRowsTable extends Migration
         $table->integer('user_id');
         $table->integer('oc_id');
         $table->integer('num_order');
-        $table->string('description');
+        $table->string('description', 1000);
         $table->decimal('qty', 10, 2);
         $table->string('units', 20);
         $table->decimal('unit_cost', 10, 2);
