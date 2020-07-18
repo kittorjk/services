@@ -36,6 +36,7 @@
       @if($user->action->prj_asg_exp)
         <li class="divider"></li>
         <li><a href="{{ '/excel/assignments' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel</a></li>
+        <li><a href="{{ '/excel/assignment_site_items' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar asignaciones con items</a></li>
       @endif
       {{--
       @if($user->priv_level==4)

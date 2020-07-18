@@ -133,6 +133,93 @@ class ExcelController extends Controller
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }
 
+        if ($table == 'assignment_site_items') {
+            $excel_name = 'Base de asignaciones v1.1';
+            $sheet_name = 'Asignaciones';
+
+            $assignments = Assignment::all();
+
+            foreach ($assignments as $assignment) {
+                $sites = $assignment->sites;
+                
+                foreach ($sites as $site) {
+                    $tasks = $site->tasks;
+
+                    foreach ($tasks as $task) {
+                        $sheet_content->prepend(
+                            [   'Código'                => $assignment->code,
+                                'C.C.'                  => $assignment->cost_center,
+                                'Identificador'         => $assignment->literal_code,
+                                'Asignación'            => $assignment->name,
+                                'Sitio'                 => $site->name,
+                                'Proyecto'              => $assignment->project ? $assignment->project->name : '',
+                                'Cliente'               => $assignment->client,
+                                'Área de trabajo'       => $assignment->type,
+                                'Oficina'               => $assignment->branch_record ? $assignment->branch_record->name : $assignment->branch,
+                                'Código'                => $task->item ? $task->item->client_code : '',
+                                'Item'                  => wordwrap($task->name, 40, "\n", false),
+                                'Cantidad proyectada'   => $task->total_expected + 0,
+                                'Unidades'              => $task->units,
+                                'Cantidad avanzada'     => $task->progress + 0,
+                                'Estado de item'        => $task->statuses($task->status),
+                                'Estado de proyecto'    => $assignment->statuses($assignment->status),
+                                'Estado de sitio'       => $site->statuses($site->status),
+                                'porcentaje de avance de item'  => number_format(($task->progress / $task->total_expected) * 100, 2).' %',
+                                'porcentaje de avance'  => number_format($assignment->percentage_completed, 2).' %',
+                                'PM de proyecto'        => $assignment->responsible ? $assignment->responsible->name : '',
+                                'PM de sitio'           => $site->responsible ? $site->responsible->name : ($assignment->responsible ? $assignment->responsible->name : ''),
+                                'DU ID'                 => $site->du_id,
+                                'Cuenta de ISDP'        => $site->isdp_account,
+                                'Orden'                 => $site->order ? $site->order->code : 'Sin asignar',
+                                'Requerido'             => $task->total_expected + 0,
+                                'Cantidad facturada'    => 0,
+                                'Due Qty'               => $task->total_expected - 0,
+                                'Unit price'            => $task->item ? ($task->item->cost_unit_central + 0) : $task->quote_price,
+                                'Total requerido Bs'    => ($task->total_expected + 0) * ($task->item ? ($task->item->cost_unit_central + 0) : $task->quote_price),
+                                'Total facturado Bs'    => 0 * ($task->item ? ($task->item->cost_unit_central + 0) : $task->quote_price),
+                                'Saldo'                 => (($task->total_expected + 0) * ($task->item ? ($task->item->cost_unit_central + 0) : $task->quote_price)) - (0 * ($task->item ? ($task->item->cost_unit_central + 0) : $task->quote_price)),
+                                'N factura 1'           => '',
+                                'Fecha factura 1'       => '',
+                                'N factura 2'           => '',
+                                'Fecha factura 2'       => '',
+                                'N factura 3'           => '',
+                                'Fecha factura 3'       => '',
+                                'Creación'              => date_format($assignment->created_at, 'd-m-Y'),
+                                'Relevamiento'          => '',
+                                'Cotización'            => '',
+                                'Kick off'              => '',
+                                'Inicio cotización'     => $assignment->quote_from == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->quote_from), 'd-m-Y'),
+                                'Fin cotización'        => $assignment->quote_to == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->quote_to), 'd-m-Y'),
+                                'Plazo asignado de'     => $assignment->start_line == 0 ? '' : date_format(Carbon::parse($assignment->start_line), 'd-m-Y'),
+                                'Plazo asignado a'      => $assignment->deadline == 0 ? '' : date_format(Carbon::parse($assignment->deadline), 'd-m-Y'),
+                                'Fecha de inicio'       => $assignment->start_date == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->start_date), 'd-m-Y'),
+                                'Fecha de fin'          => $assignment->end_date == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->end_date), 'd-m-Y'),
+                                'Elaboración de informes'   => '',
+                                'ATP'                   => '',
+                                'Certificación'         => '',
+                                'Aplicado'              => '',
+                                'Facturado'             => '',
+                                'Inicio cobro'          => $assignment->billing_from == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->billing_from), 'd-m-Y'),
+                                'Fin cobro'             => $assignment->billing_to == 0 ? '' :
+                                    date_format(Carbon::parse($assignment->billing_to), 'd-m-Y'),
+                                'Última actualización'  => date_format($assignment->updated_at, 'd-m-Y'),
+                            ]);
+                    }
+                }
+            }
+            
+            // $task->start_date = $task->start_date=='0000-00-00 00:00:00' ? '' : Carbon::parse($task->start_date)->format('d-m-Y');
+            // $task->end_date = $task->end_date=='0000-00-00 00:00:00' ? '' : Carbon::parse($task->end_date)->format('d-m-Y');
+            //$this->record_export('/assignment','Full table',0);
+
+            return $this->create_excel($excel_name, $sheet_name, $sheet_content);
+        }
+
         if ($table == 'bill_order') {
             $excel_name = 'Base de asociaciones Orden-Factura';
             $sheet_name = 'Asociaciones Orden-Factura';
