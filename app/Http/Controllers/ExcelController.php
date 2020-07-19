@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Session;
 use View;
+use Input;
 use App\Bill;
 use App\Calibration;
 use App\Cite;
@@ -80,11 +81,32 @@ class ExcelController extends Controller
         $sheet_name = 'empty';
         $sheet_content = collect();
 
+        $exists_data = false;
+
+        $from = Input::get('from');
+        $to = Input::get('to');
+
+        //TODO validar que se cumpla el intervalo de fechas
+        if ($from != '' && $to != '') {
+            if (Carbon::parse($from)->diffInDays(Carbon::parse($to), false) <= 31) {
+                $has_interval = true;
+            } else {
+                Session::flash('message', 'El intervalo de fechas no puede exceder los 31 días!');
+                return redirect()->back();
+            }
+        } else {
+            $has_interval = false;
+        }
+
         if ($table == 'assignments') {
             $excel_name = 'Base de asignaciones';
             $sheet_name = 'Asignaciones';
 
+            //if ($has_interval) {
+            //    $assignments = Assignment::whereBetween('created_at', [$from, $to])->get();
+            //} else {
             $assignments = Assignment::all();
+            //}
 
             foreach ($assignments as $assignment) {
                 $sites = $assignment->sites;
@@ -137,7 +159,13 @@ class ExcelController extends Controller
             $excel_name = 'Base de asignaciones v1.1';
             $sheet_name = 'Asignaciones';
 
-            $assignments = Assignment::all();
+            if ($has_interval) {
+                $assignments = Assignment::whereBetween('created_at', [$from, $to])->get();
+            } else {
+                Session::flash('message', 'Debe especificar el intervalo de fechas para el reporte!');
+                return redirect()->back();
+                //$assignments = Assignment::all();
+            }
 
             foreach ($assignments as $assignment) {
                 $sites = $assignment->sites;
@@ -209,6 +237,8 @@ class ExcelController extends Controller
                                     date_format(Carbon::parse($assignment->billing_to), 'd-m-Y'),
                                 'Última actualización'  => date_format($assignment->updated_at, 'd-m-Y'),
                             ]);
+                        
+                        $exists_data = true;
                     }
                 }
             }
@@ -216,6 +246,11 @@ class ExcelController extends Controller
             // $task->start_date = $task->start_date=='0000-00-00 00:00:00' ? '' : Carbon::parse($task->start_date)->format('d-m-Y');
             // $task->end_date = $task->end_date=='0000-00-00 00:00:00' ? '' : Carbon::parse($task->end_date)->format('d-m-Y');
             //$this->record_export('/assignment','Full table',0);
+
+            if (!$exists_data) {
+                Session::flash('message', 'No se encontraron datos para generar el reporte solicitado dentro del rango de fechas especificado!');
+                return redirect()->back();
+            }
 
             return $this->create_excel($excel_name, $sheet_name, $sheet_content);
         }

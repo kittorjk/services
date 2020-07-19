@@ -36,7 +36,8 @@
       @if($user->action->prj_asg_exp)
         <li class="divider"></li>
         <li><a href="{{ '/excel/assignments' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar a Excel</a></li>
-        <li><a href="{{ '/excel/assignment_site_items' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar asignaciones con items</a></li>
+        {{--<li><a href="{{ '/excel/assignment_site_items' }}"><i class="fa fa-file-excel-o fa-fw"></i> Exportar asignaciones con items</a></li>--}}
+        <li><a href="#" data-toggle="modal" data-target="#excelIntervalBox"><i class="fa fa-file-excel-o fa-fw"></i> Exportar asignaciones con items</a></li>
       @endif
       {{--
       @if($user->priv_level==4)
@@ -497,6 +498,64 @@
     <!-- Search Modal -->
     <div id="searchBox" class="modal fade" role="dialog">
         @include('app.search_box', array('user'=>$user,'service'=>$service,'table'=>'assignments','id'=>0))
+    </div>
+
+    <!-- Excel Interval Modal -->
+    <div id="excelIntervalBox" class="modal fade" role="dialog">
+        <style>
+            .modal-footer {
+                background-color: #f4f4f4;
+            }
+        </style>
+
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content" style="overflow:hidden;">
+                <div class="modal-header alert-info">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        {{ 'Seleccione el intervalo de fechas del reporte' }}
+                    </h4>
+                </div>
+
+                <form novalidate="novalidate" action="/excel/assignment_site_items" method="get">
+                    <div class="modal-body">
+                        @include('app.session_flashed_messages', array('opt' => 1))
+
+                        {{-- Token field not needed with get form
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        --}}
+                        
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    El intervalo no puede exceder los 31 días
+                                </h4>
+                            </div>
+                            <div class="panel-body" align="center">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <label for="from" style="font-weight: normal; margin-bottom: 0">Desde:</label>
+                                        <input type="date" name="from" id="from" step="1" min="2014-01-01" value="">
+                                    </span>
+
+                                    <span class="input-group-addon">
+                                        <label for="to" style="font-weight: normal; margin-bottom: 0">Hasta:</label>
+                                        <input type="date" name="to" id="to" step="1" min="2014-01-01" value="">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" onclick="this.disabled=true; this.form.submit()">
+                            <i class="fa fa-download"></i> Generar reporte
+                        </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 @endsection
