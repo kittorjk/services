@@ -51,7 +51,7 @@
 
                         <div class="col-lg-5 mg20">
                             <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                                <i class="fa fa-undo"></i>
+                                <i class="fa fa-arrow-left"></i>
                             </a>
                             <a href="{{ '/site/'.$asg_id }}" class="btn btn-warning" title="Volver a la tabla de sitios">
                                 <i class="fa fa-arrow-up"></i>

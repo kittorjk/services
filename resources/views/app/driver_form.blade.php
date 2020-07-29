@@ -21,7 +21,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/driver' }}" class="btn btn-warning" title="Volver al resumen de asignaciones">
                         <i class="fa fa-arrow-up"></i>

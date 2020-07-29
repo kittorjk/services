@@ -28,7 +28,7 @@
             <div class="panel-body">
                 <div class="mg20">
                     <a href="#" onclick="history.back();" class="btn btn-warning" title="Atrás">
-                        <i class="fa fa-undo"></i>
+                        <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="{{ '/warehouse' }}" class="btn btn-warning" title="Volver a lista de almacenes">
                         <i class="fa fa-arrow-up"></i>
