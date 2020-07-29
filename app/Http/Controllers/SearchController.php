@@ -97,7 +97,7 @@ class SearchController extends Controller
 
             if ($has_date) {
                 $assignments = Assignment::whereBetween('start_date', [$from, $to])
-                    ->orderBy('id')->paginate(20);
+                    ->orderBy('id');
             } else {
                 if ($parameter == 'all') {
                     $assignments = Assignment::join('users', 'assignments.resp_id', '=', 'users.id')
